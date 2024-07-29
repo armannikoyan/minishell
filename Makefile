@@ -6,7 +6,7 @@
 #    By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/07/29 22:45:39 by anikoyan          #+#    #+#              #
-#    Updated: 2024/07/29 23:19:12 by anikoyan         ###   ########.fr        #
+#    Updated: 2024/07/29 23:24:45 by anikoyan         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -54,6 +54,8 @@ $(NAME): $(OBJ_DIR) $(OBJ) $(LIBFT) $(READLINE)
 
 $(READLINE):
 	tar -xvf $(READLINE_TAR) -C $(LIB_DIR)
+	cd $(READLINE_DIR) && ./configure && make
+	cd ../../
 
 $(LIBFT):
 	make -C $(LIBFT_DIR)
@@ -61,9 +63,11 @@ $(LIBFT):
 clean:
 	$(RM) -r $(OBJ_DIR)
 	make -C $(LIBFT_DIR) clean
+	make -C $(READLINE_DIR) clean
 
 fclean: clean
 	$(RM) $(NAME)
+	$(RM) -r $(READLINE_DIR)
 	make -C $(LIBFT_DIR) fclean
 
 re: fclean all
