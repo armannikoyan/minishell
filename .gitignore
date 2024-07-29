@@ -1,0 +1,87 @@
+# Node.js
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Python
+*.pyc
+*.pyo
+__pycache__/
+*.egg-info/
+.env
+
+# Java
+*.class
+*.jar
+*.war
+*.ear
+target/
+
+# C++
+*.o
+*.obj
+*.exe
+*.out
+*.log
+
+# C
+*.o
+*.a
+*.so
+*.dSYM/
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+Desktop.ini
+
+# Linux
+*.swp
+
+# IDEs
+.vscode/
+.idea/
+*.suo
+*.ntvs_analysis.dat
+*.ncb
+*.vscode/
+*.project
+*.classpath
+
+# Build directories
+/build/
+/dist/
+/out/
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.bak
+*.swp
+
+# Dependency directories
+bower_components/
+vendor/
+
+# Environment files
+.env
+*.env
+
+# Git files
+*.gitignore
+*.gitattributes
+
+# Operating system files
+*.DS_Store
+*.desktop
+
+# Docker
+docker-compose.override.yml
+docker-compose.yml
+
+# Custom
+# Add any other files or directories specific to your project that you want to ignore here
