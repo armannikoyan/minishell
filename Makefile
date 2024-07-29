@@ -6,7 +6,7 @@
 #    By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/07/29 22:45:39 by anikoyan          #+#    #+#              #
-#    Updated: 2024/07/29 23:08:21 by anikoyan         ###   ########.fr        #
+#    Updated: 2024/07/29 23:19:12 by anikoyan         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -17,6 +17,7 @@ UTILS_DIR = utils
 OBJ_DIR = obj
 LIB_DIR = libs
 LIBFT_DIR = $(LIB_DIR)/libft
+READLINE_TAR = $(LIB_DIR)/readline.tar
 READLINE_DIR = $(LIB_DIR)/readline
 
 SRC_FILES = main.c node.c
@@ -52,11 +53,7 @@ $(NAME): $(OBJ_DIR) $(OBJ) $(LIBFT) $(READLINE)
 	$(CC) $(OBJ) $(LIBFT) $(READLINE) -o $(NAME)
 
 $(READLINE):
-	cd $(LIB_DIR) && tar -xvf readline.tar
-	cd $(READLINE_DIR)
-	./configure
-	make
-	cd ../../
+	tar -xvf $(READLINE_TAR) -C $(LIB_DIR)
 
 $(LIBFT):
 	make -C $(LIBFT_DIR)
