@@ -6,7 +6,7 @@
 #    By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/07/29 22:45:39 by anikoyan          #+#    #+#              #
-#    Updated: 2024/07/29 23:01:08 by anikoyan         ###   ########.fr        #
+#    Updated: 2024/07/29 23:06:56 by anikoyan         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -34,6 +34,7 @@ CFLAGS = -Wall -Wextra -Werror
 INC = -I $(LIBFT_DIR)
 
 LIBFT = $(LIBFT_DIR)/libft.a
+READLINE = $(READLINE_DIR)/libreadline.a
 
 RM = rm -f
 
@@ -48,8 +49,8 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
 $(OBJ_DIR)/%.o: $(SRC_DIR)/$(UTILS_DIR)/%.c
 	$(CC) $(CFLAGS) $(INC) -c $< -o $@
 
-$(NAME): $(OBJ_DIR) $(OBJ) $(LIBFT) $(READLINE_DIR)
-	$(CC) $(OBJ) $(LIBFT) -o $(NAME)
+$(NAME): $(OBJ_DIR) $(OBJ) $(LIBFT) $(READLINE)
+	$(CC) $(OBJ) $(LIBFT) $(READLINE) -o $(NAME)
 
 $(READLINE):
 	cd $(LIB_DIR) && tar -xvf $(READLINE_TAR)
