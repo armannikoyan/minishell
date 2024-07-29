@@ -6,11 +6,11 @@
 /*   By: dasargsy <dasargsy@student.42yerevan.am    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/29 21:59:15 by dasargsy          #+#    #+#             */
-/*   Updated: 2024/07/29 23:31:00 by dasargsy         ###   ########.fr       */
+/*   Updated: 2024/07/29 23:58:35 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../minishell.h"
+#include "../../includes/minishell.h"
 
 static  int     get_size(char *line)
 {
@@ -34,7 +34,7 @@ static  int     get_size(char *line)
             while (line[i] && line[i] != limiter)
                 i++;
         }
-        if (s_spcs(line[i]) && !is_spcs(line[i + 1]))
+        if (ft_isspace(line[i]) && !ft_isspace(line[i + 1]))
             size++;
     }
     return (size);    
@@ -42,7 +42,7 @@ static  int     get_size(char *line)
 
 static  void    fill(char **tokens, char *line, int size)
 {
-    
+	return ; // TODO
 }
 
 static  char    **logic(char *line)

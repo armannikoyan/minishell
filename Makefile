@@ -6,7 +6,7 @@
 #    By: dasargsy <dasargsy@student.42yerevan.am    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/07/29 22:45:39 by anikoyan          #+#    #+#              #
-#    Updated: 2024/07/29 23:40:27 by anikoyan         ###   ########.fr        #
+#    Updated: 2024/07/29 23:55:51 by anikoyan         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -14,6 +14,7 @@ NAME = minishell
 
 SRC_DIR = src
 UTILS_DIR = utils
+TOKENIZATION_DIR = tokenization
 OBJ_DIR = obj
 LIB_DIR = libs
 LIBFT_DIR = $(LIB_DIR)/libft
@@ -22,10 +23,12 @@ READLINE_DIR = $(LIB_DIR)/readline
 
 SRC_FILES = main.c node.c
 UTILS_FILES = formatters.c
+TOKENIZATION_FILES = tokenization.c token_utils.c
 
 SRC = $(addprefix $(SRC_DIR)/, $(SRC_FILES))
 UTILS = $(addprefix $(SRC_DIR)/$(UTILS_DIR)/, $(UTILS_FILES))
-ALL_SRC = $(SRC) $(UTILS)
+TOKENIZATION = $(addprefix $(SRC_DIR)/$(TOKENIZATION_DIR)/, $(TOKENIZATION_FILES))
+ALL_SRC = $(SRC) $(UTILS) $(TOKENIZATION)
 
 OBJ = $(addprefix $(OBJ_DIR)/, $(patsubst %.c, %.o, $(notdir $(ALL_SRC))))
 
@@ -49,6 +52,9 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
 $(OBJ_DIR)/%.o: $(SRC_DIR)/$(UTILS_DIR)/%.c
 	$(CC) $(CFLAGS) $(INC) -c $< -o $@
 
+$(OBJ_DIR)/%.o: $(SRC_DIR)/$(TOKENIZATION_DIR)/%.c
+	$(CC) $(CFLAGS) $(INC) -c $< -o $@
+
 $(NAME): $(OBJ_DIR) $(OBJ) $(LIBFT) $(READLINE)
 	$(CC) $(OBJ) $(LIBFT) $(READLINE) -o $(NAME)
 
@@ -63,11 +69,11 @@ $(LIBFT):
 clean:
 	$(RM) -r $(OBJ_DIR)
 	make -C $(LIBFT_DIR) clean
-	make -C $(READLINE_DIR) clean
+	make -C $(READLINE_DIR) clean 2> /dev/null | true
 
 fclean: clean
 	$(RM) $(NAME)
-	$(RM) -r $(READLINE_DIR)
+	$(RM) -r $(READLINE_DIR) 2> /dev/null | true
 	make -C $(LIBFT_DIR) fclean
 
 re: fclean all
