@@ -5,8 +5,8 @@
 #                                                     +:+ +:+         +:+      #
 #    By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
-#    Created: 2024/07/29 18:10:52 by anikoyan          #+#    #+#              #
-#    Updated: 2024/07/29 20:36:31 by anikoyan         ###   ########.fr        #
+#    Created: 2024/07/29 22:45:39 by anikoyan          #+#    #+#              #
+#    Updated: 2024/07/29 23:01:08 by anikoyan         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -15,9 +15,12 @@ NAME = minishell
 SRC_DIR = src
 UTILS_DIR = utils
 OBJ_DIR = obj
-LIBFT_DIR = libft
+LIB_DIR = libs
+LIBFT_DIR = $(LIB_DIR)/libft
+READLINE_TAR = $(LIB_DIR)/readline.tar
+READLINE_DIR = $(LIB_DIR)/readline
 
-SRC_FILES = main.c
+SRC_FILES = main.c node.c
 UTILS_FILES = formatters.c
 
 SRC = $(addprefix $(SRC_DIR)/, $(SRC_FILES))
@@ -34,7 +37,7 @@ LIBFT = $(LIBFT_DIR)/libft.a
 
 RM = rm -f
 
-all: $(OBJ_DIR) $(LIBFT) $(NAME)
+all: $(NAME)
 
 $(OBJ_DIR):
 	mkdir -p $(OBJ_DIR)
@@ -45,8 +48,15 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
 $(OBJ_DIR)/%.o: $(SRC_DIR)/$(UTILS_DIR)/%.c
 	$(CC) $(CFLAGS) $(INC) -c $< -o $@
 
-$(NAME): $(OBJ)
+$(NAME): $(OBJ_DIR) $(OBJ) $(LIBFT) $(READLINE_DIR)
 	$(CC) $(OBJ) $(LIBFT) -o $(NAME)
+
+$(READLINE):
+	cd $(LIB_DIR) && tar -xvf $(READLINE_TAR)
+	cd $(READLINE_DIR)
+	./configure
+	make
+	cd ../../
 
 $(LIBFT):
 	make -C $(LIBFT_DIR)

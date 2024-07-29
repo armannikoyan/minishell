@@ -6,11 +6,11 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/29 20:36:38 by anikoyan          #+#    #+#             */
-/*   Updated: 2024/07/29 20:43:59 by anikoyan         ###   ########.fr       */
+/*   Updated: 2024/07/29 21:25:20 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../minishell.h"
+#include "../../includes/minishell.h"
 
 void	ft_mtx_free(char **mtx)
 {
