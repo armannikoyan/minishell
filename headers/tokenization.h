@@ -1,28 +1,23 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   minishell.h                                        :+:      :+:    :+:   */
+/*   tokenization.h                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: dasargsy <dasargsy@student.42yerevan.am    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/07/29 20:17:20 by anikoyan          #+#    #+#             */
-/*   Updated: 2024/07/29 23:22:12 by dasargsy         ###   ########.fr       */
+/*   Created: 2024/07/29 23:12:54 by dasargsy          #+#    #+#             */
+/*   Updated: 2024/07/29 23:30:13 by dasargsy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef MINISHELL_H
-# define MINISHELL_H
+#ifndef TOKENIZATION_H
+# define TOKENIZATION_H
 
-# include "libs/libft/libft.h"
+#include "../../minishell.h"
 
-# define QUOTE_ERROR "Unclosed Quotes"
-# include "headers/tokenization.h"
-
-void	ft_mtx_free(char **mtx);
-
-char	*ft_command_path(char *cmd, char **envp);
-
-char	**ft_format_argv(int argc, char **argv);
-char	**ft_get_envp(char **envp);
+void    quote_error(char *line);
+int     is_spcs(char c);
+char    **tokenization(char *line);
+int		is_closed(char *line, char limiter);
 
 #endif
