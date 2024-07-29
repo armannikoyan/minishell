@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+         #
+#    By: dasargsy <dasargsy@student.42yerevan.am    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/07/29 22:45:39 by anikoyan          #+#    #+#              #
-#    Updated: 2024/07/29 23:24:45 by anikoyan         ###   ########.fr        #
+#    Updated: 2024/07/29 23:40:27 by anikoyan         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 

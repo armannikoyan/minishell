@@ -1,27 +1,37 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   minishell.h                                        :+:      :+:    :+:   */
+/*   utils.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: dasargsy <dasargsy@student.42yerevan.am    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/07/29 20:17:20 by anikoyan          #+#    #+#             */
-/*   Updated: 2024/07/29 23:43:59 by anikoyan         ###   ########.fr       */
+/*   Created: 2024/07/29 23:12:04 by dasargsy          #+#    #+#             */
+/*   Updated: 2024/07/29 23:29:46 by dasargsy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef MINISHELL_H
-# define MINISHELL_H
+#include "../../minishell.h"
 
-# include "tokenization.h"
+void    quote_error(char *line)
+{
+    write(2, QUOTE_ERROR, 16);
+    free(line);
+    exit (1);    
+}
 
-# define QUOTE_ERROR "Unclosed Quotes"
+int is_spcs(char c)
+{
+   return ((c >= 8 && c <= 13) || c == 32);
+}
 
-void	ft_mtx_free(char **mtx);
+int	is_closed(char *line, char limiter)
+{
+	int	i;
 
-char	*ft_command_path(char *cmd, char **envp);
-
-char	**ft_format_argv(int argc, char **argv);
-char	**ft_get_envp(char **envp);
-
-#endif
+	i = 0;
+	while (line[i] && line[i] != limiter)
+		i++;
+	if (line[i] == 0)
+		return (0);
+	return (1);
+}
