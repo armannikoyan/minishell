@@ -6,7 +6,7 @@
 /*   By: dasargsy <dasargsy@student.42yerevan.am    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/29 20:17:20 by anikoyan          #+#    #+#             */
-/*   Updated: 2024/07/29 22:21:30 by dasargsy         ###   ########.fr       */
+/*   Updated: 2024/07/29 22:54:38 by dasargsy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,9 @@
 # define MINISHELL_H
 
 #include "libs/libft/libft.h"
+
+# define QUOTE_ERROR "Unclosed Quotes"
+
 
 void	ft_mtx_free(char **mtx);
 
