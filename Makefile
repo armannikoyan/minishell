@@ -6,7 +6,7 @@
 #    By: dasargsy <dasargsy@student.42yerevan.am    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/07/29 22:45:39 by anikoyan          #+#    #+#              #
-#    Updated: 2024/07/30 16:53:07 by anikoyan         ###   ########.fr        #
+#    Updated: 2024/07/30 16:56:54 by anikoyan         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -18,6 +18,7 @@ LIB_DIR = libs
 LIBFT_DIR = $(LIB_DIR)/libft
 READLINE_DIR = $(LIB_DIR)/readline
 
+DEP = includes/minishell.h includes/node.h
 SRC_FILES = main.c node.c
 UTILS_FILES = formatters.c
 
@@ -25,7 +26,6 @@ SRC = $(addprefix $(SRC_DIR)/, $(SRC_FILES))
 SRC += $(addprefix $(SRC_DIR)/utils/, $(UTILS_FILES))
 
 OBJ = $(addprefix $(OBJ_DIR)/, $(SRC_FILES:.c=.o))
-#OBJ += $(addprefix $(OBJ_DIR)/, $(UTILS_FILES:.c=.o))
 
 CC = cc
 CFLAGS = -Wall -Wextra -Werror
@@ -58,7 +58,7 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/$(UTILS_DIR)/%.c
 $(OBJ_DIR)/%.o: $(SRC_DIR)/$(TOKENIZATION_DIR)/%.c
 	$(CC) $(CFLAGS) $(INC) -c $< -o $@
 
-$(NAME): $(READLINE) $(LIBFT) $(OBJ_DIR) $(OBJ)
+$(NAME): $(READLINE) $(LIBFT) $(OBJ_DIR) $(OBJ) $(DEP)
 	$(CC) $(OBJ) $(LIBFT) -lreadline $(READLINE) -o $(NAME)
 
 clean:
