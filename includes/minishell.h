@@ -6,14 +6,12 @@
 /*   By: dasargsy <dasargsy@student.42yerevan.am    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/29 20:17:20 by anikoyan          #+#    #+#             */
-/*   Updated: 2024/07/29 23:43:59 by anikoyan         ###   ########.fr       */
+/*   Updated: 2024/07/30 16:23:21 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef MINISHELL_H
 # define MINISHELL_H
-
-# include "tokenization.h"
 
 # define QUOTE_ERROR "Unclosed Quotes"
 
