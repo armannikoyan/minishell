@@ -1,23 +1,28 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   main.c                                             :+:      :+:    :+:   */
+/*   prompt.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: dasargsy <dasargsy@student.42yerevan.am    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/07/29 19:12:11 by anikoyan          #+#    #+#             */
-/*   Updated: 2024/07/30 02:06:29 by dasargsy         ###   ########.fr       */
+/*   Created: 2024/07/30 00:11:06 by dasargsy          #+#    #+#             */
+/*   Updated: 2024/07/30 04:42:35 by dasargsy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../includes/minishell.h"
+#include "../../includes/minishell.h"
 
-int	main(int argc, char **argv, char **envp)
+void	prompt(char **envp)
 {
-	(void)argc;
-	(void)argv;
+	char	*line;
+
+
+	line = NULL;
 	(void)envp;
-	
-	prompt(envp);
-	return (0);
+	while (1)
+	{
+		printf("%sMinishell:  %s", GREEN, RESET_COLOR);
+		line = readline("");
+		tokenization(line);
+	}
 }
