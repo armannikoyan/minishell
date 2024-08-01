@@ -1,22 +1,23 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   main.c                                             :+:      :+:    :+:   */
+/*   prompt.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: dasargsy <dasargsy@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/07/29 19:12:11 by anikoyan          #+#    #+#             */
-/*   Updated: 2024/08/01 12:52:34 by dasargsy         ###   ########.fr       */
+/*   Created: 2024/08/01 12:52:51 by dasargsy          #+#    #+#             */
+/*   Updated: 2024/08/01 13:20:10 by dasargsy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../includes/minishell.h"
+#include "../../includes/minishell.h"
 
-int	main(int argc, char **argv, char **envp)
+void	prompt(char **envp)
 {
-	(void)argc;
-	(void)argv;
-	(void)envp;
-	
-	return (0);
+	char	*line;
+
+	while (1)
+	{
+		line = 
+	}
 }
