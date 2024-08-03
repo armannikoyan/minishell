@@ -1,23 +1,13 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   get_line.c                                         :+:      :+:    :+:   */
+/*   get_line_parenthesis.c                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: dasargsy <dasargsy@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/08/03 19:57:13 by dasargsy          #+#    #+#             */
-/*   Updated: 2024/08/03 20:17:53 by dasargsy         ###   ########.fr       */
+/*   Created: 2024/08/01 12:52:51 by dasargsy          #+#    #+#             */
+/*   Updated: 2024/08/03 20:42:38 by dasargsy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../includes/minishell.h"
-
-// void	get_by_parenthesis(t_list *list)
-// {
-	
-// }
-
-// char	*get_by_quotes(char	*line)
-// {
-	
-// }

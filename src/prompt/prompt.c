@@ -5,8 +5,8 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: dasargsy <dasargsy@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/08/03 18:00:19 by dasargsy          #+#    #+#             */
-/*   Updated: 2024/08/03 20:36:25 by dasargsy         ###   ########.fr       */
+/*   Created: 2024/08/03 20:41:53 by dasargsy          #+#    #+#             */
+/*   Updated: 2024/08/03 20:42:40 by dasargsy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,8 @@ void	prompt(char **envp)
 	while (1)
 	{
 		printf("%s Minishell:  %s", GREEN, RESET_COLOR);
-		if (check_for_parenthesis(line) == 1)
+		if (check_for_parenthesis(list->content) == 1)
 		list->content = readline("");
 	}
 }
+
