@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   prompt.h                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dasargsy <dasargsy@student.42yerevan.am    +#+  +:+       +#+        */
+/*   By: dasargsy <dasargsy@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/30 00:04:31 by dasargsy          #+#    #+#             */
-/*   Updated: 2024/07/30 02:27:44 by dasargsy         ###   ########.fr       */
+/*   Updated: 2024/08/03 20:35:33 by dasargsy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,10 @@
 
 # define GREEN "\x1b[32m"
 # define RESET_COLOR "\x1b[0m"
+# define UNCLOSED_Q ""
 
-void	prompt(char **argv);
+void	prompt(char **envp);
+int		check_for_quotes(char *line, int limiter);
+int		check_for_parenthesis(char *line);
 
 #endif

@@ -3,30 +3,21 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dasargsy <dasargsy@student.42yerevan.am    +#+  +:+       +#+        */
+/*   By: dasargsy <dasargsy@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/29 20:17:20 by anikoyan          #+#    #+#             */
-<<<<<<< HEAD
-/*   Updated: 2024/07/30 16:57:47 by anikoyan         ###   ########.fr       */
-=======
-/*   Updated: 2024/07/30 02:29:20 by dasargsy         ###   ########.fr       */
->>>>>>> fd0d604047186a539510f33e11f222f7d38a0b8e
+/*   Updated: 2024/08/03 20:20:08 by dasargsy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef MINISHELL_H
 # define MINISHELL_H
 
-<<<<<<< HEAD
-# define QUOTE_ERROR "Unclosed Quotes"
-=======
-# include "tokenization.h"
 # include "prompt.h"
-# include "libft.h"
+# include "../libs/libft/libft.h"
 # include <stdio.h>
-# include <history.h>
-# include <readline.h>
->>>>>>> fd0d604047186a539510f33e11f222f7d38a0b8e
+# include <readline/readline.h>
+# include <readline/history.h>
 
 void	ft_mtx_free(char **mtx);
 char	*ft_command_path(char *cmd, char **envp);
