@@ -8,6 +8,7 @@ UTILS_DIR = utils
 PROMPT_DIR = prompt
 OBJ_DIR = obj
 LIB_DIR = libs
+GNL_DIR = $(LIB_DIR)/gnl
 LIBFT_DIR = $(LIB_DIR)/libft
 READLINE_DIR = $(LIB_DIR)/readline-8.2
 READLINE_TAR = $(LIB_DIR)/readline.gz
@@ -15,12 +16,15 @@ READLINE_TAR = $(LIB_DIR)/readline.gz
 DEP = includes/minishell.h includes/node.h
 SRC_FILES = main.c node.c
 UTILS_FILES = formatters.c
-PROMPT_FILES = prompt.c prompt_utils.c 
+PROMPT_FILES = prompt.c prompt_utils.c
+GNL_FILES = get_next_line.c get_next_line_utils.c
+
 
 SRC = $(addprefix $(SRC_DIR)/, $(SRC_FILES))
 UTILS = $(addprefix $(SRC_DIR)/$(UTILS_DIR)/, $(UTILS_FILES))
 PROMPT = $(addprefix $(SRC_DIR)/$(PROMPT_DIR)/, $(PROMPT_FILES))
-ALL_SRC = $(SRC) $(UTILS) $(PROMPT)
+GNL = $(addprefix $(GNL_DIR)/, $(GNL_FILES))
+ALL_SRC = $(SRC) $(UTILS) $(PROMPT) $(GNL)
 
 OBJ = $(addprefix $(OBJ_DIR)/, $(SRC_FILES:.c=.o))
 
@@ -28,7 +32,7 @@ CC = cc
 CFLAGS = -Wall -Wextra -Werror -Ilibs/readline-8.2 -Ilibs/libft
 INC = -I $(LIBFT_DIR) -I $(READLINE_DIR)
 
-LIBFT = $(LIBFT_DIR)/libft.a
+LIBFT_LIB = $(LIBFT_DIR)/libft.a
 READLINE = $(READLINE_DIR)/libreadline.a
 
 RM = rm -f
@@ -58,7 +62,7 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/$(PROMPT_DIR)/%.c
 # SKZBIC PETQA READLINE Y MAKE LINI VOR MINISHELLY KARANA IRA HEADERY QTNI
 
 $(NAME):$(READLINE) $(ALL_SRC) $(LIBFT) $(DEPS)
-	$(CC) $(ALL_SRC) $(LIBFT) -lreadline $(READLINE) -o $(NAME)
+	$(CC) $(ALL_SRC) $(LIBFT_LIB) -lreadline $(READLINE) -o $(NAME)
 
 $(LIBFT):
 	make -C $(LIBFT_DIR)
