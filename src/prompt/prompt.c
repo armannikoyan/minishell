@@ -6,21 +6,21 @@
 /*   By: dasargsy <dasargsy@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/03 20:41:53 by dasargsy          #+#    #+#             */
-/*   Updated: 2024/08/03 20:42:40 by dasargsy         ###   ########.fr       */
+/*   Updated: 2024/08/04 17:29:40 by dasargsy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../includes/minishell.h"
 
-static	void	parenthesis_handling(char	*line, t_list *list)
-{
+// static	void	parenthesis_handling(char	*line, t_list *list)
+// {
 		
-}
+// }
 
-static	char	*quotes_handling(char *line)
-{
+// static	char	*quotes_handling(char *line)
+// {
 	
-}
+// }
 
 void	prompt(char **envp)
 {
@@ -30,7 +30,6 @@ void	prompt(char **envp)
 	while (1)
 	{
 		printf("%s Minishell:  %s", GREEN, RESET_COLOR);
-		if (check_for_parenthesis(list->content) == 1)
 		list->content = readline("");
 	}
 }

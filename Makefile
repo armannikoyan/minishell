@@ -15,7 +15,7 @@ READLINE_TAR = $(LIB_DIR)/readline.gz
 DEP = includes/minishell.h includes/node.h
 SRC_FILES = main.c node.c
 UTILS_FILES = formatters.c
-PROMPT_FILES = prompt.c prompt_utils.c get_line.c
+PROMPT_FILES = prompt.c prompt_utils.c 
 
 SRC = $(addprefix $(SRC_DIR)/, $(SRC_FILES))
 UTILS = $(addprefix $(SRC_DIR)/$(UTILS_DIR)/, $(UTILS_FILES))

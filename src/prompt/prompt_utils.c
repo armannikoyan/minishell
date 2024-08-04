@@ -6,7 +6,7 @@
 /*   By: dasargsy <dasargsy@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/03 18:44:53 by dasargsy          #+#    #+#             */
-/*   Updated: 2024/08/03 20:38:02 by dasargsy         ###   ########.fr       */
+/*   Updated: 2024/08/04 17:25:41 by dasargsy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,24 @@ int	check_for_quotes(char *line, int limiter)
 	return (0);
 }
 
+static	int	is_spc_bef(char *line)
+{
+	int	i;
+	int	flag;
+
+	i = 0;
+	flag = 0;
+	while (line[i] && line[i] != '(')
+	{
+		if (ft_isspace(line[i]))
+			flag++;
+		i++;
+	}
+	if (flag == i)
+		return (1);
+	return (0);
+}
+
 int	check_for_parenthesis(char *line)
 {
 	int	i;
@@ -49,11 +67,12 @@ int	check_for_parenthesis(char *line)
 			rght++;
 		i++;
 	}
-	if (lft == 1 && rght == 0 && line[0] == '(')
+	if (lft > 0 && rght == 0 && is_spc_bef(line))
 		return (2);
 	else if (lft == rght)
 		return (1);
 	else if (lft != rght)
 		return (0);
+	return (1);
 }
 
