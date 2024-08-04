@@ -6,7 +6,7 @@
 /*   By: dasargsy <dasargsy@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/01 12:52:21 by dasargsy          #+#    #+#             */
-/*   Updated: 2024/08/03 20:42:52 by dasargsy         ###   ########.fr       */
+/*   Updated: 2024/08/04 17:35:38 by dasargsy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@
 # include <stdio.h>
 # include <readline/readline.h>
 # include <readline/history.h>
+# include "gnl.h"
 
 void	ft_mtx_free(char **mtx);
 char	*ft_command_path(char *cmd, char **envp);

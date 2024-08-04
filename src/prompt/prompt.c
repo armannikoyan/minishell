@@ -6,7 +6,7 @@
 /*   By: dasargsy <dasargsy@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/03 20:41:53 by dasargsy          #+#    #+#             */
-/*   Updated: 2024/08/04 17:29:40 by dasargsy         ###   ########.fr       */
+/*   Updated: 2024/08/04 17:35:27 by dasargsy         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,10 +17,10 @@
 		
 // }
 
-// static	char	*quotes_handling(char *line)
-// {
+static	char	*quotes_handling(char *line, int limiter)
+{
 	
-// }
+}
 
 void	prompt(char **envp)
 {
@@ -31,6 +31,10 @@ void	prompt(char **envp)
 	{
 		printf("%s Minishell:  %s", GREEN, RESET_COLOR);
 		list->content = readline("");
+		if (check_for_quotes(list->content, 34))
+			list->content = quotes_handling(list->content, 34);
+		if (check_for_quotes(list->content, 39))
+			list->content = quotes_handling(list->content, 39);
 	}
 }
 
