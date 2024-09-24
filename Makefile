@@ -6,37 +6,39 @@ LIBFT_DIR = libs/libft
 
 DEPS = includes/minishell.h
 
-SRCS = main.c
+SRCS = main.c \
+       $(addprefix parsing/, \
+	syntax.c) \
+       $(addprefix utils/, \
+	ft_error.c)
 
-# OBJ_SUBDIRS = $(addprefix $(OBJ_DIR)/, \
-# 		utils)
+OBJ_SUBDIRS = $(addprefix $(OBJ_DIR)/, \
+		parsing utils)
 
 OBJS = $(addprefix $(OBJ_DIR)/, $(SRCS:.c=.o))
 
 CC = cc
-CFLAGS = -Wall -Wextra -Werror -Ireadline -Ilibs/libft
-INC = -Ireadline -Ilibs/libft
+CFLAGS = -Wall -Wextra -Werror -Ireadline
+INC = -Ireadline -I$(LIBFT_DIR)
 LIBFT = $(LIBFT_DIR)/libft.a
 
 RM = rm -f
 
+all: $(NAME)
+
 $(OBJ_DIR):
 	mkdir -p $(OBJ_DIR)
-	# mkdir -p $(OBJ_SUBDIRS)
-
-$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c | $(OBJ_DIR)
-	$(CC) $(CFLAGS) $(INC) -c $< -o $@
+	mkdir -p $(OBJ_SUBDIRS)
 
 $(NAME): $(OBJS) $(LIBFT) $(DEPS)
 	$(CC) $(CFLAGS) $(OBJS) $(LIBFT) -lreadline -o $(NAME)
 
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c | $(OBJ_DIR)
+	$(CC) $(CFLAGS) $(INC) -c $< -o $@
+
 $(LIBFT):
 	make -C $(LIBFT_DIR) all
 	make -C $(LIBFT_DIR) bonus
-
-all: $(NAME)
-
-bonus: all
 
 clean:
 	$(RM) -r $(OBJ_DIR)
@@ -48,4 +50,6 @@ fclean: clean
 
 re: fclean all
 
-.PHONY: all bonus fclean clean
+bonus: all
+
+.PHONY: all bonus clean fclean re
