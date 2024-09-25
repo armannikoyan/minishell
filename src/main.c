@@ -6,7 +6,7 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/18 16:57:05 by anikoyan          #+#    #+#             */
-/*   Updated: 2024/09/24 15:01:25 by anikoyan         ###   ########.fr       */
+/*   Updated: 2024/09/25 12:24:19 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,7 +64,7 @@ static void	ft_entry_info_helper(char **username, char **w_dir)
 	free(abs_wdir);
 }
 
-static char	*ft_entry_info(void)
+char	*ft_entry_info(void)
 {
 	char	*username;
 	char	*w_dir;
@@ -96,15 +96,7 @@ int	main(int argc, char **argv, char **envp)
 	(void)argc;
 	(void)argv;
 	(void)envp;
-	ft_printf("%s ███▄ ▄███▓ ██▓ ███▄    █  ██▓  ██████  ██░ ██ ▓█████  ██▓     ██▓    %s\n", RED, WHITE);
-	ft_printf("%s▓██▒▀█▀ ██▒▓██▒ ██ ▀█   █ ▓██▒▒██    ▒ ▓██░ ██▒▓█   ▀ ▓██▒    ▓██▒    %s\n", RED, WHITE);
-	ft_printf("%s▓██    ▓██░▒██▒▓██  ▀█ ██▒▒██▒░ ▓██▄   ▒██▀▀██░▒███   ▒██░    ▒██░    %s\n", RED, WHITE);
-	ft_printf("%s▒██    ▒██ ░██░▓██▒  ▐▌██▒░██░  ▒   ██▒░▓█ ░██ ▒▓█  ▄ ▒██░    ▒██░    %s\n", RED, WHITE);
-	ft_printf("%s▒██▒   ░██▒░██░▒██░   ▓██░░██░▒██████▒▒░▓█▒░██▓░▒████▒░██████▒░██████▒%s\n", RED, WHITE);
-	ft_printf("%s░ ▒░   ░  ░░▓  ░ ▒░   ▒ ▒ ░▓  ▒ ▒▓▒ ▒ ░ ▒ ░░▒░▒░░ ▒░ ░░ ▒░▓  ░░ ▒░▓  ░%s\n", RED, WHITE);
-	ft_printf("%s░  ░      ░ ▒ ░░ ░░   ░ ▒░ ▒ ░░ ░▒  ░ ░ ▒ ░▒░ ░ ░ ░  ░░ ░ ▒  ░░ ░ ▒  ░%s\n", RED, WHITE);
-	ft_printf("%s░      ░    ▒ ░   ░   ░ ░  ▒ ░░  ░  ░   ░  ░░ ░   ░     ░ ░     ░ ░   %s\n", RED, WHITE);
-	ft_printf("%s       ░    ░           ░  ░        ░   ░  ░  ░   ░  ░    ░  ░    ░  ░%s\n\n", RED, WHITE);
+	signal(SIGINT, signal_handler);
 	while (true)
 	{
 		prompt = ft_entry_info();
@@ -112,19 +104,23 @@ int	main(int argc, char **argv, char **envp)
 		if (input && *input)
 		{
 			add_history(input);
-			if (ft_has_syntax_error(input))
+			if (!ft_has_syntax_error(input))
 			{
-				free(input);
-				continue ;
-			}
-			if (!ft_strcmp(input, "exit"))
-			{
-				free(input);
-				free(prompt);
-				rl_clear_history(); //clear history on exit man
-				return 0;
+				if (!ft_strcmp(input, "exit"))
+				{
+					free(input);
+					free(prompt);
+					rl_clear_history();
+					return 0;
+				}
 			}
 			free(input);
+		}
+		else if (!input)
+		{
+			free(prompt);
+			rl_clear_history();
+			exit(g_errno);
 		}
 		free(prompt);
 	}

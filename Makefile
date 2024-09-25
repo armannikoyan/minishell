@@ -10,7 +10,7 @@ SRCS = main.c \
        $(addprefix parsing/, \
 	syntax.c) \
        $(addprefix utils/, \
-	ft_error.c)
+	ft_error.c signal_handler.c)
 
 OBJ_SUBDIRS = $(addprefix $(OBJ_DIR)/, \
 		parsing utils)
