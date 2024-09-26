@@ -6,7 +6,7 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/18 16:57:05 by anikoyan          #+#    #+#             */
-/*   Updated: 2024/09/25 12:24:19 by anikoyan         ###   ########.fr       */
+/*   Updated: 2024/09/26 16:34:07 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,8 +95,7 @@ int	main(int argc, char **argv, char **envp)
 
 	(void)argc;
 	(void)argv;
-	(void)envp;
-	signal(SIGINT, signal_handler);
+	signal(SIGINT, ft_signal_handler);
 	while (true)
 	{
 		prompt = ft_entry_info();
@@ -111,8 +110,9 @@ int	main(int argc, char **argv, char **envp)
 					free(input);
 					free(prompt);
 					rl_clear_history();
-					return 0;
+					return (0);
 				}
+				ft_env_expansion(input, envp);
 			}
 			free(input);
 		}
@@ -120,7 +120,7 @@ int	main(int argc, char **argv, char **envp)
 		{
 			free(prompt);
 			rl_clear_history();
-			exit(g_errno);
+			exit(0);
 		}
 		free(prompt);
 	}

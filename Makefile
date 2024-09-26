@@ -8,9 +8,9 @@ DEPS = includes/minishell.h
 
 SRCS = main.c \
        $(addprefix parsing/, \
-	syntax.c) \
+	ft_syntax.c ft_env_expansion.c) \
        $(addprefix utils/, \
-	ft_error.c signal_handler.c)
+	ft_error.c ft_signal_handler.c ft_isoperator.c)
 
 OBJ_SUBDIRS = $(addprefix $(OBJ_DIR)/, \
 		parsing utils)

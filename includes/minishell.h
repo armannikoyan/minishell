@@ -6,7 +6,7 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/18 17:00:14 by anikoyan          #+#    #+#             */
-/*   Updated: 2024/09/25 11:30:29 by anikoyan         ###   ########.fr       */
+/*   Updated: 2024/09/25 17:12:51 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,9 +29,11 @@
 # define RED "\x1b[31m"
 
 void	ft_error(char *errmsg, unsigned short errno);
-void	signal_handler(int signum);
+void	ft_signal_handler(int signum);
+bool	ft_isoperator(char *c);
 
 char	*ft_entry_info(void);
 bool	ft_has_syntax_error(char *input);
+char	*ft_env_expansion(char *input, char **envp);
 
 #endif
