@@ -8,7 +8,7 @@ DEPS = includes/minishell.h
 
 SRCS = main.c \
        $(addprefix parsing/, \
-	ft_syntax.c ft_env_expansion.c) \
+	ft_syntax.c ft_env_expansion.c ft_env_expansion_utils.c) \
        $(addprefix utils/, \
 	ft_error.c ft_signal_handler.c ft_isoperator.c)
 

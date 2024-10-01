@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   syntax.c                                           :+:      :+:    :+:   */
+/*   ft_syntax.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/22 19:38:41 by anikoyan          #+#    #+#             */
-/*   Updated: 2024/09/23 17:35:54 by anikoyan         ###   ########.fr       */
+/*   Updated: 2024/10/01 20:51:25 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,24 +18,24 @@ static bool	ft_has_syntax_error_helper(short quote_count, short dquote_count
 	if (quote_count % 2)
 	{
 		ft_error("parse error near `\'`", EXIT_FAILURE);
-		return (1);
+		return (true);
 	}
 	else if (dquote_count % 2)
 	{
 		ft_error("parse error near `\"`", EXIT_FAILURE);
-		return (1);
+		return (true);
 	}
 	else if (bracket_count > 0)
 	{
 		ft_error("parse error near `(`", EXIT_FAILURE);
-		return (1);
+		return (true);
 	}
 	else if (bracket_count < 0)
 	{
 		ft_error("parse error near `)`", EXIT_FAILURE);
-		return (1);
+		return (true);
 	}
-	return (0);
+	return (false);
 }
 
 bool	ft_has_syntax_error(char *input)

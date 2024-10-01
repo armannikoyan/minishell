@@ -6,95 +6,119 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/25 14:49:16 by anikoyan          #+#    #+#             */
-/*   Updated: 2024/09/26 18:03:34 by anikoyan         ###   ########.fr       */
+/*   Updated: 2024/10/01 20:09:15 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../includes/minishell.h"
 
-static bool	ft_is_valid_env(char *env)
+static void	ft_find_env(char *input, char **env_output,
+		unsigned short env_len, char **envp)
 {
-	unsigned int	i;
+	unsigned short	i;
+	unsigned short	j;
+	unsigned short	k;
 
-	ft_printf("valid env arg: %s\n", env);
-	i = 0;
-	if (!ft_isalpha(env[i]) && env[i] != '-')
-		return (false);
-	i++;
-	while (env[i] && (!ft_isspace(env[i]) && env[i] != '\''
-			&& env[i] != '"' && !ft_isoperator(&env[i])))
+	i = USHRT_MAX;
+	env_len = 0;
+	while (input[++i])
 	{
-		if (!ft_isalnum(env[i]) && env[i] != '_')
-			return (false);
-		i++;
+		if (input[i] && ft_get_quote_count(input, i) % 2 == 0
+			&& input[i] == '$' && ft_is_valid_env(&(input[++i])))
+		{
+			j = 0;
+			k = ft_envlen(input, i);
+			while (envp && envp[j] && ft_strncmp(envp[j], &input[i], k))
+				j++;
+			if (envp[j] && envp[j][k++] == '=')
+				env_output[env_len++] = ft_strjoin("", &envp[j][k]);
+			else
+				env_output[env_len++] = ft_strdup("");
+		}
+		env_output[env_len] = NULL;
 	}
-	return (true);
 }
 
-static unsigned int	ft_env_strlen(char *input, unsigned int i)
+static unsigned short	ft_exp_strlen(char *input, char **env_output)
 {
-	unsigned int	len;
+	unsigned short	i;
+	unsigned short	len;
 
+	i = 0;
 	len = 0;
-	while (input[i] && (!ft_isspace(input[i]) || input[i] != '\''
-			|| input[i] != '"' || !ft_isoperator(&input[i])))
-		len++;
+	while (input[i])
+	{
+		if (input[i] && ft_get_quote_count(input, i) % 2 == 0
+			&& input[i] == '$' && ft_is_valid_env(&(input[++i])))
+			i += ft_envlen(input, i);
+		else
+			len++;
+		i++;
+	}
+	i = 0;
+	while (env_output[i])
+		len += ft_strlen(env_output[i++]);
 	return (len);
 }
 
-static char	**ft_find_env(char *input, char **env_output)
+static char	*ft_str_envjoin(char *input, char **env_output)
 {
-	unsigned int	i;
-	unsigned int	j;
-	unsigned int	quote_count;
-	unsigned short	env_len;
+	unsigned short	i;
+	unsigned short	j;
+	unsigned short	k;
+	char			*expanded_input;
+	char			*tmp;
 
-	env_len = 0;
+	expanded_input = malloc(sizeof(char) * ft_exp_strlen(input, env_output));
 	i = 0;
-	quote_count = 0;
+	j = 0;
+	k = 0;
 	while (input[i])
 	{
-		while (input[i] && input[i] != '$')
+		if (input[i] && ft_get_quote_count(input, i) % 2 == 0
+			&& input[i] == '$' && ft_is_valid_env(&(input[++i])))
 		{
-			if (input[i] == '\'')
-				quote_count++;
-			i++;
+			tmp = expanded_input;
+			expanded_input = ft_strjoin(tmp, env_output[k]);
+			j += ft_strlen(env_output[k]);
+			k++;
+			free(tmp);
+			i += ft_envlen(input, i) - 1;
 		}
-		if (input[i] && input[i] == '$' && quote_count % 2 == 0
-			&& ft_is_valid_env(&(input[++i])))
-			env_len++;
-		i++;
-	}
-	env_output = (char **)malloc(sizeof(char *) * (env_len + 1));
-	if (!env_output)
-		exit(EXIT_FAILURE);
-	i = 0;
-	quote_count = 0;
-	while (input[i])
-	{
-		while (input[i] && input[i] != '$')
+		else
 		{
-			if (input[i] == '\'')
-				quote_count++;
-			i++;
-		}
-		if (input[i] && input[i] == '$' && quote_count % 2 == 0
-			&& ft_is_valid_env(&(input[++i])))
-		{
-			// insertion into env_output
+			expanded_input[j] = input[i];
+			j++;
 		}
 		i++;
 	}
-	return (env_output);
+	return (expanded_input);
 }
 
 char	*ft_env_expansion(char *input, char **envp)
 {
-	char	**env_output;
+	char			**env_output;
+	char			*expanded_input;
+	unsigned short	i;
+	unsigned short	env_len;
 
 	if (!input)
 		return (NULL);
 	env_output = NULL;
-	env_output = ft_find_env(input, env_output);
-	return (NULL);
+	env_len = ft_varlen(input);
+	env_output = (char **)malloc(sizeof(char *) * (env_len + 1));
+	if (!env_output)
+		exit(EXIT_FAILURE);
+	ft_find_env(input, env_output, env_len, envp);
+	if (!env_output[0])
+	{
+		free(env_output);
+		return (ft_strdup(input));
+	}
+	expanded_input = ft_str_envjoin(input, env_output);
+	i = 0;
+	while (env_output[i])
+		free(env_output[i++]);
+	free(env_output);
+	return (expanded_input);
 }

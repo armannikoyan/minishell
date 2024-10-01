@@ -6,7 +6,7 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/18 16:57:05 by anikoyan          #+#    #+#             */
-/*   Updated: 2024/09/26 16:34:07 by anikoyan         ###   ########.fr       */
+/*   Updated: 2024/10/01 17:54:21 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,6 +91,7 @@ char	*ft_entry_info(void)
 int	main(int argc, char **argv, char **envp)
 {
 	char	*input;
+	char	*tmp;
 	char	*prompt;
 
 	(void)argc;
@@ -105,14 +106,9 @@ int	main(int argc, char **argv, char **envp)
 			add_history(input);
 			if (!ft_has_syntax_error(input))
 			{
-				if (!ft_strcmp(input, "exit"))
-				{
-					free(input);
-					free(prompt);
-					rl_clear_history();
-					return (0);
-				}
-				ft_env_expansion(input, envp);
+				tmp = input;
+				input = ft_env_expansion(tmp, envp);
+				free(tmp);
 			}
 			free(input);
 		}
