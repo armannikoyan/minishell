@@ -6,7 +6,7 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/18 17:00:14 by anikoyan          #+#    #+#             */
-/*   Updated: 2024/10/01 20:09:37 by anikoyan         ###   ########.fr       */
+/*   Updated: 2024/10/09 20:36:19 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,7 @@
 
 void			ft_error(char *errmsg, unsigned short errno);
 void			ft_signal_handler(int signum);
-bool			ft_isoperator(char *c);
+unsigned short	ft_isoperator(char *c);
 unsigned int	ft_envlen(char *input, unsigned int i);
 bool			ft_is_valid_env(char *env);
 unsigned short	ft_varlen(char *input);
@@ -39,5 +39,6 @@ unsigned short	ft_get_quote_count(char *input, unsigned short index);
 char			*ft_entry_info(void);
 bool			ft_has_syntax_error(char *input);
 char			*ft_env_expansion(char *input, char **envp);
+char			*ft_space_correction(char *input);
 
 #endif

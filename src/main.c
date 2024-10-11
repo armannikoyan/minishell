@@ -6,7 +6,7 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/18 16:57:05 by anikoyan          #+#    #+#             */
-/*   Updated: 2024/10/01 17:54:21 by anikoyan         ###   ########.fr       */
+/*   Updated: 2024/10/09 14:56:10 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -104,6 +104,9 @@ int	main(int argc, char **argv, char **envp)
 		if (input && *input)
 		{
 			add_history(input);
+			tmp = input;
+			input = ft_space_correction(tmp);
+			free(tmp);
 			if (!ft_has_syntax_error(input))
 			{
 				tmp = input;
