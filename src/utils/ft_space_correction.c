@@ -6,7 +6,7 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/09 14:11:07 by anikoyan          #+#    #+#             */
-/*   Updated: 2024/10/11 15:17:55 by anikoyan         ###   ########.fr       */
+/*   Updated: 2024/10/13 13:01:36 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,12 +45,14 @@ static void	ft_copy_quotes(char *output, char *input, unsigned short *j, unsigne
 		output[(*j)++] = input[(*i)++];
 		while (input[*i] && input[*i] != '\'')
 			output[(*j)++] = input[(*i)++];
+		output[(*j)++] = input[(*i)++];
 	}
 	else if (input[*i] && input[*i] == '\"')
 	{
 		output[(*j)++] = input[(*i)++];
 		while (input[*i] && input[*i] != '\"')
 			output[(*j)++] = input[(*i)++];
+		output[(*j)++] = input[(*i)++];
 	}
 }
 
@@ -115,13 +117,13 @@ char	*ft_space_correction(char *input)
 		op_len = ft_isoperator(&input[i]);
 		if (input[i] && op_len)
 		{
-			if (input[i - 1] && !ft_isspace(input[i - 1]))
+			if (output[j - 1] && !ft_isspace(output[j - 1]))
 				output[j++] = ' ';
 			ft_strlcat(output + j, input + i, op_len + 1);
 			j += op_len;
 			i += op_len;
-			op_len = ft_isoperator(&input[i]);
 			output[j++] = ' ';
+			op_len = ft_isoperator(&input[i]);
 			if (input[i] && op_len)
 			{
 				ft_strlcat(output + j, input + i, op_len + 1);
@@ -133,6 +135,5 @@ char	*ft_space_correction(char *input)
 		}
 	}
 	output[j] = '\0';
-	ft_printf("output is: %s\n", output);
 	return (output);
 }
