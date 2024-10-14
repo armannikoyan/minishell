@@ -6,7 +6,7 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/09 14:11:07 by anikoyan          #+#    #+#             */
-/*   Updated: 2024/10/14 21:24:38 by anikoyan         ###   ########.fr       */
+/*   Updated: 2024/10/14 21:26:34 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,7 +71,6 @@ static void	handle_operator_len(char *input, unsigned short *i,
 			(*len)++;
 		(*len) += op_len;
 		(*i) += op_len;
-		ft_printf("is this shit an operator? input[*%d] = %c\n", *i, input[*i]);
 		if (*i > 0 && !ft_isspace(input[*i]) && !ft_isoperator(&input[*i])
 			&& ft_strncmp(&input[*i], "&", 1))
 			(*len)++;
