@@ -6,7 +6,7 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/09 14:11:07 by anikoyan          #+#    #+#             */
-/*   Updated: 2024/10/13 13:17:13 by anikoyan         ###   ########.fr       */
+/*   Updated: 2024/10/14 21:24:38 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,7 +38,8 @@ static void	ft_skip_quotes(char *input, unsigned short *i, unsigned short *len)
 	}
 }
 
-static void	ft_copy_quotes(char *output, char *input, unsigned short *j, unsigned short *i)
+static void	ft_copy_quotes(char *output, char *input,
+	unsigned short *j, unsigned short *i)
 {
 	if (input[*i] && input[*i] == '\'')
 	{
@@ -56,64 +57,69 @@ static void	ft_copy_quotes(char *output, char *input, unsigned short *j, unsigne
 	}
 }
 
-void handle_operator_len(char *input, unsigned short *i, unsigned short *len)
+static void	handle_operator_len(char *input, unsigned short *i,
+	unsigned short *len)
 {
-	unsigned short op_len = ft_isoperator(&input[*i]);
+	unsigned short	op_len;
+
+	op_len = ft_isoperator(&input[*i]);
+	if (!op_len)
+		op_len = !ft_strncmp(&input[*i], "&", 1);
 	if (input[*i] && op_len)
 	{
 		if (*i > 0 && !ft_isspace(input[*i - 1]))
 			(*len)++;
 		(*len) += op_len;
 		(*i) += op_len;
-
-		op_len = ft_isoperator(&input[*i]);
-		if (input[*i] && op_len)
-		{
-			(*len) += op_len;
-			if (input[*i] && !ft_isspace(input[*i]))
-				(*len)++;
-			(*i) += op_len;
-		}
-		if (input[*i] && !ft_isspace(input[*i]))
+		ft_printf("is this shit an operator? input[*%d] = %c\n", *i, input[*i]);
+		if (*i > 0 && !ft_isspace(input[*i]) && !ft_isoperator(&input[*i])
+			&& ft_strncmp(&input[*i], "&", 1))
 			(*len)++;
 	}
 }
 
-void handle_operator_copy(char *input, char *output, unsigned short *i, unsigned short *j)
+static void	handle_operator_copy(char *input, char *output,
+	unsigned short *i, unsigned short *j)
 {
-	unsigned short op_len = ft_isoperator(&input[*i]);
+	unsigned short	op_len;
+
+	op_len = ft_isoperator(&input[*i]);
+	if (!op_len)
+		op_len = !ft_strncmp(&input[*i], "&", 1);
 	if (input[*i] && op_len)
 	{
 		if (*j > 0 && !ft_isspace(output[*j - 1]))
 			output[(*j)++] = ' ';
-		ft_strlcat(output + *j, input + *i, op_len + 1);
+		ft_strlcat(&output[*j], &input[*i], op_len + 1);
 		*j += op_len;
 		*i += op_len;
-		output[(*j)++] = ' ';
-		op_len = ft_isoperator(&input[*i]);
-		if (input[*i] && op_len)
-		{
-			ft_strlcat(output + *j, input + *i, op_len + 1);
-			*j += op_len;
-			*i += op_len;
-			if (input[*i] && !ft_isspace(input[*i]))
-				output[(*j)++] = ' ';
-		}
+		if (*j > 0 && !ft_isspace(output[*j - 1]))
+			output[(*j)++] = ' ';
 	}
 }
 
-char *ft_space_correction(char *input)
+char	*ft_space_correction(char *input)
 {
-	char *output;
-	unsigned short len = 0, i = 0, j = 0;
+	char			*output;
+	unsigned short	len;
+	unsigned short	i;
+	unsigned short	j;
 
+	len = 0;
+	i = 0;
+	j = 0;
 	while (input[i])
 	{
-		while (input[i] && !ft_isspace(input[i]) && !ft_isoperator(&input[i]))
-			len++, i++;
+		while (!ft_isspace(input[i]) && ft_strncmp(&input[i], "&", 1)
+			&& !ft_isoperator(&input[i]) && input[i] != '\''
+			&& input[i] && input[i] != '\"')
+		{
+			len++;
+			i++;
+		}
 		if (input[i] && ft_isspace(input[i]))
 		{
-			if (input[i - 1] != ' ')
+			if (input[i - 1] && input[i - 1] != ' ')
 				len++;
 			while (input[i] && ft_isspace(input[i]))
 				i++;
@@ -121,13 +127,14 @@ char *ft_space_correction(char *input)
 		ft_skip_quotes(input, &i, &len);
 		handle_operator_len(input, &i, &len);
 	}
-
 	output = (char *)malloc(sizeof(char) * (len + 1));
-	i = 0, j = 0;
-
+	i = 0;
+	j = 0;
 	while (input[i])
 	{
-		while (input[i] && !ft_isspace(input[i]) && !ft_isoperator(&input[i]) && input[i] != '\'' && input[i] != '\"')
+		while (!ft_isspace(input[i]) && ft_strncmp(&input[i], "&", 1)
+			&& !ft_isoperator(&input[i]) && input[i] != '\''
+			&& input[i] && input[i] != '\"')
 			output[j++] = input[i++];
 		if (input[i] && ft_isspace(input[i]))
 		{
@@ -140,6 +147,5 @@ char *ft_space_correction(char *input)
 		handle_operator_copy(input, output, &i, &j);
 	}
 	output[j] = '\0';
-	ft_printf("len of output: %d\noutput: %s\n", len, output);
-	return output;
+	return (output);
 }
