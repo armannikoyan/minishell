@@ -10,10 +10,12 @@ SRCS = main.c \
        $(addprefix parsing/, \
 	ft_syntax.c ft_env_expansion.c ft_env_expansion_utils.c) \
        $(addprefix utils/, \
-	ft_error.c ft_signal_handler.c ft_isoperator.c ft_space_correction.c)
+	ft_error.c ft_signal_handler.c ft_isoperator.c ft_space_correction.c) \
+       $(addprefix tokenization/, \
+	ft_tokenization.c)
 
 OBJ_SUBDIRS = $(addprefix $(OBJ_DIR)/, \
-		parsing utils)
+		parsing utils tokenization)
 
 OBJS = $(addprefix $(OBJ_DIR)/, $(SRCS:.c=.o))
 

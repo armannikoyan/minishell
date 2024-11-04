@@ -6,7 +6,7 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/18 16:57:05 by anikoyan          #+#    #+#             */
-/*   Updated: 2024/10/09 14:56:10 by anikoyan         ###   ########.fr       */
+/*   Updated: 2024/10/22 21:43:48 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,23 +68,22 @@ char	*ft_entry_info(void)
 {
 	char	*username;
 	char	*w_dir;
-	char	*temp;
 	char	*prompt;
+	char	*tmp;
 
 	username = NULL;
-	w_dir = NULL;
 	ft_entry_info_helper(&username, &w_dir);
-	prompt = ft_strjoin(username, " ");
+	prompt = ft_strjoin("", username);
 	free(username);
-	temp = ft_strjoin(prompt, GREEN);
+	tmp = ft_strjoin(prompt, " ");
 	free(prompt);
-	prompt = ft_strjoin(temp, w_dir);
-	free(temp);
+	prompt = ft_strjoin(tmp, "\001" GREEN "\002");
+	free(tmp);
+	tmp = ft_strjoin(prompt, w_dir);
+	free(prompt);
 	free(w_dir);
-	temp = ft_strjoin(prompt, WHITE);
-	free(prompt);
-	prompt = ft_strjoin(temp, " % ");
-	free(temp);
+	prompt = ft_strjoin(tmp, "\001" WHITE "\002 % ");
+	free(tmp);
 	return (prompt);
 }
 
@@ -93,6 +92,7 @@ int	main(int argc, char **argv, char **envp)
 	char	*input;
 	char	*tmp;
 	char	*prompt;
+	t_list	**lst;
 
 	(void)argc;
 	(void)argv;
@@ -107,13 +107,13 @@ int	main(int argc, char **argv, char **envp)
 			tmp = input;
 			input = ft_space_correction(tmp);
 			free(tmp);
-			if (!ft_has_syntax_error(input))
-			{
-				tmp = input;
-				input = ft_env_expansion(tmp, envp);
-				free(tmp);
-			}
+			tmp = input;
+			input = ft_env_expansion(tmp, envp);
+			free(tmp);
+			lst = ft_tokenization(input);
 			free(input);
+			if (ft_has_syntax_error(lst))
+				ft_printf("Error\n");
 		}
 		else if (!input)
 		{
