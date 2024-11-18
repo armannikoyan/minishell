@@ -6,7 +6,7 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/09 14:11:07 by anikoyan          #+#    #+#             */
-/*   Updated: 2024/10/14 21:26:34 by anikoyan         ###   ########.fr       */
+/*   Updated: 2024/11/12 16:09:26 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -107,18 +107,26 @@ char	*ft_space_correction(char *input)
 	len = 0;
 	i = 0;
 	j = 0;
+	while (ft_isspace(input[i]))
+		i++;
 	while (input[i])
 	{
 		while (!ft_isspace(input[i]) && ft_strncmp(&input[i], "&", 1)
 			&& !ft_isoperator(&input[i]) && input[i] != '\''
 			&& input[i] && input[i] != '\"')
 		{
+			if (input[i] && input[i] == '('
+				&& input[i + 1] && !ft_isspace(input[i]))
+				len++;
+			if (input[i] && input[i] == ')'
+				&& input[i - 1] && !ft_isspace(input[i - 1]))
+					len++;
 			len++;
 			i++;
 		}
 		if (input[i] && ft_isspace(input[i]))
 		{
-			if (input[i - 1] && input[i - 1] != ' ')
+			if (input[i - 1] && input[i - 1] != ft_isspace(input[i]))
 				len++;
 			while (input[i] && ft_isspace(input[i]))
 				i++;
@@ -129,12 +137,22 @@ char	*ft_space_correction(char *input)
 	output = (char *)malloc(sizeof(char) * (len + 1));
 	i = 0;
 	j = 0;
+	while (ft_isspace(input[i]))
+		i++;
 	while (input[i])
 	{
 		while (!ft_isspace(input[i]) && ft_strncmp(&input[i], "&", 1)
 			&& !ft_isoperator(&input[i]) && input[i] != '\''
 			&& input[i] && input[i] != '\"')
+		{
+			if (output[j - 1] && output[j - 1] != ' '
+				&& input[i] && input[i] == ')')
+				output[j++] = ' ';
 			output[j++] = input[i++];
+			if (output[j - 1] && output[j - 1] == '('
+				&& input[i] && input[i] != ft_isspace(input[i]))
+				output[j++] = ' ';
+		}
 		if (input[i] && ft_isspace(input[i]))
 		{
 			if (output[j - 1] != ' ')

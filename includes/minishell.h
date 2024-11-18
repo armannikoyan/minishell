@@ -6,7 +6,7 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/18 17:00:14 by anikoyan          #+#    #+#             */
-/*   Updated: 2024/10/22 21:12:21 by anikoyan         ###   ########.fr       */
+/*   Updated: 2024/11/15 15:45:18 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,13 @@
 # define WHITE "\033[0m"
 # define RED "\x1b[31m"
 
-void			ft_error(char *errmsg, unsigned short errno);
+typedef struct s_token
+{
+	char	type;
+	char	*content;
+	bool	subshell;
+}				t_token;
+
 void			ft_signal_handler(int signum);
 unsigned short	ft_isoperator(char *c);
 unsigned int	ft_envlen(char *input, unsigned int i);
