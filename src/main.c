@@ -6,16 +6,17 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/18 16:57:05 by anikoyan          #+#    #+#             */
-/*   Updated: 2024/09/18 20:55:18 by anikoyan         ###   ########.fr       */
+/*   Updated: 2024/11/15 18:06:20 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/minishell.h"
 
-static char	*ft_sub_user(char *abs_wdir)
+int	g_errno;
+
+static char	*ft_subusr(char *abs_wdir)
 {
 	unsigned int	len;
-	char			*username;
 	short			slash_count;
 	size_t			i;
 
@@ -30,13 +31,10 @@ static char	*ft_sub_user(char *abs_wdir)
 	len = 0;
 	while ((&(abs_wdir[i]))[len] != '/')
 		len++;
-	username = (char *)malloc(len + 1);
-	if (!username)
-		exit(-1);
 	return (ft_substr(abs_wdir, i, len));
 }
 
-static char	*ft_sub_wdir(char *abs_wdir)
+static char	*ft_subwdir(char *abs_wdir)
 {
 	unsigned int	len;
 	size_t			i;
@@ -53,7 +51,7 @@ static char	*ft_sub_wdir(char *abs_wdir)
 	return (ft_substr(abs_wdir, i, len));
 }
 
-static void	ft_entry_info(char **username, char **w_dir)
+static void	ft_entry_info_helper(char **username, char **w_dir)
 {
 	char	*abs_wdir;
 
@@ -61,53 +59,68 @@ static void	ft_entry_info(char **username, char **w_dir)
 	(void)w_dir;
 	abs_wdir = NULL;
 	abs_wdir = getcwd(abs_wdir, MAXPATHLEN);
-	*username = ft_sub_user(abs_wdir);
-	*w_dir = ft_sub_wdir(abs_wdir);
+	*username = ft_subusr(abs_wdir);
+	*w_dir = ft_subwdir(abs_wdir);
 	free(abs_wdir);
 }
 
-static char	*ft_build_prompt(void)
+char	*ft_entry_info(void)
 {
 	char	*username;
 	char	*w_dir;
-	char	*temp;
 	char	*prompt;
+	char	*tmp;
 
 	username = NULL;
-	w_dir = NULL;
-	ft_entry_info(&username, &w_dir);
-	prompt = ft_strjoin(GREEN, username);
+	ft_entry_info_helper(&username, &w_dir);
+	prompt = ft_strjoin("", username);
 	free(username);
-	temp = ft_strjoin(prompt, WHITE);
+	tmp = ft_strjoin(prompt, " ");
 	free(prompt);
-	prompt = ft_strjoin(temp, " ");
-	free(temp);
-	temp = ft_strjoin(prompt, w_dir);
+	prompt = ft_strjoin(tmp, "\001" GREEN "\002");
+	free(tmp);
+	tmp = ft_strjoin(prompt, w_dir);
+	free(prompt);
 	free(w_dir);
-	free(prompt);
-	prompt = ft_strjoin(temp, " % ");
-	free(temp);
+	prompt = ft_strjoin(tmp, "\001" WHITE "\002 % ");
+	free(tmp);
 	return (prompt);
 }
 
 int	main(int argc, char **argv, char **envp)
 {
 	char	*input;
+	char	*tmp;
 	char	*prompt;
+	t_list	**lst;
 
 	(void)argc;
 	(void)argv;
-	(void)envp;
+	signal(SIGINT, ft_signal_handler);
 	while (true)
 	{
-		prompt = ft_build_prompt();
+		prompt = ft_entry_info();
 		input = readline(prompt);
 		if (input && *input)
 		{
 			add_history(input);
-			// ft_process_input(input, envp);
+			tmp = input;
+			input = ft_space_correction(tmp);
+			free(tmp);
+			tmp = input;
+			input = ft_env_expansion(tmp, envp);
+			free(tmp);
+			lst = ft_tokenization(input);
+			free(input);
+			if (ft_has_syntax_error(lst))
+				ft_printf("Error\n");
 		}
-		free(input);
+		else if (!input)
+		{
+			free(prompt);
+			rl_clear_history();
+			exit(0);
+		}
 		free(prompt);
 	}
 }
