@@ -6,7 +6,7 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/22 20:33:00 by anikoyan          #+#    #+#             */
-/*   Updated: 2024/11/15 18:12:37 by anikoyan         ###   ########.fr       */
+/*   Updated: 2024/11/18 18:41:01 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,7 +46,7 @@ static bool	ft_identify_command(t_token **token, char **path)
 
 static t_token	*ft_build_token(char *input, unsigned short *index)
 {
-	t_token	*token;
+	t_token			*token;
 	unsigned short	len;
 	unsigned short	i;
 
@@ -61,7 +61,8 @@ static t_token	*ft_build_token(char *input, unsigned short *index)
 		{
 			len++;
 			i++;
-			while (input[*index + i] && input[*index + i] != '\"' && input[*index + i] != '\'')
+			while (input[*index + i] && input[*index + i] != '\"'
+				&& input[*index + i] != '\'')
 			{
 				len++;
 				i++;
@@ -80,7 +81,8 @@ static t_token	*ft_build_token(char *input, unsigned short *index)
 		{
 			token->content[i] = input[*index + i];
 			i++;
-			while (input[*index + i] && input[*index + i] != '\"' && input[*index + i] != '\'')
+			while (input[*index + i] && input[*index + i] != '\"'
+				&& input[*index + i] != '\'')
 			{
 				token->content[i] = input[*index + i];
 				i++;
@@ -99,8 +101,9 @@ static t_token	*ft_build_token(char *input, unsigned short *index)
 
 static void	ft_assign_token_type(t_list ***lst)
 {
-	t_list	*tmp;
-	t_token	*token;
+	struct stat	statbuf;
+	t_list		*tmp;
+	t_token		*token;
 
 	tmp = **lst;
 	while (tmp)
@@ -108,17 +111,32 @@ static void	ft_assign_token_type(t_list ***lst)
 		token = (t_token *)tmp->content;
 		if (ft_identify_command(&token, ft_split(getenv("PATH"), ':')))
 		{
-			token->type = 'X';
-			while (tmp && tmp->next && !ft_isoperator(((t_token *)tmp->next->content)->content))
+			if (stat(token->content, &statbuf) == 0 && !S_ISDIR(statbuf.st_mode)
+				&& (statbuf.st_mode & (S_IXUSR | S_IXGRP | S_IXOTH)))
+			{
+				token->type = 'X';
+				while (tmp && tmp->next
+					&& !ft_isoperator(((t_token *)tmp->next->content)->content))
+				{
+					((t_token *)tmp->next->content)->type = 'A';
+					tmp = tmp->next;
+				}
+			}
+			else
+				token->type = 'E';
+		}
+		else if (access(token->content, F_OK) == 0)
+			token->type = 'F';
+		else if (ft_isoperator(token->content))
+		{
+			token->type = 'O';
+			if (ft_strlen(token->content) == 2
+				&& ft_strncmp(token->content, "<<", 2) == 0 && tmp->next)
 			{
 				((t_token *)tmp->next->content)->type = 'A';
 				tmp = tmp->next;
 			}
 		}
-		else if (access(token->content, F_OK) == 0)
-			token->type = 'F';
-		else if (ft_isoperator(token->content))
-			token->type = 'O';
 		else
 			token->type = 'E';
 		tmp = tmp->next;
@@ -127,9 +145,9 @@ static void	ft_assign_token_type(t_list ***lst)
 
 t_list	**ft_tokenization(char *input)
 {
-	t_list	**lst;
-	t_list	*tmp;
-	t_token	*token;
+	t_list			**lst;
+	t_list			*tmp;
+	t_token			*token;
 	unsigned short	i;
 
 	token = NULL;

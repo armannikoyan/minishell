@@ -6,7 +6,7 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/09 14:11:07 by anikoyan          #+#    #+#             */
-/*   Updated: 2024/11/12 16:09:26 by anikoyan         ###   ########.fr       */
+/*   Updated: 2024/11/18 18:38:15 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -120,7 +120,7 @@ char	*ft_space_correction(char *input)
 				len++;
 			if (input[i] && input[i] == ')'
 				&& input[i - 1] && !ft_isspace(input[i - 1]))
-					len++;
+				len++;
 			len++;
 			i++;
 		}
