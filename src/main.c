@@ -6,7 +6,7 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/18 16:57:05 by anikoyan          #+#    #+#             */
-/*   Updated: 2024/11/15 18:06:20 by anikoyan         ###   ########.fr       */
+/*   Updated: 2024/11/20 17:31:05 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -112,14 +112,14 @@ int	main(int argc, char **argv, char **envp)
 			free(tmp);
 			lst = ft_tokenization(input);
 			free(input);
-			if (ft_has_syntax_error(lst))
-				ft_printf("Error\n");
+			if (lst)
+				ft_has_syntax_error(lst);
 		}
 		else if (!input)
 		{
 			free(prompt);
 			rl_clear_history();
-			exit(0);
+			exit(EXIT_SUCCESS);
 		}
 		free(prompt);
 	}

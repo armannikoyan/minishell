@@ -6,7 +6,7 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/18 17:00:14 by anikoyan          #+#    #+#             */
-/*   Updated: 2024/11/18 18:28:40 by anikoyan         ###   ########.fr       */
+/*   Updated: 2024/11/19 11:19:00 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,6 +37,7 @@ typedef struct s_token
 }				t_token;
 
 void			ft_signal_handler(int signum);
+void			ft_error(char **str, int m_errno);
 unsigned short	ft_isoperator(char *c);
 unsigned int	ft_envlen(char *input, unsigned int i);
 bool			ft_is_valid_env(char *env);

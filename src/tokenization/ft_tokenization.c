@@ -6,7 +6,7 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/22 20:33:00 by anikoyan          #+#    #+#             */
-/*   Updated: 2024/11/18 18:41:01 by anikoyan         ###   ########.fr       */
+/*   Updated: 2024/11/20 18:27:05 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,10 +27,11 @@ static bool	ft_identify_command(t_token **token, char **path)
 	{
 		tmp = ft_strjoin("/", (*token)->content);
 		if (!tmp)
-			exit(-1);
+			exit(EXIT_FAILURE);
 		line = ft_strjoin(path[i], tmp);
+		free(tmp);
 		if (!line)
-			exit(-1);
+			exit(EXIT_FAILURE);
 		if (access(line, X_OK) == 0)
 		{
 			free((*token)->content);
@@ -52,7 +53,7 @@ static t_token	*ft_build_token(char *input, unsigned short *index)
 
 	token = (t_token *)malloc(sizeof(t_token));
 	if (!token)
-		exit(-1);
+		exit(EXIT_FAILURE);
 	i = 0;
 	len = 0;
 	while (input[*index + i] && input[*index + i] != ' ')
@@ -73,7 +74,7 @@ static t_token	*ft_build_token(char *input, unsigned short *index)
 	}
 	token->content = (char *)malloc(sizeof(char) * (len + 1));
 	if (!token->content)
-		exit(-1);
+		exit(EXIT_FAILURE);
 	i = 0;
 	while (input[*index + i] && input[*index + i] != ' ')
 	{
@@ -131,14 +132,44 @@ static void	ft_assign_token_type(t_list ***lst)
 		{
 			token->type = 'O';
 			if (ft_strlen(token->content) == 2
-				&& ft_strncmp(token->content, "<<", 2) == 0 && tmp->next)
+				&& (token->content)[0] == '<' && tmp->next
+				&& ((t_token *)tmp->next->content))
 			{
 				((t_token *)tmp->next->content)->type = 'A';
 				tmp = tmp->next;
 			}
+			else if ((token->content)[0] == '>' && tmp->next
+				&& ((t_token *)tmp->next->content))
+			{
+				((t_token *)tmp->next->content)->type = 'F';
+				tmp = tmp->next;
+			}
+			else if (tmp->next && ((t_token *)tmp->next->content)
+				&& ((token->content)[0] == '<' && (t_token *)tmp->next->content
+				&& !access(((t_token *)tmp->next->content)->content, F_OK)))
+			{
+				((t_token *)tmp->next->content)->type = 'F';
+				tmp = tmp->next;
+			}
 		}
 		else
+		{
 			token->type = 'E';
+
+			// TODO: make a function to free the list
+
+			// tmp = **lst;
+			// while (tmp)
+			// {
+			// 	token = (t_token *)tmp->content;
+			// 	free(token->content);
+			// 	token = NULL;
+			// 	tmp = tmp->next;
+			// }
+			// ft_lstclear(*lst, free);
+			// **lst = NULL;
+			// break ;
+		}
 		tmp = tmp->next;
 	}
 }
@@ -154,7 +185,7 @@ t_list	**ft_tokenization(char *input)
 	i = 0;
 	lst = (t_list **)malloc(sizeof(t_list *));
 	if (!lst)
-		exit(-1);
+		exit(EXIT_FAILURE);
 	*lst = NULL;
 	while (input[i])
 	{
