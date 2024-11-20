@@ -6,7 +6,7 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/22 19:38:41 by anikoyan          #+#    #+#             */
-/*   Updated: 2024/11/20 18:30:44 by anikoyan         ###   ########.fr       */
+/*   Updated: 2024/11/20 19:13:42 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,10 +22,10 @@ bool	ft_has_syntax_error(t_list **lst)
 	tmp = *lst;
 	token = NULL;
 	if (*lst && (t_token *)(*lst)->content
-		&& ((t_token *)(*lst)->content)->type != 'X'
-		&& ((t_token *)(*lst)->content)->type != 'O'
-		&& (((t_token *)(*lst)->content)->content)[0] != '<'
-		&& (((t_token *)(*lst)->content)->content)[0] != '>')
+		&& (((t_token *)(*lst)->content)->type != 'X')
+		&& ((((t_token *)(*lst)->content)->content)[0] != '<'
+		|| (((t_token *)(*lst)->content)->content)[0] != '>')
+		&& (*lst)->next == NULL)
 	{
 		err_msg = ft_strjoin("parse error near: ",
 				((t_token *)(*lst)->content)->content);
@@ -42,7 +42,7 @@ bool	ft_has_syntax_error(t_list **lst)
 			ft_error(&err_msg, 127);
 			return (true);
 		}
-		else if (token->type == 'O'
+		else if (token->type == 'O' && tmp->next && tmp->next->content
 			&& ((t_token *)tmp->next->content)->type == 'O'
 			&& ((((t_token *)tmp->next->content)->content)[0] != '<'
 			&& (((t_token *)tmp->next->content)->content)[0] != '>'))
