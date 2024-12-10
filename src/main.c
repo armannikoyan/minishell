@@ -6,13 +6,31 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/18 16:57:05 by anikoyan          #+#    #+#             */
-/*   Updated: 2024/11/20 17:31:05 by anikoyan         ###   ########.fr       */
+/*   Updated: 2024/12/10 23:18:52 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/minishell.h"
 
 int	g_errno;
+
+extern void	rl_clear_history(void);
+
+static void	ft_print_tree(t_node *node)
+{
+	if (!node)
+		return ;
+	ft_print_tree(node->left);
+	ft_printf("------------\n");
+	ft_printf("content:\n");
+	for (int i = 0; node->content[i]; i++)
+	{
+		ft_printf("%s\n", node->content[i]);
+	}
+	ft_printf("type: %c\n", node->type);
+	ft_printf("------------\n");
+	ft_print_tree(node->right);
+}
 
 static char	*ft_subusr(char *abs_wdir)
 {
@@ -93,6 +111,7 @@ int	main(int argc, char **argv, char **envp)
 	char	*tmp;
 	char	*prompt;
 	t_list	**lst;
+	t_tree	*tree;
 
 	(void)argc;
 	(void)argv;
@@ -112,8 +131,17 @@ int	main(int argc, char **argv, char **envp)
 			free(tmp);
 			lst = ft_tokenization(input);
 			free(input);
-			if (lst)
-				ft_has_syntax_error(lst);
+			if (!lst)
+				exit(EXIT_FAILURE);
+			if (!ft_has_syntax_error(lst))
+			{
+				tree = ft_tree_build(lst);
+				if (!tree)
+					exit(EXIT_FAILURE);
+				ft_print_tree(tree->root);
+			}
+			ft_lstclear(lst, ft_tokendelone);
+			free(lst);
 		}
 		else if (!input)
 		{

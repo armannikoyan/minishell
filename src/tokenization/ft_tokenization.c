@@ -6,7 +6,7 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/22 20:33:00 by anikoyan          #+#    #+#             */
-/*   Updated: 2024/11/20 18:27:05 by anikoyan         ###   ########.fr       */
+/*   Updated: 2024/12/10 23:04:23 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -131,45 +131,20 @@ static void	ft_assign_token_type(t_list ***lst)
 		else if (ft_isoperator(token->content))
 		{
 			token->type = 'O';
-			if (ft_strlen(token->content) == 2
-				&& (token->content)[0] == '<' && tmp->next
-				&& ((t_token *)tmp->next->content))
-			{
-				((t_token *)tmp->next->content)->type = 'A';
-				tmp = tmp->next;
-			}
-			else if ((token->content)[0] == '>' && tmp->next
-				&& ((t_token *)tmp->next->content))
+			if (token->content[0] == '>' || token->content[0] == '<')
 			{
 				((t_token *)tmp->next->content)->type = 'F';
 				tmp = tmp->next;
 			}
-			else if (tmp->next && ((t_token *)tmp->next->content)
-				&& ((token->content)[0] == '<' && (t_token *)tmp->next->content
-				&& !access(((t_token *)tmp->next->content)->content, F_OK)))
+			while (tmp && (t_token *)tmp->content && ((t_token *)tmp->content)->content
+				&& !ft_isoperator(((t_token *)tmp->content)->content))
 			{
-				((t_token *)tmp->next->content)->type = 'F';
+				((t_token *)tmp->content)->type = 'A';
 				tmp = tmp->next;
 			}
 		}
 		else
-		{
 			token->type = 'E';
-
-			// TODO: make a function to free the list
-
-			// tmp = **lst;
-			// while (tmp)
-			// {
-			// 	token = (t_token *)tmp->content;
-			// 	free(token->content);
-			// 	token = NULL;
-			// 	tmp = tmp->next;
-			// }
-			// ft_lstclear(*lst, free);
-			// **lst = NULL;
-			// break ;
-		}
 		tmp = tmp->next;
 	}
 }
