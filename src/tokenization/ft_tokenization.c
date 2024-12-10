@@ -6,7 +6,7 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/22 20:33:00 by anikoyan          #+#    #+#             */
-/*   Updated: 2024/12/10 23:04:23 by anikoyan         ###   ########.fr       */
+/*   Updated: 2024/12/10 23:39:08 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -131,11 +131,13 @@ static void	ft_assign_token_type(t_list ***lst)
 		else if (ft_isoperator(token->content))
 		{
 			token->type = 'O';
-			if (token->content[0] == '>' || token->content[0] == '<')
+			if ((token->content[0] == '>' || token->content[0] == '<')
+				&& tmp->next && (t_token *)tmp->next->content)
 			{
-				((t_token *)tmp->next->content)->type = 'F';
 				tmp = tmp->next;
+				((t_token *)tmp->content)->type = 'F';
 			}
+			tmp = tmp->next;
 			while (tmp && (t_token *)tmp->content && ((t_token *)tmp->content)->content
 				&& !ft_isoperator(((t_token *)tmp->content)->content))
 			{
@@ -145,7 +147,8 @@ static void	ft_assign_token_type(t_list ***lst)
 		}
 		else
 			token->type = 'E';
-		tmp = tmp->next;
+		if (tmp)
+			tmp = tmp->next;
 	}
 }
 
