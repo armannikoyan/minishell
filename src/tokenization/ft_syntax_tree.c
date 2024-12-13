@@ -6,7 +6,7 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/04 12:47:00 by anikoyan          #+#    #+#             */
-/*   Updated: 2024/12/13 12:54:29 by anikoyan         ###   ########.fr       */
+/*   Updated: 2024/12/13 12:56:30 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -224,7 +224,7 @@ t_tree	*ft_tree_build(t_list **lst)
 		new_node = parse_node(&tmp);
 		if (new_node)
 			add_to_tree(tree, new_node);
-		tmp = tmp->next; // TODO: Remove blank nods when creating the tree
+		tmp = tmp->next;
 	}
 	ft_tree_dtor(NULL);
 	return (tree);

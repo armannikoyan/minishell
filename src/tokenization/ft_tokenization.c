@@ -6,7 +6,7 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/22 20:33:00 by anikoyan          #+#    #+#             */
-/*   Updated: 2024/12/13 12:48:42 by anikoyan         ###   ########.fr       */
+/*   Updated: 2024/12/13 12:59:10 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -141,6 +141,8 @@ static void	ft_assign_token_type(t_list ***lst)
 						&& !ft_isoperator(((t_token *)tmp->content)->content))
 				{
 					((t_token *)tmp->content)->type = 'A';
+					if (ft_isoperator(((t_token *)tmp->next->content)->content))
+						break ;
 					tmp = tmp->next;
 				}
 			}
