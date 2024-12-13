@@ -6,7 +6,7 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/04 12:47:00 by anikoyan          #+#    #+#             */
-/*   Updated: 2024/12/10 23:40:59 by anikoyan         ###   ########.fr       */
+/*   Updated: 2024/12/13 12:54:29 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -111,7 +111,7 @@ static t_node	*parse_node(t_list **lst)
 	unsigned short	i;
 
 	if (!lst || !*lst)
-		return (NULL);
+		exit(EXIT_FAILURE);
 	type_of_node = 0;
 	i = 0;
 	tmp = *lst;
@@ -144,6 +144,11 @@ static t_node	*parse_node(t_list **lst)
 			content[i++] = ((t_token *)tmp->content)->content;
 			tmp = tmp->next;
 		}
+	}
+	else
+	{
+		free(content);
+		return (NULL);
 	}
 	return (ft_node_ctor(content, type_of_node));
 }
@@ -217,13 +222,10 @@ t_tree	*ft_tree_build(t_list **lst)
 	while (tmp)
 	{
 		new_node = parse_node(&tmp);
-		if (!new_node)
-		{
-			ft_tree_dtor(&tree);
-			return (NULL);
-		}
-		add_to_tree(tree, new_node);
-		tmp = tmp->next;
+		if (new_node)
+			add_to_tree(tree, new_node);
+		tmp = tmp->next; // TODO: Remove blank nods when creating the tree
 	}
-	return tree;
+	ft_tree_dtor(NULL);
+	return (tree);
 }

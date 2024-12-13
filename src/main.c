@@ -6,7 +6,7 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/18 16:57:05 by anikoyan          #+#    #+#             */
-/*   Updated: 2024/12/10 23:18:52 by anikoyan         ###   ########.fr       */
+/*   Updated: 2024/12/10 23:43:23 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -138,7 +138,7 @@ int	main(int argc, char **argv, char **envp)
 				tree = ft_tree_build(lst);
 				if (!tree)
 					exit(EXIT_FAILURE);
-				ft_print_tree(tree->root);
+				ft_print_tree(tree->root); // TODO: remove this line
 			}
 			ft_lstclear(lst, ft_tokendelone);
 			free(lst);
