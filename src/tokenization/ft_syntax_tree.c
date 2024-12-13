@@ -6,7 +6,7 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/04 12:47:00 by anikoyan          #+#    #+#             */
-/*   Updated: 2024/12/13 12:56:30 by anikoyan         ###   ########.fr       */
+/*   Updated: 2024/12/13 13:09:35 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -155,12 +155,12 @@ static t_node	*parse_node(t_list **lst)
 
 int operator_precedence(char *op) {
 	if (ft_strcmp(op, "&&") == 0 || ft_strcmp(op, "||") == 0)
-		return 1; // Lowest precedence
+		return 3; // Lowest precedence
 	if (ft_strcmp(op, "|") == 0)
 		return 2;
 	if (ft_strcmp(op, "<") == 0 || ft_strcmp(op, ">") == 0
 			|| ft_strcmp(op, ">>") == 0 || ft_strcmp(op, "<<") == 0)
-		return 3; // Highest precedence
+		return 1; // Highest precedence
 	return 0; // Default for unknown
 }
 
