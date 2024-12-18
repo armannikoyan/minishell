@@ -39,7 +39,7 @@ typedef struct s_token
 typedef struct s_node
 {
 	char			**content;
-	char	type;
+	char			type;
 	struct s_node	*left;
 	struct s_node	*right;
 }	t_node;
@@ -65,5 +65,34 @@ char			*ft_env_expansion(char *input, char **envp);
 char			*ft_space_correction(char *input);
 
 t_list			**ft_tokenization(char *input);
+
+unsigned short	copy_corrected_output(char *output, char *input);
+bool			is_special_character(char c);
+void			handle_parentheses_length(char *input,
+					unsigned short *i, unsigned short *len);
+unsigned short	handle_general_characters(char *input,
+					unsigned short *i, unsigned short *len);
+void			handle_spaces(char *input,
+					unsigned short *i, unsigned short *len);
+void			skip_leading_spaces(char *input, unsigned short *i);
+unsigned short	calculate_corrected_length(char *input);
+void			handle_space_after_parentheses(char *output,
+					char *input, unsigned short *i, unsigned short *j);
+t_list			**tokenize_and_build_tree(char *input, t_tree **tree);
+char			*process_input(char *input, char **envp);
+void			process_valid_input(char *input, char **envp);
+void			handle_input(char *prompt, char **envp);
+void			free_resources(char *input, t_list **lst, t_tree *tree);
+void			clean_exit(char *prompt);
+void			handle_operator_token(t_list **tmp);
+void			copy_token_content(char *dest,
+					const char *input, unsigned short *index);
+unsigned short	calculate_token_length(const char *input,
+					unsigned short *index);
+char			*join_paths(const char *base, const char *suffix);
+void			set_command_type(t_token *token);
+int				operator_has_higher_precedence(t_node *new_op,
+					t_node *current_op);
+int				operator_precedence(char *op);
 
 #endif

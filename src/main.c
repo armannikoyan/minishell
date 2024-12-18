@@ -14,24 +14,6 @@
 
 int	g_errno;
 
-extern void	rl_clear_history(void);
-
-static void	ft_print_tree(t_node *node)
-{
-	if (!node)
-		return ;
-	ft_print_tree(node->left);
-	ft_printf("------------\n");
-	ft_printf("content:\n");
-	for (int i = 0; node->content[i]; i++)
-	{
-		ft_printf("%s\n", node->content[i]);
-	}
-	ft_printf("type: %c\n", node->type);
-	ft_printf("------------\n");
-	ft_print_tree(node->right);
-}
-
 static char	*ft_subusr(char *abs_wdir)
 {
 	unsigned int	len;
@@ -105,50 +87,62 @@ char	*ft_entry_info(void)
 	return (prompt);
 }
 
+// int	main(int argc, char **argv, char **envp)
+// {
+// 	char	*input;
+// 	char	*tmp;
+// 	char	*prompt;
+// 	t_list	**lst;
+// 	t_tree	*tree;
+
+// 	(void)argc;
+// 	(void)argv;
+// 	signal(SIGINT, ft_signal_handler);
+// 	while (true)
+// 	{
+// 		prompt = ft_entry_info();
+// 		input = readline(prompt);
+// 		if (input && *input)
+// 		{
+// 			add_history(input);
+// 			tmp = input;
+// 			input = ft_space_correction(tmp);
+// 			free(tmp);
+// 			tmp = input;
+// 			input = ft_env_expansion(tmp, envp);
+// 			free(tmp);
+// 			lst = ft_tokenization(input);
+// 			free(input);
+// 			if (!lst)
+// 				exit(EXIT_FAILURE);
+// 			if (!ft_has_syntax_error(lst))
+// 			{
+// 				tree = ft_tree_build(lst);
+// 				if (!tree)
+// 					exit(EXIT_FAILURE);
+// 				ft_print_tree(tree->root); // TODO: remove this line
+// 			}
+// 			ft_lstclear(lst, ft_tokendelone);
+// 			free(lst);
+// 		}
+// 		else if (!input)
+// 		{
+// 			free(prompt);
+// 			rl_clear_history();
+// 			exit(EXIT_SUCCESS);
+// 		}
+// 		free(prompt);
+// 	}
+// }
+
 int	main(int argc, char **argv, char **envp)
 {
-	char	*input;
-	char	*tmp;
-	char	*prompt;
-	t_list	**lst;
-	t_tree	*tree;
-
 	(void)argc;
 	(void)argv;
 	signal(SIGINT, ft_signal_handler);
 	while (true)
 	{
-		prompt = ft_entry_info();
-		input = readline(prompt);
-		if (input && *input)
-		{
-			add_history(input);
-			tmp = input;
-			input = ft_space_correction(tmp);
-			free(tmp);
-			tmp = input;
-			input = ft_env_expansion(tmp, envp);
-			free(tmp);
-			lst = ft_tokenization(input);
-			free(input);
-			if (!lst)
-				exit(EXIT_FAILURE);
-			if (!ft_has_syntax_error(lst))
-			{
-				tree = ft_tree_build(lst);
-				if (!tree)
-					exit(EXIT_FAILURE);
-				ft_print_tree(tree->root); // TODO: remove this line
-			}
-			ft_lstclear(lst, ft_tokendelone);
-			free(lst);
-		}
-		else if (!input)
-		{
-			free(prompt);
-			rl_clear_history();
-			exit(EXIT_SUCCESS);
-		}
-		free(prompt);
+		handle_input(ft_entry_info(), envp);
 	}
+	return (EXIT_SUCCESS);
 }

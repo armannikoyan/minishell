@@ -8,12 +8,12 @@ DEPS = includes/minishell.h
 
 SRCS = main.c \
        $(addprefix parsing/, \
-	ft_syntax.c ft_env_expansion.c ft_env_expansion_utils.c) \
+	ft_syntax.c ft_syntax_2.c ft_env_expansion.c ft_env_expansion_utils.c) \
        $(addprefix utils/, \
-	ft_error.c ft_signal_handler.c ft_isoperator.c ft_space_correction.c \
-	ft_tokendelone.c) \
+	ft_error.c ft_signal_handler.c ft_isoperator.c ft_space_correction.c ft_space_correction_helper.c ft_space_correction_helper_2.c\
+	ft_tokendelone.c ft_input.c ft_freexit.c) \
        $(addprefix tokenization/, \
-	ft_tokenization.c ft_syntax_tree.c)
+	ft_tokenization.c ft_tokenization_helper.c ft_syntax_tree.c ft_tree_node.c ft_node_ctor_dtor.c ft_make_tree.c)
 
 OBJ_SUBDIRS = $(addprefix $(OBJ_DIR)/, \
 		parsing utils tokenization)
