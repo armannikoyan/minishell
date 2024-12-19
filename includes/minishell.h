@@ -95,4 +95,19 @@ int				operator_has_higher_precedence(t_node *new_op,
 					t_node *current_op);
 int				operator_precedence(char *op);
 
+int				is_valid_env_var_key(const char *str);
+char			*ft_strtok(char *str, const char *delimiters, char **save_ptr);
+long long		ft_long_atoi(const char *str);
+int				write_error(const char *prefix,
+					const char *message, const char *arg);
+void			write_string(const char *str1,
+					const char *str2, const char *str3);
+int				ft_cd(int argc, char **argv, char **envp);
+int				ft_echo(int argc, char **argv);
+int				ft_env(int argc, char **argv, char **envp);
+int				ft_exit(int argc, char **argv);
+int				ft_export(int argc, char **argv, char **envp);
+int				ft_pwd(int argc, char **argv);
+int				ft_unset(int argc, char **argv, char **envp);
+
 #endif

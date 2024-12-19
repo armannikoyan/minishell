@@ -13,10 +13,12 @@ SRCS = main.c \
 	ft_error.c ft_signal_handler.c ft_isoperator.c ft_space_correction.c ft_space_correction_helper.c ft_space_correction_helper_2.c\
 	ft_tokendelone.c ft_input.c ft_freexit.c) \
        $(addprefix tokenization/, \
-	ft_tokenization.c ft_tokenization_helper.c ft_syntax_tree.c ft_tree_node.c ft_node_ctor_dtor.c ft_make_tree.c)
+	ft_tokenization.c ft_tokenization_helper.c ft_syntax_tree.c ft_tree_node.c ft_node_ctor_dtor.c ft_make_tree.c) \
+       $(addprefix builtin/, \
+    builtin_utils.c builtin_write.c cd.c echo.c env.c exit.c export.c pwd.c unset.c)
 
 OBJ_SUBDIRS = $(addprefix $(OBJ_DIR)/, \
-		parsing utils tokenization)
+		builtin parsing utils tokenization)
 
 OBJS = $(addprefix $(OBJ_DIR)/, $(SRCS:.c=.o))
 
