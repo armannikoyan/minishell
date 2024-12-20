@@ -6,7 +6,7 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/18 17:00:14 by anikoyan          #+#    #+#             */
-/*   Updated: 2024/12/09 13:35:58 by anikoyan         ###   ########.fr       */
+/*   Updated: 2024/12/20 23:16:05 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,8 @@
 # include <readline/readline.h>
 # include <readline/history.h>
 # include <sys/stat.h>
+# include <dirent.h>
+# include <fcntl.h>
 
 # include "../libs/libft/libft.h"
 
@@ -33,7 +35,7 @@ typedef struct s_token
 {
 	char	*content;
 	char	type;
-	bool	subshell;
+	unsigned short	subshell_level;
 }	t_token;
 
 typedef struct s_node
@@ -52,6 +54,8 @@ typedef struct s_syntax_tree
 void			ft_signal_handler(int signum);
 void			ft_error(char **str, int m_errno);
 void			ft_tokendelone(void *lst);
+void			ft_exec(t_tree *tree, char **envp);
+void			ft_process_path_patterns(t_list **lst);
 t_tree			*ft_tree_build(t_list **lst);
 unsigned short	ft_isoperator(char *c);
 unsigned int	ft_envlen(char *input, unsigned int i);

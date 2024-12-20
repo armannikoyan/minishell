@@ -6,7 +6,7 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/18 16:57:05 by anikoyan          #+#    #+#             */
-/*   Updated: 2024/12/10 23:43:23 by anikoyan         ###   ########.fr       */
+/*   Updated: 2024/12/16 22:23:01 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,22 +15,6 @@
 int	g_errno;
 
 extern void	rl_clear_history(void);
-
-static void	ft_print_tree(t_node *node)
-{
-	if (!node)
-		return ;
-	ft_print_tree(node->left);
-	ft_printf("------------\n");
-	ft_printf("content:\n");
-	for (int i = 0; node->content[i]; i++)
-	{
-		ft_printf("%s\n", node->content[i]);
-	}
-	ft_printf("type: %c\n", node->type);
-	ft_printf("------------\n");
-	ft_print_tree(node->right);
-}
 
 static char	*ft_subusr(char *abs_wdir)
 {
@@ -138,7 +122,7 @@ int	main(int argc, char **argv, char **envp)
 				tree = ft_tree_build(lst);
 				if (!tree)
 					exit(EXIT_FAILURE);
-				ft_print_tree(tree->root); // TODO: remove this line
+				ft_exec(tree, envp);
 			}
 			ft_lstclear(lst, ft_tokendelone);
 			free(lst);

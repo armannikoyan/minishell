@@ -6,7 +6,7 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/22 20:33:00 by anikoyan          #+#    #+#             */
-/*   Updated: 2024/12/13 12:59:10 by anikoyan         ###   ########.fr       */
+/*   Updated: 2024/12/20 23:17:21 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -104,7 +104,9 @@ static void	ft_assign_token_type(t_list ***lst)
 {
 	struct stat	statbuf;
 	t_list		*tmp;
+	t_list		*tmp_next;
 	t_token		*token;
+	t_list		*prev;
 
 	tmp = **lst;
 	while (tmp)
@@ -116,7 +118,8 @@ static void	ft_assign_token_type(t_list ***lst)
 				&& (statbuf.st_mode & (S_IXUSR | S_IXGRP | S_IXOTH)))
 			{
 				token->type = 'X';
-				while (tmp && tmp->next
+				while (tmp && tmp->next && (t_token *)tmp->next->content
+					&& ((t_token *)tmp->next->content)->content
 					&& !ft_isoperator(((t_token *)tmp->next->content)->content))
 				{
 					((t_token *)tmp->next->content)->type = 'A';
@@ -126,8 +129,6 @@ static void	ft_assign_token_type(t_list ***lst)
 			else
 				token->type = 'E';
 		}
-		else if (access(token->content, F_OK) == 0)
-			token->type = 'F';
 		else if (ft_isoperator(token->content))
 		{
 			token->type = 'O';
@@ -141,14 +142,48 @@ static void	ft_assign_token_type(t_list ***lst)
 						&& !ft_isoperator(((t_token *)tmp->content)->content))
 				{
 					((t_token *)tmp->content)->type = 'A';
-					if (ft_isoperator(((t_token *)tmp->next->content)->content))
+					if ((t_token *)tmp->next
+						&& ft_isoperator(((t_token *)tmp->next->content)->content))
 						break ;
 					tmp = tmp->next;
 				}
 			}
 		}
+		else if (ft_strcmp(token->content, "(") == 0)
+		{
+			if (prev)
+				prev->next = tmp->next;
+			else
+				**lst = tmp->next;
+			ft_lstdelone(tmp, ft_tokendelone);
+			if (prev)
+				tmp = prev->next;
+			else
+				tmp = **lst;
+			while (tmp && (t_token *)tmp->content && ((t_token *)tmp->content)->content
+					&& ft_strcmp(((t_token *)tmp->content)->content, ")") != 0)
+			{
+				token = (t_token *)tmp->content;
+				token->subshell_level += 1;
+				tmp_next = tmp->next;
+				if (tmp_next && tmp_next && (t_token *)tmp_next->content && ((t_token *)tmp_next->content)->content
+						&& ft_strcmp(((t_token *)tmp_next->content)->content, ")") == 0)
+				{
+					tmp->next = tmp_next->next;
+					ft_lstdelone(tmp_next, ft_tokendelone);
+					break ;
+				}
+				tmp = tmp->next;
+			}
+			if (prev)
+				tmp = prev;
+			else
+				tmp = **lst;
+			continue ;
+		}
 		else
 			token->type = 'E';
+		prev = tmp;
 		if (tmp)
 			tmp = tmp->next;
 	}
@@ -176,5 +211,6 @@ t_list	**ft_tokenization(char *input)
 		ft_lstadd_back(lst, tmp);
 	}
 	ft_assign_token_type(&lst);
+	ft_process_path_patterns(lst);
 	return (lst);
 }
