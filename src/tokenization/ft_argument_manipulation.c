@@ -6,66 +6,82 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 09:34:14 by anikoyan          #+#    #+#             */
-/*   Updated: 2024/12/17 13:52:55 by anikoyan         ###   ########.fr       */
+/*   Updated: 2024/12/20 23:36:14 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../includes/minishell.h"
 
-// void	ft_quote_romoval(t_list *list)
-// {
-// }
+void	ft_quote_romoval(t_token *token)
+{
+	char			*new_content;
+	unsigned short	len;
 
-void	ft_list_files_in_directory(const char *path, const char *pattern, t_list **list_ref) {
-	DIR *dir = opendir(path);
-	struct dirent *entry;
-
-	if (!dir) {
-		perror("opendir failed");
-		return;
+	if ((token->content[0] == '\'' || token->content[0] == '\"')
+		&& token->content[0] == token->content[ft_strlen(token->content) - 1])
+	{
+		len = ft_strlen(token->content);
+		new_content = ft_substr(token->content, 1, len - 2);
+		free(token->content);
+		token->content = new_content;
 	}
+}
 
-	while ((entry = readdir(dir)) != NULL) {
+void	ft_list_files_in_directory(const char *path, const char *pattern, t_list **list_ref)
+{
+	DIR				*dir;
+	struct dirent	*entry;
+	t_token			*new_token;
+	t_list			*new_node;
+	t_list			*current;
+
+	dir = opendir(path);
+	if (!dir)
+	{
+		perror("opendir failed");
+		return ;
+	}
+	while (entry != NULL)
+	{
 		if (entry->d_name[0] == '.' && ((ft_strlen(entry->d_name) == 1)
-			|| (ft_strlen(entry->d_name) == 2 && entry->d_name[1] == '.')))
-			continue;
-
-		t_token *new_token = (t_token *)malloc(sizeof(t_token));
-		if (!new_token) {
+				|| (ft_strlen(entry->d_name) == 2 && entry->d_name[1] == '.')))
+			continue ;
+		new_token = (t_token *)malloc(sizeof(t_token));
+		if (!new_token)
+		{
 			perror("malloc failed");
 			closedir(dir);
-			return;
+			return ;
 		}
-
 		new_token->content = ft_strjoin(pattern, entry->d_name);
-		if (!new_token->content) {
+		if (!new_token->content)
+		{
 			perror("ft_strdup failed");
 			free(new_token);
 			closedir(dir);
-			return;
+			return ;
 		}
-		t_list *new_node = ft_lstnew(new_token);
+		new_node = ft_lstnew(new_token);
 		if (!new_node)
 		{
 			perror("ft_lstnew failed");
 			free(new_token->content);
 			free(new_token);
 			closedir(dir);
-			return;
+			return ;
 		}
-		t_list *current = *list_ref;
-		if (!current) {
-			// If the list is empty, make the new node the head
+		current = *list_ref;
+		if (!current)
 			*list_ref = new_node;
-		} else {
-			// Traverse to the end of the current list
+		else
+		{
 			while (current->next)
 				current = current->next;
-			// Append the new node
 			current->next = new_node;
 		}
+		entry = readdir(dir);
+		// TODO: make pattern matching
 	}
-
 	if (closedir(dir) == -1)
 		perror("closedir failed");
 }
@@ -86,7 +102,7 @@ unsigned short	ft_path_len(char *str)
 
 char	*ft_get_pattern(char *str)
 {
-	char	*path;
+	char			*path;
 	unsigned short	len;
 
 	len = ft_path_len(str);
@@ -108,7 +124,7 @@ char	*ft_get_pattern(char *str)
 
 char	*ft_get_dir_name(char *str)
 {
-	char	*path;
+	char			*path;
 	unsigned short	len;
 
 	len = ft_path_len(str);
@@ -128,43 +144,40 @@ char	*ft_get_dir_name(char *str)
 	return (path);
 }
 
-void ft_process_path_patterns(t_list **lst_ref) {
-	t_list *current = *lst_ref;
-	t_list *prev = NULL;
-	t_list *next;
-	t_token *token;
-	char *dir_name;
-	char *prefix;
+void	ft_process_path_patterns(t_list **lst_ref)
+{
+	t_list	*current;
+	t_list	*prev;
+	t_list	*next;
+	t_token	*token;
+	char	*dir_name;
+	char	*prefix;
 
-	while (current) {
+	current = *lst_ref;
+	prev = NULL;
+	while (current)
+	{
 		next = current->next;
 		token = (t_token *)current->content;
-
-		if (token && token->content && ft_strchr(token->content, '*')) {
+		if (token && token->content && ft_strchr(token->content, '*'))
+		{
 			dir_name = ft_get_dir_name(token->content);
 			prefix = ft_get_pattern(token->content);
-			ft_printf("dir_name: %s\n", dir_name);
-
-			// Process pattern and update the list
 			ft_list_files_in_directory(dir_name, prefix, lst_ref);
-
-			// Free allocated memory
 			free(dir_name);
 			free(prefix);
-			if (prev) {
+			if (prev)
 				prev->next = current->next;
-			} else {
+			else
 				*lst_ref = current->next;
-			}
-			// Delete the current node
 			ft_tokendelone(current);
 			current = next;
-		} else {
-			// Only move prev if no deletion happens
+		}
+		else
+		{
+			ft_quote_romoval(token);
 			prev = current;
 		}
-
-		// Move to the next node
 		current = next;
 	}
 }
