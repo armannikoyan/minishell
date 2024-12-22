@@ -6,7 +6,7 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/22 19:38:41 by anikoyan          #+#    #+#             */
-/*   Updated: 2024/12/22 23:56:11 by anikoyan         ###   ########.fr       */
+/*   Updated: 2024/12/23 00:03:47 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,6 +88,7 @@ bool	ft_has_syntax_error(t_list **lst)
 	tmp = *lst;
 	while (tmp)
 	{
+		// TODO: check for matching () check for matching "" check for matching ''
 		token = (t_token *)tmp->content;
 		if (has_error_type_e(token)
 			|| has_consecutive_operators(token, tmp->next)
