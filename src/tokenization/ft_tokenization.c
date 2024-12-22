@@ -116,11 +116,94 @@ static t_token	*ft_build_token(char *input, unsigned short *index)
 	return (token);
 }
 
-static void	ft_assign_token_type(t_list ***lst)
+static void	ft_assign_command_type(t_token *token, t_list **tmp)
 {
 	struct stat	statbuf;
-	t_list		*tmp;
+
+	if (stat(token->content, &statbuf) == 0 && !S_ISDIR(statbuf.st_mode)
+		&& (statbuf.st_mode & (S_IXUSR | S_IXGRP | S_IXOTH)))
+	{
+		token->type = 'X';
+		ft_assign_argument_type(tmp);
+	}
+	else
+		token->type = 'E';
+}
+
+static void	ft_assign_argument_type(t_list **tmp)
+{
+	while (*tmp && (*tmp)->next && (t_token *)(*tmp)->next->content
+		&& ((t_token *)(*tmp)->next->content)->content
+		&& !ft_isoperator(((t_token *)(*tmp)->next->content)->content))
+	{
+		((t_token *)(*tmp)->next->content)->type = 'A';
+		*tmp = (*tmp)->next;
+	}
+}
+
+static void	ft_assign_operator_type(t_list **tmp, t_token *token)
+{
+	token->type = 'O';
+	if ((token->content[0] == '>' || token->content[0] == '<')
+		&& (*tmp)->next && (t_token *)(*tmp)->next->content)
+	{
+		*tmp = (*tmp)->next;
+		((t_token *)(*tmp)->content)->type = 'F';
+		*tmp = (*tmp)->next;
+		while (*tmp && (t_token *)(*tmp)->content
+			&& ((t_token *)(*tmp)->content)->content
+			&& !ft_isoperator(((t_token *)(*tmp)->content)->content))
+		{
+			((t_token *)(*tmp)->content)->type = 'A';
+			if ((t_token *)(*tmp)->next
+				&& ft_isoperator(((t_token *)(*tmp)->next->content)->content))
+				break ;
+			*tmp = (*tmp)->next;
+		}
+	}
+}
+
+static void	ft_remove_subshell_token(t_list ***lst, t_list **tmp, t_list *prev)
+{
+	if (prev)
+		prev->next = (*tmp)->next;
+	else
+		**lst = (*tmp)->next;
+	ft_lstdelone(*tmp, ft_tokendelone);
+	if (prev)
+		*tmp = prev->next;
+	else
+		*tmp = **lst;
+}
+
+static void	ft_handle_subshell(t_list ***lst, t_list **tmp, t_list *prev)
+{
 	t_list		*tmp_next;
+	t_token		*token;
+
+	ft_remove_subshell_token(lst, tmp, prev);
+	while (*tmp && (t_token *)(*tmp)->content
+		&& ((t_token *)(*tmp)->content)->content
+		&& ft_strcmp(((t_token *)(*tmp)->content)->content, ")") != 0)
+	{
+		token = (t_token *)(*tmp)->content;
+		token->subshell_level += 1;
+		tmp_next = (*tmp)->next;
+		if (tmp_next && (t_token *)(tmp_next->content)
+			&& ((t_token *)(tmp_next->content)->content)
+			&& ft_strcmp(((t_token *)(tmp_next->content)->content), ")") == 0)
+		{
+			(*tmp)->next = tmp_next->next;
+			ft_lstdelone(tmp_next, ft_tokendelone);
+			break ;
+		}
+		*tmp = (*tmp)->next;
+	}
+}
+
+static void	ft_assign_token_type(t_list ***lst)
+{
+	t_list		*tmp;
 	t_token		*token;
 	t_list		*prev;
 
@@ -129,79 +212,11 @@ static void	ft_assign_token_type(t_list ***lst)
 	{
 		token = (t_token *)tmp->content;
 		if (ft_identify_command(&token, ft_split(getenv("PATH"), ':')))
-		{
-			if (stat(token->content, &statbuf) == 0 && !S_ISDIR(statbuf.st_mode)
-				&& (statbuf.st_mode & (S_IXUSR | S_IXGRP | S_IXOTH)))
-			{
-				token->type = 'X';
-				while (tmp && tmp->next && (t_token *)tmp->next->content
-					&& ((t_token *)tmp->next->content)->content
-					&& !ft_isoperator(((t_token *)tmp->next->content)->content))
-				{
-					((t_token *)tmp->next->content)->type = 'A';
-					tmp = tmp->next;
-				}
-			}
-			else
-				token->type = 'E';
-		}
+			ft_assign_command_type(token, &tmp);
 		else if (ft_isoperator(token->content))
-		{
-			token->type = 'O';
-			if ((token->content[0] == '>' || token->content[0] == '<')
-				&& tmp->next && (t_token *)tmp->next->content)
-			{
-				tmp = tmp->next;
-				((t_token *)tmp->content)->type = 'F';
-				tmp = tmp->next;
-				while (tmp && (t_token *)tmp->content
-					&& ((t_token *)tmp->content)->content
-					&& !ft_isoperator(((t_token *)tmp->content)->content))
-				{
-					((t_token *)tmp->content)->type = 'A';
-					if ((t_token *)tmp->next
-						&& ft_isoperator(((t_token *)tmp->next->content)
-							->content))
-						break ;
-					tmp = tmp->next;
-				}
-			}
-		}
+			ft_assign_operator_type(&tmp, token);
 		else if (ft_strcmp(token->content, "(") == 0)
-		{
-			if (prev)
-				prev->next = tmp->next;
-			else
-				**lst = tmp->next;
-			ft_lstdelone(tmp, ft_tokendelone);
-			if (prev)
-				tmp = prev->next;
-			else
-				tmp = **lst;
-			while (tmp && (t_token *)tmp->content
-				&& ((t_token *)tmp->content)->content
-				&& ft_strcmp(((t_token *)tmp->content)->content, ")") != 0)
-			{
-				token = (t_token *)tmp->content;
-				token->subshell_level += 1;
-				tmp_next = tmp->next;
-				if (tmp_next && tmp_next && (t_token *)tmp_next->content
-					&& ((t_token *)tmp_next->content)->content
-					&& ft_strcmp(((t_token *)tmp_next->content)
-						->content, ")") == 0)
-				{
-					tmp->next = tmp_next->next;
-					ft_lstdelone(tmp_next, ft_tokendelone);
-					break ;
-				}
-				tmp = tmp->next;
-			}
-			if (prev)
-				tmp = prev;
-			else
-				tmp = **lst;
-			continue ;
-		}
+			ft_handle_subshell(lst, &tmp, prev);
 		else
 			token->type = 'E';
 		prev = tmp;
