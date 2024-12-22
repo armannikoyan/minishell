@@ -61,13 +61,31 @@ static unsigned short	ft_exp_strlen(char *input, char **env_output)
 	return (len);
 }
 
+static char	*concat_and_update(char *expanded_input,
+	char *env_value, unsigned short *j, unsigned short *k)
+{
+	char	*tmp;
+
+	tmp = expanded_input;
+	expanded_input = ft_strjoin(tmp, env_value);
+	*j += ft_strlen(env_value);
+	(*k)++;
+	free(tmp);
+	return (expanded_input);
+}
+
+static void	append_character(char *expanded_input, char c, unsigned short *j)
+{
+	expanded_input[*j] = c;
+	(*j)++;
+}
+
 static char	*ft_str_envjoin(char *input, char **env_output)
 {
 	unsigned short	i;
 	unsigned short	j;
 	unsigned short	k;
 	char			*expanded_input;
-	char			*tmp;
 
 	expanded_input = malloc(sizeof(char) * ft_exp_strlen(input, env_output));
 	i = 0;
@@ -78,18 +96,12 @@ static char	*ft_str_envjoin(char *input, char **env_output)
 		if (input[i] && ft_get_quote_count(input, i) % 2 == 0
 			&& input[i] == '$' && ft_is_valid_env(&(input[++i])))
 		{
-			tmp = expanded_input;
-			expanded_input = ft_strjoin(tmp, env_output[k]);
-			j += ft_strlen(env_output[k]);
-			k++;
-			free(tmp);
+			expanded_input = concat_and_update(expanded_input,
+					env_output[k], &j, &k);
 			i += ft_envlen(input, i) - 1;
 		}
 		else
-		{
-			expanded_input[j] = input[i];
-			j++;
-		}
+			append_character(expanded_input, input[i], &j);
 		i++;
 	}
 	return (expanded_input);
