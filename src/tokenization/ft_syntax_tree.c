@@ -6,7 +6,7 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/04 12:47:00 by anikoyan          #+#    #+#             */
-/*   Updated: 2024/12/22 20:18:25 by anikoyan         ###   ########.fr       */
+/*   Updated: 2024/12/22 20:50:40 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -228,7 +228,6 @@ static void	add_to_tree(t_tree *tree, t_node *node)
 		tree->root = node;
 		return ;
 	}
-	current = tree->root;
 	if (node->type == 'O')
 		add_operator_node(tree, node);
 	else
