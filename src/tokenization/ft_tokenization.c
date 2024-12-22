@@ -51,25 +51,21 @@ static bool	ft_identify_command(t_token **token, char **path)
 	return (result);
 }
 
-static t_token	*ft_build_token(char *input, unsigned short *index)
+static unsigned short	ft_calculate_length(char *input, unsigned short index)
 {
-	t_token			*token;
 	unsigned short	len;
 	unsigned short	i;
 
-	token = (t_token *)malloc(sizeof(t_token));
-	if (!token)
-		exit(EXIT_FAILURE);
-	i = 0;
 	len = 0;
-	while (input[*index + i] && input[*index + i] != ' ')
+	i = 0;
+	while (input[index + i] && input[index + i] != ' ')
 	{
-		if (input[*index + i] == '\"' || input[*index + i] == '\'')
+		if (input[index + i] == '\"' || input[index + i] == '\'')
 		{
 			len++;
 			i++;
-			while (input[*index + i] && input[*index + i] != '\"'
-				&& input[*index + i] != '\'')
+			while (input[index + i]
+				&& input[index + i] != '\"' && input[index + i] != '\'')
 			{
 				len++;
 				i++;
@@ -78,31 +74,45 @@ static t_token	*ft_build_token(char *input, unsigned short *index)
 		len++;
 		i++;
 	}
+	return (len);
+}
+
+static void	ft_fill_content(t_token *token,
+	char *input, unsigned short *index, unsigned short len)
+{
+	unsigned short	i;
+
 	token->content = (char *)malloc(sizeof(char) * (len + 1));
 	if (!token->content)
 		exit(EXIT_FAILURE);
 	i = 0;
-	while (input[*index + i] && input[*index + i] != ' ')
+	while (input[*index] && input[*index] != ' ')
 	{
-		if (input[*index + i] == '\"' || input[*index + i] == '\'')
+		if (input[*index] == '\"' || input[*index] == '\'')
 		{
-			token->content[i] = input[*index + i];
-			i++;
-			while (input[*index + i] && input[*index + i] != '\"'
-				&& input[*index + i] != '\'')
-			{
-				token->content[i] = input[*index + i];
-				i++;
-			}
+			token->content[i++] = input[(*index)++];
+			while (input[*index] && input[*index] != '\"'
+				&& input[*index] != '\'')
+				token->content[i++] = input[(*index)++];
 		}
-		token->content[i] = input[*index + i];
-		i++;
+		token->content[i++] = input[(*index)++];
 	}
-	token->content[i++] = '\0';
-	*index += len;
+	token->content[i] = '\0';
 	while (input[*index] && input[*index] == ' ')
 		(*index)++;
+}
+
+static t_token	*ft_build_token(char *input, unsigned short *index)
+{
+	t_token			*token;
+	unsigned short	len;
+
+	token = (t_token *)malloc(sizeof(t_token));
+	if (!token)
+		exit(EXIT_FAILURE);
 	token->type = 0;
+	len = ft_calculate_length(input, *index);
+	ft_fill_content(token, input, index, len);
 	return (token);
 }
 
