@@ -65,7 +65,8 @@ unsigned short	ft_get_quote_count(char *input, unsigned short index);
 
 char			*ft_entry_info(void);
 bool			ft_has_syntax_error(t_list **lst);
-bool			ft_report_error(const char *prefix, const char *content, int error_code);
+bool			ft_report_error(const char *prefix,
+					const char *content, int error_code);
 char			*ft_env_expansion(char *input, char **envp);
 char			*ft_space_correction(char *input);
 

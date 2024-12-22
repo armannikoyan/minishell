@@ -89,17 +89,40 @@ char	*ft_entry_info(void)
 	return (prompt);
 }
 
-int	main(int argc, char **argv, char **envp)
+static void	handle_input(char *input, char **envp, t_list **lst, t_tree **tree)
+{
+	char	*tmp;
+
+	tmp = input;
+	input = ft_space_correction(tmp);
+	free(tmp);
+	tmp = input;
+	input = ft_env_expansion(tmp, envp);
+	free(tmp);
+	lst = ft_tokenization(input);
+	free(input);
+	if (!lst)
+		exit(EXIT_FAILURE);
+	if (!ft_has_syntax_error(lst))
+	{
+		*tree = ft_tree_build(lst);
+		if (!*tree)
+			exit(EXIT_FAILURE);
+		ft_exec(*tree, envp);
+	}
+	ft_lstclear(lst, ft_tokendelone);
+	free(lst);
+}
+
+static void	run_shell_loop(char **envp)
 {
 	char	*input;
-	char	*tmp;
 	char	*prompt;
 	t_list	**lst;
 	t_tree	*tree;
 
-	(void)argc;
-	(void)argv;
-	signal(SIGINT, ft_signal_handler);
+	lst = NULL;
+	tree = NULL;
 	while (true)
 	{
 		prompt = ft_entry_info();
@@ -107,25 +130,7 @@ int	main(int argc, char **argv, char **envp)
 		if (input && *input)
 		{
 			add_history(input);
-			tmp = input;
-			input = ft_space_correction(tmp);
-			free(tmp);
-			tmp = input;
-			input = ft_env_expansion(tmp, envp);
-			free(tmp);
-			lst = ft_tokenization(input);
-			free(input);
-			if (!lst)
-				exit(EXIT_FAILURE);
-			if (!ft_has_syntax_error(lst))
-			{
-				tree = ft_tree_build(lst);
-				if (!tree)
-					exit(EXIT_FAILURE);
-				ft_exec(tree, envp);
-			}
-			ft_lstclear(lst, ft_tokendelone);
-			free(lst);
+			handle_input(input, envp, lst, &tree);
 		}
 		else if (!input)
 		{
@@ -135,4 +140,12 @@ int	main(int argc, char **argv, char **envp)
 		}
 		free(prompt);
 	}
+}
+
+int	main(int argc, char **argv, char **envp)
+{
+	(void)argc;
+	(void)argv;
+	signal(SIGINT, ft_signal_handler);
+	run_shell_loop(envp);
 }

@@ -184,13 +184,13 @@ static t_node	*parse_node(t_list **lst)
 int	operator_precedence(char *op)
 {
 	if (ft_strcmp(op, "&&") == 0 || ft_strcmp(op, "||") == 0)
-		return (3); // Lowest precedence
+		return (3);
 	if (ft_strcmp(op, "|") == 0)
 		return (2);
 	if (ft_strcmp(op, "<") == 0 || ft_strcmp(op, ">") == 0
 		|| ft_strcmp(op, ">>") == 0 || ft_strcmp(op, "<<") == 0)
-		return (1); // Highest precedence
-	return (0); // Default for unknown
+		return (1);
+	return (0);
 }
 
 int	operator_has_higher_precedence(t_node *new_op, t_node *current_op)
@@ -200,7 +200,6 @@ int	operator_has_higher_precedence(t_node *new_op, t_node *current_op)
 
 	new_prec = operator_precedence(new_op->content[0]);
 	current_prec = operator_precedence(current_op->content[0]);
-	// Higher precedence operator replaces current
 	return (new_prec > current_prec);
 }
 
@@ -270,3 +269,26 @@ t_tree	*ft_tree_build(t_list **lst)
 	ft_tree_dtor(NULL);
 	return (tree);
 }
+
+// int	operator_precedence(char *op)
+// {
+// 	if (ft_strcmp(op, "&&") == 0 || ft_strcmp(op, "||") == 0)
+// 		return (3); // Lowest precedence
+// 	if (ft_strcmp(op, "|") == 0)
+// 		return (2);
+// 	if (ft_strcmp(op, "<") == 0 || ft_strcmp(op, ">") == 0
+// 		|| ft_strcmp(op, ">>") == 0 || ft_strcmp(op, "<<") == 0)
+// 		return (1); // Highest precedence
+// 	return (0); // Default for unknown
+// }
+
+// int	operator_has_higher_precedence(t_node *new_op, t_node *current_op)
+// {
+// 	int	new_prec;
+// 	int	current_prec;
+
+// 	new_prec = operator_precedence(new_op->content[0]);
+// 	current_prec = operator_precedence(current_op->content[0]);
+// 	// Higher precedence operator replaces current
+// 	return (new_prec > current_prec);
+// }
