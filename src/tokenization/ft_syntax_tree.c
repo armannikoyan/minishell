@@ -65,6 +65,26 @@ static void	ft_tree_dtor(t_tree **tree)
 	*tree = NULL;
 }
 
+static unsigned short	handle_o_token(t_list *tmp)
+{
+	if ((t_token *)tmp->content && ((t_token *)tmp->content)->type == 'O')
+	{
+		if (ft_strlen(((t_token *)tmp->content)->content) == 2
+			&& (((t_token *)tmp->content)->content[0] == '>'
+				|| ((t_token *)tmp->content)->content[0] == '<'))
+			return (2);
+		else
+			return (1);
+	}
+	return (0);
+}
+
+static void	increment_len_and_move(t_list **tmp, unsigned short *len)
+{
+	(*len)++;
+	*tmp = (*tmp)->next;
+}
+
 static unsigned short	ft_contentlen(t_list **lst)
 {
 	unsigned short	len;
@@ -74,35 +94,20 @@ static unsigned short	ft_contentlen(t_list **lst)
 	tmp = *lst;
 	if ((t_token *)tmp->content && ((t_token *)tmp->content)->type == 'X')
 	{
-		len++;
-		tmp = tmp->next;
+		increment_len_and_move(&tmp, &len);
 		while (tmp && (t_token *)tmp->content
 			&& ((t_token *)tmp->content)->type != 'O')
-		{
-			len++;
-			tmp = tmp->next;
-		}
+			increment_len_and_move(&tmp, &len);
 		while (tmp && (t_token *)tmp->content
 			&& (((t_token *)tmp->content)->type == 'O'
 				|| ((t_token *)tmp->content)->type == 'F'))
 			tmp = tmp->next;
 		while (tmp && (t_token *)tmp->content
 			&& ((t_token *)tmp->content)->type == 'A')
-		{
-			len++;
-			tmp = tmp->next;
-		}
+			increment_len_and_move(&tmp, &len);
 	}
 	else if ((t_token *)tmp->content && ((t_token *)tmp->content)->type == 'O')
-	{
-		if (((t_token *)tmp->content)->type == 'O'
-			&& ft_strlen(((t_token *)tmp->content)->content) == 2
-			&& (((t_token *)tmp->content)->content[0] == '>'
-				|| ((t_token *)tmp->content)->content[0] == '<'))
-			return (2);
-		else
-			return (1);
-	}
+		return (handle_o_token(tmp));
 	return (len);
 }
 
