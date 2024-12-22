@@ -12,33 +12,39 @@
 
 #include "../../includes/minishell.h"
 
+static bool	ft_try_command_path(t_token **token, char *directory)
+{
+	char	*tmp;
+	char	*full_path;
+	bool	result;
+
+	tmp = ft_strjoin("/", (*token)->content);
+	if (!tmp)
+		exit(EXIT_FAILURE);
+	full_path = ft_strjoin(directory, tmp);
+	free(tmp);
+	if (!full_path)
+		exit(EXIT_FAILURE);
+	result = (access(full_path, X_OK) == 0);
+	if (result)
+	{
+		free((*token)->content);
+		(*token)->content = ft_strdup(full_path);
+	}
+	free(full_path);
+	return (result);
+}
+
 static bool	ft_identify_command(t_token **token, char **path)
 {
-	char	*line;
-	char	*tmp;
 	int		i;
 	bool	result;
 
-	result = false;
-	if (access((*token)->content, X_OK) == 0)
-		result = true;
+	result = (access((*token)->content, X_OK) == 0);
 	i = 0;
 	while (path[i] && !result)
 	{
-		tmp = ft_strjoin("/", (*token)->content);
-		if (!tmp)
-			exit(EXIT_FAILURE);
-		line = ft_strjoin(path[i], tmp);
-		free(tmp);
-		if (!line)
-			exit(EXIT_FAILURE);
-		if (access(line, X_OK) == 0)
-		{
-			free((*token)->content);
-			(*token)->content = ft_strdup(line);
-			result = true;
-		}
-		free(line);
+		result = ft_try_command_path(token, path[i]);
 		i++;
 	}
 	ft_free_2d_array((void ***)&path);
