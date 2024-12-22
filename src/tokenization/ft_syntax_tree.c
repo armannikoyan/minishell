@@ -35,7 +35,7 @@ static void	ft_node_dtor(t_node **node)
 	*node = NULL;
 }
 
-static t_tree	*ft_tree_ctor()
+static t_tree	*ft_tree_ctor(void)
 {
 	t_tree	*new;
 
@@ -76,15 +76,18 @@ static unsigned short	ft_contentlen(t_list **lst)
 	{
 		len++;
 		tmp = tmp->next;
-		while (tmp && (t_token *)tmp->content && ((t_token *)tmp->content)->type != 'O')
+		while (tmp && (t_token *)tmp->content
+			&& ((t_token *)tmp->content)->type != 'O')
 		{
 			len++;
 			tmp = tmp->next;
 		}
-		while (tmp && (t_token *)tmp->content && (((t_token *)tmp->content)->type == 'O'
-					|| ((t_token *)tmp->content)->type == 'F'))
+		while (tmp && (t_token *)tmp->content
+			&& (((t_token *)tmp->content)->type == 'O'
+				|| ((t_token *)tmp->content)->type == 'F'))
 			tmp = tmp->next;
-		while (tmp && (t_token *)tmp->content && ((t_token *)tmp->content)->type == 'A')
+		while (tmp && (t_token *)tmp->content
+			&& ((t_token *)tmp->content)->type == 'A')
 		{
 			len++;
 			tmp = tmp->next;
@@ -93,9 +96,9 @@ static unsigned short	ft_contentlen(t_list **lst)
 	else if ((t_token *)tmp->content && ((t_token *)tmp->content)->type == 'O')
 	{
 		if (((t_token *)tmp->content)->type == 'O'
-				&& ft_strlen(((t_token *)tmp->content)->content) == 2
-				&& (((t_token *)tmp->content)->content[0] == '>'
-					|| ((t_token *)tmp->content)->content[0] == '<'))
+			&& ft_strlen(((t_token *)tmp->content)->content) == 2
+			&& (((t_token *)tmp->content)->content[0] == '>'
+				|| ((t_token *)tmp->content)->content[0] == '<'))
 			return (2);
 		else
 			return (1);
@@ -121,15 +124,18 @@ static t_node	*parse_node(t_list **lst)
 	if ((t_token *)tmp->content && ((t_token *)tmp->content)->type == 'X')
 	{
 		type_of_node = 'X';
-		while (tmp && (t_token *)tmp->content && ((t_token *)tmp->content)->type != 'O')
+		while (tmp && (t_token *)tmp->content
+			&& ((t_token *)tmp->content)->type != 'O')
 		{
 			content[i++] = ((t_token *)tmp->content)->content;
 			tmp = tmp->next;
 		}
-		while (tmp && (t_token *)tmp->content && (((t_token *)tmp->content)->type == 'O'
+		while (tmp && (t_token *)tmp->content
+			&& (((t_token *)tmp->content)->type == 'O'
 				|| ((t_token *)tmp->content)->type == 'F'))
 			tmp = tmp->next;
-		while (tmp && (t_token *)tmp->content && ((t_token *)tmp->content)->type == 'A')
+		while (tmp && (t_token *)tmp->content
+			&& ((t_token *)tmp->content)->type == 'A')
 		{
 			content[i++] = ((t_token *)tmp->content)->content;
 			tmp = tmp->next;
@@ -138,7 +144,8 @@ static t_node	*parse_node(t_list **lst)
 	else if ((t_token *)tmp->content && ((t_token *)tmp->content)->type == 'O')
 	{
 		type_of_node = 'O';
-		while (tmp && (t_token *)tmp->content && (((t_token *)tmp->content)->type == 'O'
+		while (tmp && (t_token *)tmp->content
+			&& (((t_token *)tmp->content)->type == 'O'
 				|| ((t_token *)tmp->content)->type == 'F'))
 		{
 			content[i++] = ((t_token *)tmp->content)->content;
@@ -153,26 +160,30 @@ static t_node	*parse_node(t_list **lst)
 	return (ft_node_ctor(content, type_of_node));
 }
 
-int operator_precedence(char *op) {
+int	operator_precedence(char *op)
+{
 	if (ft_strcmp(op, "&&") == 0 || ft_strcmp(op, "||") == 0)
-		return 3; // Lowest precedence
+		return (3); // Lowest precedence
 	if (ft_strcmp(op, "|") == 0)
-		return 2;
+		return (2);
 	if (ft_strcmp(op, "<") == 0 || ft_strcmp(op, ">") == 0
-			|| ft_strcmp(op, ">>") == 0 || ft_strcmp(op, "<<") == 0)
-		return 1; // Highest precedence
-	return 0; // Default for unknown
+		|| ft_strcmp(op, ">>") == 0 || ft_strcmp(op, "<<") == 0)
+		return (1); // Highest precedence
+	return (0); // Default for unknown
 }
 
-int operator_has_higher_precedence(t_node *new_op, t_node *current_op) {
-	int new_prec = operator_precedence(new_op->content[0]);
-	int current_prec = operator_precedence(current_op->content[0]);
+int	operator_has_higher_precedence(t_node *new_op, t_node *current_op)
+{
+	int	new_prec;
+	int	current_prec;
 
+	new_prec = operator_precedence(new_op->content[0]);
+	current_prec = operator_precedence(current_op->content[0]);
 	// Higher precedence operator replaces current
-	return new_prec > current_prec;
+	return (new_prec > current_prec);
 }
 
-static void add_to_tree(t_tree *tree, t_node *node)
+static void	add_to_tree(t_tree *tree, t_node *node)
 {
 	t_node	*current;
 
@@ -215,7 +226,7 @@ t_tree	*ft_tree_build(t_list **lst)
 	t_list	*tmp;
 	t_node	*new_node;
 
-	tree = ft_tree_ctor();
+	tree = ft_tree_ctor(void);
 	tmp = *lst;
 	if (!tree || !lst || !*lst)
 		return (NULL);

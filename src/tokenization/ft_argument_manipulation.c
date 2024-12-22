@@ -29,7 +29,8 @@ void	ft_quote_removal(t_token *token)
 	}
 }
 
-void	ft_list_files_in_directory_with_pattern(const char *path, t_list **list_ref, const char *prefix, const char *postfix)
+void	ft_list_files_in_directory_with_pattern(const char *path,
+	t_list **list_ref, const char *prefix, const char *postfix)
 {
 	DIR				*dir;
 	struct dirent	*entry;
@@ -50,15 +51,19 @@ void	ft_list_files_in_directory_with_pattern(const char *path, t_list **list_ref
 	while (entry != NULL)
 	{
 		if ((entry->d_name[0] == '.' && ((ft_strlen(entry->d_name) == 1)
-				|| (ft_strlen(entry->d_name) == 2 && entry->d_name[1] == '.')))
-				|| (ft_strncmp(prefix, ".", 1) != 0 && ft_strncmp(entry->d_name, ".", 1) == 0))
+					|| (ft_strlen(entry->d_name) == 2
+						&& entry->d_name[1] == '.')))
+			|| (ft_strncmp(prefix, ".", 1) != 0
+				&& ft_strncmp(entry->d_name, ".", 1) == 0))
 		{
 			entry = readdir(dir);
 			continue ;
 		}
 		if ((ft_strncmp(entry->d_name, prefix, ft_strlen(prefix)) == 0)
-			&& (ft_strlen(entry->d_name) >= ft_strlen(prefix) + ft_strlen(postfix))
-			&& (ft_strcmp(entry->d_name + ft_strlen(entry->d_name) - ft_strlen(postfix), postfix) == 0))
+			&& (ft_strlen(entry->d_name)
+				>= ft_strlen(prefix) + ft_strlen(postfix))
+			&& (ft_strcmp(entry->d_name + ft_strlen(entry->d_name)
+					- ft_strlen(postfix), postfix) == 0))
 		{
 			new_token = (t_token *)malloc(sizeof(t_token));
 			if (!new_token)
@@ -185,7 +190,8 @@ void	ft_process_path_patterns(t_list **lst_ref)
 		{
 			ft_extract_pattern(token->content, &prefix, &postfix);
 			dir_name = ft_get_dir_name(token->content);
-			ft_list_files_in_directory_with_pattern(dir_name, lst_ref, prefix, postfix);
+			ft_list_files_in_directory_with_pattern(dir_name,
+				lst_ref, prefix, postfix);
 			free(dir_name);
 			free(prefix);
 			free(postfix);

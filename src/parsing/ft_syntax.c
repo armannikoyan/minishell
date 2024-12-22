@@ -79,8 +79,11 @@ bool	ft_has_syntax_error(t_list **lst)
 		}
 		else if (tmp && ((t_token *)tmp->content)->type == 'A'
 			&& (((t_token *)tmp->content)->content[0] == '\''
-			|| ((t_token *)tmp->content)->content[0] == '\"')
-			&& (((t_token *)tmp->content)->content[ft_strlen(((t_token *)tmp->content)->content) - 1] != ((t_token *)tmp->content)->content[0] || ft_strlen(((t_token *)tmp->content)->content) == 1))
+				|| ((t_token *)tmp->content)->content[0] == '\"')
+			&& (((t_token *)tmp->content)->content[
+					ft_strlen(((t_token *)tmp->content)->content) - 1]
+				!= ((t_token *)tmp->content)->content[0]
+				|| ft_strlen(((t_token *)tmp->content)->content) == 1))
 		{
 			err_msg = ft_strjoin("parse error near: ",
 					((t_token *)tmp->content)->content);

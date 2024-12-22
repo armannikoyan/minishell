@@ -138,12 +138,14 @@ static void	ft_assign_token_type(t_list ***lst)
 				tmp = tmp->next;
 				((t_token *)tmp->content)->type = 'F';
 				tmp = tmp->next;
-				while (tmp && (t_token *)tmp->content && ((t_token *)tmp->content)->content
-						&& !ft_isoperator(((t_token *)tmp->content)->content))
+				while (tmp && (t_token *)tmp->content
+					&& ((t_token *)tmp->content)->content
+					&& !ft_isoperator(((t_token *)tmp->content)->content))
 				{
 					((t_token *)tmp->content)->type = 'A';
 					if ((t_token *)tmp->next
-						&& ft_isoperator(((t_token *)tmp->next->content)->content))
+						&& ft_isoperator(((t_token *)tmp->next->content)
+							->content))
 						break ;
 					tmp = tmp->next;
 				}
@@ -160,14 +162,17 @@ static void	ft_assign_token_type(t_list ***lst)
 				tmp = prev->next;
 			else
 				tmp = **lst;
-			while (tmp && (t_token *)tmp->content && ((t_token *)tmp->content)->content
-					&& ft_strcmp(((t_token *)tmp->content)->content, ")") != 0)
+			while (tmp && (t_token *)tmp->content
+				&& ((t_token *)tmp->content)->content
+				&& ft_strcmp(((t_token *)tmp->content)->content, ")") != 0)
 			{
 				token = (t_token *)tmp->content;
 				token->subshell_level += 1;
 				tmp_next = tmp->next;
-				if (tmp_next && tmp_next && (t_token *)tmp_next->content && ((t_token *)tmp_next->content)->content
-						&& ft_strcmp(((t_token *)tmp_next->content)->content, ")") == 0)
+				if (tmp_next && tmp_next && (t_token *)tmp_next->content
+					&& ((t_token *)tmp_next->content)->content
+					&& ft_strcmp(((t_token *)tmp_next->content)
+						->content, ")") == 0)
 				{
 					tmp->next = tmp_next->next;
 					ft_lstdelone(tmp_next, ft_tokendelone);

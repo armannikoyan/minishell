@@ -33,15 +33,15 @@
 
 typedef struct s_token
 {
-	char	*content;
-	char	type;
+	char			*content;
+	char			type;
 	unsigned short	subshell_level;
 }	t_token;
 
 typedef struct s_node
 {
 	char			**content;
-	char	type;
+	char			type;
 	struct s_node	*left;
 	struct s_node	*right;
 }	t_node;
@@ -69,5 +69,23 @@ char			*ft_env_expansion(char *input, char **envp);
 char			*ft_space_correction(char *input);
 
 t_list			**ft_tokenization(char *input);
+
+int				ft_cd(int argc, char **argv, char **envp);
+int				ft_echo(int argc, char **argv);
+int				ft_env(int argc, char **argv, char **envp);
+int				ft_exit(int argc, char **argv);
+int				ft_export(int argc, char **argv, char **envp);
+int				ft_pwd(int argc, char **argv);
+int				ft_unset(int argc, char **argv, char **envp);
+int				is_valid_env_var_key(const char *str);
+int				write_error(const char *prefix,
+					const char *message, const char *arg);
+
+long long		ft_long_atoi(const char *str);
+
+char			*ft_strtok(char *str, const char *delimiters, char **save_ptr);
+
+void			write_string(const char *str1,
+					const char *str2, const char *str3);
 
 #endif

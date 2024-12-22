@@ -1,0 +1,62 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   echo.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/11/15 17:03:48 by gsimonia          #+#    #+#             */
+/*   Updated: 2024/11/20 14:53:38 by gsimonia         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include "../../includes/minishell.h"
+
+static bool	is_n_flag(const char *str)
+{
+	int	i;
+
+	if (str[0] != '-' || str[1] != 'n')
+		return (false);
+	i = 2;
+	while (str[i] == 'n')
+		i++;
+	return (str[i] == '\0');
+}
+
+static int	handle_flags(int argc, char **argv, bool *n_flag)
+{
+	int	i;
+
+	i = 1;
+	*n_flag = false;
+	while (i < argc && is_n_flag(argv[i]))
+	{
+		*n_flag = true;
+		i++;
+	}
+	if (i < argc && ft_strcmp(argv[i], "--") == 0)
+		i++;
+	return (i);
+}
+
+int	ft_echo(int argc, char **argv)
+{
+	int		i;
+	bool	n_flag;
+
+	i = handle_flags(argc, argv, &n_flag);
+	while (i < argc)
+	{
+		if (write(STDOUT_FILENO, argv[i], ft_strlen(argv[i])) == -1)
+			return (write_error("ft_echo: ",
+					"write error on argument ", argv[i]));
+		if (i + 1 < argc && write(STDOUT_FILENO, " ", 1) == -1)
+			return (write_error("ft_echo: ",
+					"write error on space", NULL));
+		i++;
+	}
+	if (!n_flag && write(STDOUT_FILENO, "\n", 1) == -1)
+		return (write_error("ft_echo: ", "write error on newline", NULL));
+	return (EXIT_SUCCESS);
+}
