@@ -183,10 +183,39 @@ int	operator_has_higher_precedence(t_node *new_op, t_node *current_op)
 	return (new_prec > current_prec);
 }
 
-static void	add_to_tree(t_tree *tree, t_node *node)
+static void	add_operator_node(t_tree *tree, t_node *node)
 {
 	t_node	*current;
 
+	current = tree->root;
+	if (operator_has_higher_precedence(node, current))
+	{
+		node->left = current;
+		tree->root = node;
+	}
+	else
+	{
+		while (current->right)
+			current = current->right;
+		current->right = node;
+	}
+}
+
+static void	add_non_operator_node(t_tree *tree, t_node *node)
+{
+	t_node	*current;
+
+	current = tree->root;
+	while (current->right)
+		current = current->right;
+	if (!current->left)
+		current->left = node;
+	else
+		current->right = node;
+}
+
+static void	add_to_tree(t_tree *tree, t_node *node)
+{
 	if (!tree || !node)
 		return ;
 	if (!tree->root)
@@ -196,28 +225,9 @@ static void	add_to_tree(t_tree *tree, t_node *node)
 	}
 	current = tree->root;
 	if (node->type == 'O')
-	{
-		if (operator_has_higher_precedence(node, current))
-		{
-			node->left = current;
-			tree->root = node;
-		}
-		else
-		{
-			while (current->right)
-				current = current->right;
-			current->right = node;
-		}
-	}
+		add_operator_node(tree, node);
 	else
-	{
-		while (current->right)
-			current = current->right;
-		if (!current->left)
-			current->left = node;
-		else
-			current->right = node;
-	}
+		add_non_operator_node(tree, node);
 }
 
 t_tree	*ft_tree_build(t_list **lst)
