@@ -6,7 +6,7 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 09:34:14 by anikoyan          #+#    #+#             */
-/*   Updated: 2024/12/22 23:37:14 by anikoyan         ###   ########.fr       */
+/*   Updated: 2024/12/22 23:51:05 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,7 +43,7 @@ bool	ft_list_files_in_directory_with_pattern(const char *path,
 		dir = opendir(path);
 	if (!dir)
 	{
-		ft_report_error("no matches found: ", path, 1);
+		ft_report_error("no matches found: ", ((t_token *)(*list_ref)->next->content)->content, 1);
 		return (false);
 	}
 	entry = readdir(dir);
@@ -86,7 +86,7 @@ bool	ft_list_files_in_directory_with_pattern(const char *path,
 		}
 		if (!matches_found)
 		{
-			ft_report_error("no matches found: ", path, 1);
+			ft_report_error("no matches found: ", ((t_token *)(*list_ref)->next->content)->content, 1);
 			return (false);
 		}
 		entry = readdir(dir);
@@ -163,7 +163,7 @@ void	ft_extract_pattern(const char *pattern, char **prefix, char **postfix)
 	}
 }
 
-void	ft_process_path_patterns(t_list **lst_ref)
+bool	ft_process_path_patterns(t_list **lst_ref)
 {
 	t_list	*current;
 	t_list	*prev;
@@ -199,7 +199,13 @@ void	ft_process_path_patterns(t_list **lst_ref)
 				ft_tokendelone(current);
 				current = next;
 			}
-			// TODO: make so that on error it wont execute the command
+			else
+			{
+				free(dir_name);
+				free(prefix);
+				free(postfix);
+				return (false);
+			}
 		}
 		else
 		{
@@ -208,4 +214,5 @@ void	ft_process_path_patterns(t_list **lst_ref)
 		}
 		current = next;
 	}
+	return (true);
 }

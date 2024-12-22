@@ -6,7 +6,7 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/22 19:38:41 by anikoyan          #+#    #+#             */
-/*   Updated: 2024/12/22 23:23:33 by anikoyan         ###   ########.fr       */
+/*   Updated: 2024/12/22 23:56:11 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,8 @@ bool	has_single_token_error(t_list **lst)
 {
 	t_token	*token;
 
+	if (!*lst || !(*lst)->content)
+		return (true);
 	token = (t_token *)(*lst)->content;
 	if (*lst && token && token->type != 'X'
 		&& (token->content[0] != '<'

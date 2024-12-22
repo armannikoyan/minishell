@@ -6,7 +6,7 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/18 17:00:14 by anikoyan          #+#    #+#             */
-/*   Updated: 2024/12/22 23:22:53 by anikoyan         ###   ########.fr       */
+/*   Updated: 2024/12/22 23:50:28 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,7 +55,7 @@ void			ft_signal_handler(int signum);
 void			ft_error(char *str, int m_errno);
 void			ft_tokendelone(void *lst);
 void			ft_exec(t_tree *tree, char **envp);
-void			ft_process_path_patterns(t_list **lst);
+bool			ft_process_path_patterns(t_list **lst);
 t_tree			*ft_tree_build(t_list **lst);
 unsigned short	ft_isoperator(char *c);
 unsigned int	ft_envlen(char *input, unsigned int i);
