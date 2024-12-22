@@ -6,9 +6,11 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 09:34:14 by anikoyan          #+#    #+#             */
-/*   Updated: 2024/12/22 15:57:43 by anikoyan         ###   ########.fr       */
+/*   Updated: 2024/12/22 16:06:45 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+
+// ISSUE: Known -- /.* represents all files in the current directory starting with a dot
 
 #include "../../includes/minishell.h"
 
@@ -178,7 +180,8 @@ void	ft_process_path_patterns(t_list **lst_ref)
 	{
 		next = current->next;
 		token = (t_token *)current->content;
-		if (token && token->content && ft_strchr(token->content, '*'))
+		if (token && token->content && ft_strchr(token->content, '*')
+			&& token->content[0] != '\'' && token->content[0] != '\"')
 		{
 			ft_extract_pattern(token->content, &prefix, &postfix);
 			dir_name = ft_get_dir_name(token->content);
