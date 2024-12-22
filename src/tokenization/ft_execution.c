@@ -6,7 +6,7 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/13 18:44:10 by anikoyan          #+#    #+#             */
-/*   Updated: 2024/12/20 22:26:31 by anikoyan         ###   ########.fr       */
+/*   Updated: 2024/12/22 22:40:57 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,9 +21,9 @@ void	ft_exec(t_tree *tree, char **envp)
 {
 	if (!tree || !tree->root)
 		return ;
-	if (tree->root->type == 'O') // Operator node
+	if (tree->root->type == 'O')
 		ft_exec_operator(tree->root, envp);
-	else // Command node
+	else
 		ft_exec_command(tree->root, envp);
 }
 
@@ -42,7 +42,7 @@ void	ft_exec_command(t_node *node, char **envp)
 	if (!node || !node->content)
 		return ;
 	if (node->type == 'S')
-	{ // Subshell execution
+	{
 		pid = fork();
 		if (pid == -1)
 		{

@@ -6,7 +6,7 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/22 20:33:00 by anikoyan          #+#    #+#             */
-/*   Updated: 2024/12/22 20:17:56 by anikoyan         ###   ########.fr       */
+/*   Updated: 2024/12/22 22:57:09 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -208,6 +208,7 @@ static void	ft_assign_token_type(t_list ***lst)
 	t_list		*prev;
 
 	tmp = **lst;
+	prev = NULL;
 	while (tmp)
 	{
 		token = (t_token *)tmp->content;
