@@ -111,6 +111,50 @@ static unsigned short	ft_contentlen(t_list **lst)
 	return (len);
 }
 
+static void	parse_x_node(t_list **lst,
+		char ***content, unsigned short *i, char *type_of_node)
+{
+	t_list	*tmp;
+
+	*type_of_node = 'X';
+	tmp = *lst;
+	while (tmp && (t_token *)tmp->content
+		&& ((t_token *)tmp->content)->type != 'O')
+	{
+		(*content)[*i] = ((t_token *)tmp->content)->content;
+		(*i)++;
+		tmp = tmp->next;
+	}
+	while (tmp && (t_token *)tmp->content
+		&& (((t_token *)tmp->content)->type == 'O'
+			|| ((t_token *)tmp->content)->type == 'F'))
+		tmp = tmp->next;
+	while (tmp && (t_token *)tmp->content
+		&& ((t_token *)tmp->content)->type == 'A')
+	{
+		(*content)[*i] = ((t_token *)tmp->content)->content;
+		(*i)++;
+		tmp = tmp->next;
+	}
+}
+
+static void	parse_o_node(t_list **lst,
+		char ***content, unsigned short *i, char *type_of_node)
+{
+	t_list	*tmp;
+
+	*type_of_node = 'O';
+	tmp = *lst;
+	while (tmp && (t_token *)tmp->content
+		&& (((t_token *)tmp->content)->type == 'O'
+			|| ((t_token *)tmp->content)->type == 'F'))
+	{
+		(*content)[*i] = ((t_token *)tmp->content)->content;
+		(*i)++;
+		tmp = tmp->next;
+	}
+}
+
 static t_node	*parse_node(t_list **lst)
 {
 	char			**content;
@@ -120,43 +164,15 @@ static t_node	*parse_node(t_list **lst)
 
 	if (!lst || !*lst)
 		exit(EXIT_FAILURE);
-	type_of_node = 0;
 	i = 0;
 	tmp = *lst;
 	content = (char **)malloc(sizeof(char *) * (ft_contentlen(&tmp) + 1));
 	if (!content)
 		exit(EXIT_FAILURE);
 	if ((t_token *)tmp->content && ((t_token *)tmp->content)->type == 'X')
-	{
-		type_of_node = 'X';
-		while (tmp && (t_token *)tmp->content
-			&& ((t_token *)tmp->content)->type != 'O')
-		{
-			content[i++] = ((t_token *)tmp->content)->content;
-			tmp = tmp->next;
-		}
-		while (tmp && (t_token *)tmp->content
-			&& (((t_token *)tmp->content)->type == 'O'
-				|| ((t_token *)tmp->content)->type == 'F'))
-			tmp = tmp->next;
-		while (tmp && (t_token *)tmp->content
-			&& ((t_token *)tmp->content)->type == 'A')
-		{
-			content[i++] = ((t_token *)tmp->content)->content;
-			tmp = tmp->next;
-		}
-	}
+		parse_x_node(lst, &content, &i, &type_of_node);
 	else if ((t_token *)tmp->content && ((t_token *)tmp->content)->type == 'O')
-	{
-		type_of_node = 'O';
-		while (tmp && (t_token *)tmp->content
-			&& (((t_token *)tmp->content)->type == 'O'
-				|| ((t_token *)tmp->content)->type == 'F'))
-		{
-			content[i++] = ((t_token *)tmp->content)->content;
-			tmp = tmp->next;
-		}
-	}
+		parse_o_node(lst, &content, &i, &type_of_node);
 	else
 	{
 		free(content);
