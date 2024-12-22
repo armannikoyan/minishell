@@ -6,7 +6,7 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/04 12:47:00 by anikoyan          #+#    #+#             */
-/*   Updated: 2024/12/13 13:09:35 by anikoyan         ###   ########.fr       */
+/*   Updated: 2024/12/22 20:18:25 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -226,7 +226,7 @@ t_tree	*ft_tree_build(t_list **lst)
 	t_list	*tmp;
 	t_node	*new_node;
 
-	tree = ft_tree_ctor(void);
+	tree = ft_tree_ctor();
 	tmp = *lst;
 	if (!tree || !lst || !*lst)
 		return (NULL);

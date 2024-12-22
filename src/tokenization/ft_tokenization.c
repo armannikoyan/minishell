@@ -6,7 +6,7 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/22 20:33:00 by anikoyan          #+#    #+#             */
-/*   Updated: 2024/12/21 14:56:52 by anikoyan         ###   ########.fr       */
+/*   Updated: 2024/12/22 20:17:56 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -116,6 +116,17 @@ static t_token	*ft_build_token(char *input, unsigned short *index)
 	return (token);
 }
 
+static void	ft_assign_argument_type(t_list **tmp)
+{
+	while (*tmp && (*tmp)->next && (t_token *)(*tmp)->next->content
+		&& ((t_token *)(*tmp)->next->content)->content
+		&& !ft_isoperator(((t_token *)(*tmp)->next->content)->content))
+	{
+		((t_token *)(*tmp)->next->content)->type = 'A';
+		*tmp = (*tmp)->next;
+	}
+}
+
 static void	ft_assign_command_type(t_token *token, t_list **tmp)
 {
 	struct stat	statbuf;
@@ -128,17 +139,6 @@ static void	ft_assign_command_type(t_token *token, t_list **tmp)
 	}
 	else
 		token->type = 'E';
-}
-
-static void	ft_assign_argument_type(t_list **tmp)
-{
-	while (*tmp && (*tmp)->next && (t_token *)(*tmp)->next->content
-		&& ((t_token *)(*tmp)->next->content)->content
-		&& !ft_isoperator(((t_token *)(*tmp)->next->content)->content))
-	{
-		((t_token *)(*tmp)->next->content)->type = 'A';
-		*tmp = (*tmp)->next;
-	}
 }
 
 static void	ft_assign_operator_type(t_list **tmp, t_token *token)
@@ -190,8 +190,8 @@ static void	ft_handle_subshell(t_list ***lst, t_list **tmp, t_list *prev)
 		token->subshell_level += 1;
 		tmp_next = (*tmp)->next;
 		if (tmp_next && (t_token *)(tmp_next->content)
-			&& ((t_token *)(tmp_next->content)->content)
-			&& ft_strcmp(((t_token *)(tmp_next->content)->content), ")") == 0)
+			&& ((t_token *)tmp_next->content)->content
+			&& ft_strcmp(((t_token *)tmp_next->content)->content, ")") == 0)
 		{
 			(*tmp)->next = tmp_next->next;
 			ft_lstdelone(tmp_next, ft_tokendelone);

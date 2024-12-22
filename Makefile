@@ -8,19 +8,14 @@ DEPS = includes/minishell.h
 
 SRCS = main.c \
        $(addprefix parsing/, \
-	ft_syntax.c ft_env_expansion.c ft_env_expansion_utils.c) \
+       ft_syntax.c ft_env_expansion.c ft_env_expansion_utils.c) \
        $(addprefix utils/, \
-	ft_error.c ft_signal_handler.c ft_isoperator.c ft_space_correction.c \
-	ft_tokendelone.c) \
+       ft_error.c ft_signal_handler.c ft_isoperator.c ft_space_correction.c \
+       ft_tokendelone.c) \
        $(addprefix tokenization/, \
-	ft_tokenization.c ft_syntax_tree.c ft_execution.c ft_argument_manipulation.c) \
-		$(addprefix builtin/, \
-	builtin_utils.c builtin_write.c cd.c echo.c env.c exit.c export.c pwd.c unset.c)
+       ft_tokenization.c ft_syntax_tree.c ft_execution.c ft_argument_manipulation.c) \
 
-OBJ_SUBDIRS = $(addprefix $(OBJ_DIR)/, \
-		parsing utils tokenization builtin)
-
-OBJS = $(addprefix $(OBJ_DIR)/, $(SRCS:.c=.o))
+OBJS = $(SRCS:%.c=$(OBJ_DIR)/%.o)
 
 CC = cc
 CFLAGS = -Wall -Wextra -Werror -Ireadline
@@ -31,15 +26,12 @@ RM = rm -f
 
 all: $(NAME)
 
-$(OBJ_DIR):
-	mkdir -p $(OBJ_DIR)
-	mkdir -p $(OBJ_SUBDIRS)
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
+	@mkdir -p $(@D)
+	$(CC) $(CFLAGS) $(INC) -c $< -o $@
 
 $(NAME): $(OBJS) $(LIBFT) $(DEPS)
 	$(CC) $(CFLAGS) $(OBJS) $(LIBFT) -lreadline -o $(NAME)
-
-$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c | $(OBJ_DIR)
-	$(CC) $(CFLAGS) $(INC) -c $< -o $@
 
 $(LIBFT):
 	make -C $(LIBFT_DIR) all

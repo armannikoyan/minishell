@@ -6,11 +6,9 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 09:34:14 by anikoyan          #+#    #+#             */
-/*   Updated: 2024/12/22 16:06:45 by anikoyan         ###   ########.fr       */
+/*   Updated: 2024/12/22 20:36:05 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
-// ISSUE: Known -- /.* represents all files in the current directory starting with a dot
 
 #include "../../includes/minishell.h"
 
@@ -96,6 +94,7 @@ void	ft_list_files_in_directory_with_pattern(const char *path,
 				current->next = new_node;
 			}
 		}
+		// TODO: print wether matches arent found
 		entry = readdir(dir);
 	}
 	if (closedir(dir) == -1)
@@ -111,9 +110,11 @@ unsigned short	ft_path_len(char *str)
 		i++;
 	while (str[i] && &str[i] != str && str[i] != '/')
 		i--;
+	if (str[i] == '/')
+		i++;
 	if (&str[i] == str)
 		return (0);
-	return (&str[i] - str + 1);
+	return (&str[i] - str);
 }
 
 char	*ft_get_dir_name(char *str)
