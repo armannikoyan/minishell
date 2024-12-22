@@ -6,7 +6,7 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/13 18:44:10 by anikoyan          #+#    #+#             */
-/*   Updated: 2024/12/22 22:40:57 by anikoyan         ###   ########.fr       */
+/*   Updated: 2024/12/22 23:04:12 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,6 +41,9 @@ void	ft_exec_command(t_node *node, char **envp)
 
 	if (!node || !node->content)
 		return ;
+	// Subshell has level for example (echo 123) has level 1 for each element in the brackets
+	// ((echo 123) | cat -e) has level 2 for each element in the brackets of (echo 123) and | and cat -e has 1
+	// TODO: Implement subshell execution with level right example of structure ((t_token *)node->content)->subshell_level
 	if (node->type == 'S')
 	{
 		pid = fork();

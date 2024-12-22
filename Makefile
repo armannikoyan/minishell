@@ -11,7 +11,7 @@ SRCS = main.c \
        ft_syntax.c ft_env_expansion.c ft_env_expansion_utils.c) \
        $(addprefix utils/, \
        ft_error.c ft_signal_handler.c ft_isoperator.c ft_space_correction.c \
-       ft_tokendelone.c) \
+       ft_tokendelone.c ft_report_error.c) \
        $(addprefix tokenization/, \
        ft_tokenization.c ft_syntax_tree.c ft_execution.c ft_argument_manipulation.c) \
 
