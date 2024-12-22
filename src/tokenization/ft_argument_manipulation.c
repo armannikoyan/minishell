@@ -187,7 +187,7 @@ void	ft_process_path_patterns(t_list **lst_ref)
 			ft_extract_pattern(token->content, &prefix, &postfix);
 			dir_name = ft_get_dir_name(token->content);
 			if (ft_list_files_in_directory_with_pattern(dir_name,
-				lst_ref, prefix, postfix))
+					lst_ref, prefix, postfix))
 			{
 				free(dir_name);
 				free(prefix);
