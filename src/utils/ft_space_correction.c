@@ -97,16 +97,23 @@ static void	handle_operator_copy(char *input, char *output,
 	}
 }
 
-char	*ft_space_correction(char *input)
+static void	process_token(char *input, unsigned short *i, unsigned short *len)
 {
-	char			*output;
+	if (input[*i] == '(' && input[*i + 1] && !ft_isspace(input[*i]))
+		(*len)++;
+	if (input[*i] == ')' && input[*i - 1] && !ft_isspace(input[*i - 1]))
+		(*len)++;
+	(*len)++;
+	(*i)++;
+}
+
+static unsigned short	calculate_output_length(char *input)
+{
 	unsigned short	len;
 	unsigned short	i;
-	unsigned short	j;
 
 	len = 0;
 	i = 0;
-	j = 0;
 	while (ft_isspace(input[i]))
 		i++;
 	while (input[i])
@@ -114,16 +121,7 @@ char	*ft_space_correction(char *input)
 		while (!ft_isspace(input[i]) && ft_strncmp(&input[i], "&", 1)
 			&& !ft_isoperator(&input[i]) && input[i] != '\''
 			&& input[i] && input[i] != '\"')
-		{
-			if (input[i] && input[i] == '('
-				&& input[i + 1] && !ft_isspace(input[i]))
-				len++;
-			if (input[i] && input[i] == ')'
-				&& input[i - 1] && !ft_isspace(input[i - 1]))
-				len++;
-			len++;
-			i++;
-		}
+			process_token(input, &i, &len);
 		if (input[i] && ft_isspace(input[i]))
 		{
 			if (input[i - 1] && input[i - 1] != ft_isspace(input[i]))
@@ -134,9 +132,26 @@ char	*ft_space_correction(char *input)
 		ft_skip_quotes(input, &i, &len);
 		handle_operator_len(input, &i, &len);
 	}
-	output = (char *)malloc(sizeof(char) * (len + 1));
-	i = 0;
+	return (len);
+}
+
+static void	process_non_space_token(char *input,
+		char *output, unsigned short *i, unsigned short *j)
+{
+	if (*j > 0 && output[*j - 1] != ' ' && input[*i] == ')')
+		output[(*j)++] = ' ';
+	output[(*j)++] = input[(*i)++];
+	if (output[*j - 1] == '(' && input[*i] && !ft_isspace(input[*i]))
+		output[(*j)++] = ' ';
+}
+
+static void	process_input_string(char *input, char *output)
+{
+	unsigned short	i;
+	unsigned short	j;
+
 	j = 0;
+	i = 0;
 	while (ft_isspace(input[i]))
 		i++;
 	while (input[i])
@@ -144,15 +159,7 @@ char	*ft_space_correction(char *input)
 		while (!ft_isspace(input[i]) && ft_strncmp(&input[i], "&", 1)
 			&& !ft_isoperator(&input[i]) && input[i] != '\''
 			&& input[i] && input[i] != '\"')
-		{
-			if (output[j - 1] && output[j - 1] != ' '
-				&& input[i] && input[i] == ')')
-				output[j++] = ' ';
-			output[j++] = input[i++];
-			if (output[j - 1] && output[j - 1] == '('
-				&& input[i] && input[i] != ft_isspace(input[i]))
-				output[j++] = ' ';
-		}
+			process_non_space_token(input, output, &i, &j);
 		if (input[i] && ft_isspace(input[i]))
 		{
 			if (output[j - 1] != ' ')
@@ -164,5 +171,17 @@ char	*ft_space_correction(char *input)
 		handle_operator_copy(input, output, &i, &j);
 	}
 	output[j] = '\0';
+}
+
+char	*ft_space_correction(char *input)
+{
+	char			*output;
+	unsigned short	len;
+
+	len = calculate_output_length(input);
+	output = (char *)malloc(sizeof(char) * (len + 1));
+	if (!output)
+		return (NULL);
+	process_input_string(input, output);
 	return (output);
 }
