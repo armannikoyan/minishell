@@ -167,10 +167,10 @@ bool	ft_has_syntax_error(t_list **lst)
 	t_list	*tmp;
 	t_token	*token;
 
-	if (has_single_token_error(lst))
-		|| (has_matching_single_quotes(*lst))
-		|| (has_matching_double_quotes(*lst))
-		|| (has_matching_parentheses(*lst))
+	if (has_single_token_error(lst)
+		|| has_matching_single_quotes(*lst)
+		|| has_matching_double_quotes(*lst)
+		|| has_matching_parentheses(*lst))
 		return (true);
 	tmp = *lst;
 	while (tmp)
