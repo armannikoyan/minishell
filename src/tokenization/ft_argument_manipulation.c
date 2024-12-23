@@ -6,7 +6,7 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 09:34:14 by anikoyan          #+#    #+#             */
-/*   Updated: 2024/12/22 23:51:05 by anikoyan         ###   ########.fr       */
+/*   Updated: 2024/12/23 13:01:35 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,13 +28,12 @@ void	ft_quote_removal(t_token *token)
 }
 
 bool	ft_list_files_in_directory_with_pattern(const char *path,
-	t_list **list_ref, const char *prefix, const char *postfix)
+	t_list *lst, const char *prefix, const char *postfix)
 {
 	DIR				*dir;
 	struct dirent	*entry;
 	t_token			*new_token;
 	t_list			*new_node;
-	t_list			*current;
 	bool			matches_found;
 
 	if (ft_strcmp(path, "") == 0)
@@ -43,7 +42,7 @@ bool	ft_list_files_in_directory_with_pattern(const char *path,
 		dir = opendir(path);
 	if (!dir)
 	{
-		ft_report_error("no matches found: ", ((t_token *)(*list_ref)->next->content)->content, 1);
+		ft_report_error("no matches found: ", ((t_token *)lst->next->content)->content, 1);
 		return (false);
 	}
 	entry = readdir(dir);
@@ -74,22 +73,21 @@ bool	ft_list_files_in_directory_with_pattern(const char *path,
 			new_node = ft_lstnew(new_token);
 			if (!new_node)
 				exit(EXIT_FAILURE);
-			current = *list_ref;
-			if (!current)
-				*list_ref = new_node;
-			else
+			if (lst)
 			{
-				while (current->next)
-					current = current->next;
-				current->next = new_node;
+				new_node->next = lst->next;
+				lst->next = new_node;
+				lst = lst->next;
 			}
-		}
-		if (!matches_found)
-		{
-			ft_report_error("no matches found: ", ((t_token *)(*list_ref)->next->content)->content, 1);
-			return (false);
+			else
+				lst = new_node;
 		}
 		entry = readdir(dir);
+	}
+	if (!matches_found)
+	{
+		ft_report_error("no matches found: ", ((t_token *)lst->next->content)->content, 1);
+		return (false);
 	}
 	if (closedir(dir) == -1)
 		perror("closedir failed");
@@ -187,17 +185,20 @@ bool	ft_process_path_patterns(t_list **lst_ref)
 			ft_extract_pattern(token->content, &prefix, &postfix);
 			dir_name = ft_get_dir_name(token->content);
 			if (ft_list_files_in_directory_with_pattern(dir_name,
-					lst_ref, prefix, postfix))
+					current, prefix, postfix))
 			{
 				free(dir_name);
 				free(prefix);
 				free(postfix);
 				if (prev)
+				{
 					prev->next = current->next;
+					prev = prev->next;
+				}
 				else
 					*lst_ref = current->next;
 				ft_tokendelone(current);
-				current = next;
+				current = prev->next;
 			}
 			else
 			{
