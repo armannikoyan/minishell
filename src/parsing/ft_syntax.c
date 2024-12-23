@@ -78,6 +78,62 @@ bool	has_unmatched_quotes(t_token *token)
 	return (false);
 }
 
+bool	has_matching_parentheses(t_list *lst)
+{
+	int		parentheses_count;
+	t_list	*tmp;
+	t_token	*token;
+
+	parentheses_count = 0;
+	tmp = lst;
+	while (tmp)
+	{
+		token = (t_token *)tmp->content;
+		if (token->content[0] == '(')
+			parentheses_count++;
+		else if (token->content[0] == ')')
+		{
+			parentheses_count--;
+			if (parentheses_count < 0)
+				return (ft_report_error("parse error near: ",
+						token->content, 1));
+		}
+		tmp = tmp->next;
+	}
+	if (parentheses_count != 0)
+		return (ft_report_error("parse error near: ",
+				"unmatched parentheses", 1));
+	return (false);
+}
+
+bool	has_matching_quotes(t_list *lst)
+{
+	int		single_quotes;
+	int		double_quotes;
+	t_list	*tmp;
+	t_token	*token;
+
+	single_quotes = 0;
+	double_quotes = 0;
+	tmp = lst;
+	while (tmp)
+	{
+		token = (t_token *)tmp->content;
+		if (token->content[0] == '\'')
+			single_quotes++;
+		else if (token->content[0] == '\"')
+			double_quotes++;
+		tmp = tmp->next;
+	}
+	if (single_quotes % 2 != 0)
+		return (ft_report_error("parse error near: ",
+				"unmatched single quote", 1));
+	if (double_quotes % 2 != 0)
+		return (ft_report_error("parse error near: ",
+				"unmatched double quote", 1));
+	return (false);
+}
+
 bool	ft_has_syntax_error(t_list **lst)
 {
 	t_list	*tmp;
@@ -88,8 +144,9 @@ bool	ft_has_syntax_error(t_list **lst)
 	tmp = *lst;
 	while (tmp)
 	{
-		// TODO: check for matching () check for matching "" check for matching ''
 		token = (t_token *)tmp->content;
+		if (has_matching_parentheses(*lst) || has_matching_quotes(*lst))
+			return (true);
 		if (has_error_type_e(token)
 			|| has_consecutive_operators(token, tmp->next)
 			|| has_invalid_operator_file(token, tmp->next)

@@ -6,7 +6,7 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 09:34:14 by anikoyan          #+#    #+#             */
-/*   Updated: 2024/12/23 13:01:35 by anikoyan         ###   ########.fr       */
+/*   Updated: 2024/12/23 15:37:55 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,7 @@ bool	ft_list_files_in_directory_with_pattern(const char *path,
 		dir = opendir(path);
 	if (!dir)
 	{
-		ft_report_error("no matches found: ", ((t_token *)lst->next->content)->content, 1);
+		ft_report_error("no matches found: ", ((t_token *)lst->content)->content, 1);
 		return (false);
 	}
 	entry = readdir(dir);
@@ -86,7 +86,7 @@ bool	ft_list_files_in_directory_with_pattern(const char *path,
 	}
 	if (!matches_found)
 	{
-		ft_report_error("no matches found: ", ((t_token *)lst->next->content)->content, 1);
+		ft_report_error("no matches found: ", ((t_token *)lst->content)->content, 1);
 		return (false);
 	}
 	if (closedir(dir) == -1)
