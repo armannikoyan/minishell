@@ -96,7 +96,7 @@ bool	has_matching_parentheses(t_list *lst)
 			parentheses_count--;
 			if (parentheses_count < 0)
 				return (ft_report_error("parse error near: ",
-						token->content, 1));
+						"closing parentheses ahead", 1));
 		}
 		tmp = tmp->next;
 	}
@@ -106,29 +106,57 @@ bool	has_matching_parentheses(t_list *lst)
 	return (false);
 }
 
-bool	has_matching_quotes(t_list *lst)
+bool	has_matching_single_quotes(t_list *lst)
 {
 	int		single_quotes;
-	int		double_quotes;
+	int		i;
 	t_list	*tmp;
 	t_token	*token;
 
 	single_quotes = 0;
+	tmp = lst;
+	while (tmp)
+	{
+		token = (t_token *)tmp->content;
+		i = 0;
+		while (token->content[i])
+		{
+			if (token->content[i] == '\''
+				&& (i == 0 || token->content[i - 1] != '\\'))
+				single_quotes = !single_quotes;
+			i++;
+		}
+		tmp = tmp->next;
+	}
+	if (single_quotes)
+		return (ft_report_error("parse error near: ",
+				"unmatched single quote", 1));
+	return (false);
+}
+
+bool	has_matching_double_quotes(t_list *lst)
+{
+	int		double_quotes;
+	int		i;
+	t_list	*tmp;
+	t_token	*token;
+
 	double_quotes = 0;
 	tmp = lst;
 	while (tmp)
 	{
 		token = (t_token *)tmp->content;
-		if (token->content[0] == '\'')
-			single_quotes++;
-		else if (token->content[0] == '\"')
-			double_quotes++;
+		i = 0;
+		while (token->content[i])
+		{
+			if (token->content[i] == '\"'
+				&& (i == 0 || token->content[i - 1] != '\\'))
+				double_quotes = !double_quotes;
+			i++;
+		}
 		tmp = tmp->next;
 	}
-	if (single_quotes % 2 != 0)
-		return (ft_report_error("parse error near: ",
-				"unmatched single quote", 1));
-	if (double_quotes % 2 != 0)
+	if (double_quotes)
 		return (ft_report_error("parse error near: ",
 				"unmatched double quote", 1));
 	return (false);
@@ -141,17 +169,20 @@ bool	ft_has_syntax_error(t_list **lst)
 
 	if (has_single_token_error(lst))
 		return (true);
+	if (has_matching_single_quotes(*lst))
+		return (true);
+	if (has_matching_double_quotes(*lst))
+		return (true);
+	if (has_matching_parentheses(*lst))
+		return (true);
 	tmp = *lst;
 	while (tmp)
 	{
 		token = (t_token *)tmp->content;
-		if (has_matching_parentheses(*lst) || has_matching_quotes(*lst))
-			return (true);
 		if (has_error_type_e(token)
 			|| has_consecutive_operators(token, tmp->next)
 			|| has_invalid_operator_file(token, tmp->next)
 			|| has_operator_followed_by_operator(token, tmp->next)
-			|| has_unmatched_quotes(token)
 			|| (token->type == 'O' && !tmp->next
 				&& ft_report_error("parse error near: ", token->content, 1)))
 			return (true);
