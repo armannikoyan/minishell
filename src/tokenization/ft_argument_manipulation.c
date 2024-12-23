@@ -161,52 +161,66 @@ void	ft_extract_pattern(const char *pattern, char **prefix, char **postfix)
 	}
 }
 
-bool	ft_process_path_patterns(t_list **lst_ref)
+bool	ft_is_pattern_match(t_token *token)
 {
-	t_list	*current;
-	t_list	*prev;
-	t_list	*next;
-	t_token	*token;
+	return (token && token->content && ft_strchr(token->content, '*')
+		&& token->content[0] != '\'' && token->content[0] != '\"');
+}
+
+void	ft_free_resources(char *dir_name, char *prefix, char *postfix)
+{
+	free(dir_name);
+	free(prefix);
+	free(postfix);
+}
+
+bool	ft_process_pattern(t_list **lst_ref,
+		t_list *current, t_list *prev, t_token *token)
+{
 	char	*dir_name;
 	char	*prefix;
 	char	*postfix;
 
-	current = *lst_ref;
-	prev = NULL;
 	prefix = NULL;
 	postfix = NULL;
+	ft_extract_pattern(token->content, &prefix, &postfix);
+	dir_name = ft_get_dir_name(token->content);
+	if (ft_list_files_in_directory_with_pattern(dir_name,
+			current, prefix, postfix))
+	{
+		ft_free_resources(dir_name, prefix, postfix);
+		if (prev)
+		{
+			prev->next = current->next;
+			prev = prev->next;
+		}
+		else
+			*lst_ref = current->next;
+		ft_tokendelone(current);
+		current = prev->next;
+		return (true);
+	}
+	ft_free_resources(dir_name, prefix, postfix);
+	return (false);
+}
+
+bool	ft_process_path_patterns(t_list **lst_ref)
+{
+	t_list	*current ;
+	t_list	*prev;
+	t_list	*next;
+	t_token	*token;
+
+	current = *lst_ref;
+	prev = NULL;
 	while (current)
 	{
 		next = current->next;
 		token = (t_token *)current->content;
-		if (token && token->content && ft_strchr(token->content, '*')
-			&& token->content[0] != '\'' && token->content[0] != '\"')
+		if (ft_is_pattern_match(token))
 		{
-			ft_extract_pattern(token->content, &prefix, &postfix);
-			dir_name = ft_get_dir_name(token->content);
-			if (ft_list_files_in_directory_with_pattern(dir_name,
-					current, prefix, postfix))
-			{
-				free(dir_name);
-				free(prefix);
-				free(postfix);
-				if (prev)
-				{
-					prev->next = current->next;
-					prev = prev->next;
-				}
-				else
-					*lst_ref = current->next;
-				ft_tokendelone(current);
-				current = prev->next;
-			}
-			else
-			{
-				free(dir_name);
-				free(prefix);
-				free(postfix);
+			if (!ft_process_pattern(lst_ref, current, prev, token))
 				return (false);
-			}
 		}
 		else
 		{
