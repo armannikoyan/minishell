@@ -27,14 +27,9 @@ void	ft_quote_removal(t_token *token)
 	}
 }
 
-bool	ft_list_files_in_directory_with_pattern(const char *path,
-	t_list *lst, const char *prefix, const char *postfix)
+DIR	*ft_open_directory(const char *path, struct dirent **entry)
 {
-	DIR				*dir;
-	struct dirent	*entry;
-	t_token			*new_token;
-	t_list			*new_node;
-	bool			matches_found;
+	DIR	*dir;
 
 	if (ft_strcmp(path, "") == 0)
 		dir = opendir("./");
@@ -42,53 +37,111 @@ bool	ft_list_files_in_directory_with_pattern(const char *path,
 		dir = opendir(path);
 	if (!dir)
 	{
-		ft_report_error("no matches found: ", ((t_token *)lst->content)->content, 1);
-		return (false);
+		ft_report_error("no matches found: ", path, 1);
+		return (NULL);
 	}
-	entry = readdir(dir);
+	*entry = readdir(dir);
+	if (!*entry)
+	{
+		ft_report_error("no matches found: ", path, 1);
+		closedir(dir);
+		return (NULL);
+	}
+	return (dir);
+}
+
+bool	ft_is_matching_pattern(const char *entry_name,
+		const char *prefix, const char *postfix, bool *matches_found)
+{
+	if ((ft_strncmp(entry_name, prefix, ft_strlen(prefix)) == 0)
+		&& (ft_strlen(entry_name)
+			>= ft_strlen(prefix) + ft_strlen(postfix))
+		&& (ft_strcmp(entry_name + ft_strlen(entry_name)
+				- ft_strlen(postfix), postfix) == 0))
+	{
+		*matches_found = true;
+		return (true);
+	}
+	return (false);
+}
+
+void	ft_insert_new_node(t_list **lst, t_list *new_node)
+{
+	if (*lst)
+	{
+		new_node->next = (*lst)->next;
+		(*lst)->next = new_node;
+		*lst = (*lst)->next;
+	}
+	else
+		*lst = new_node;
+}
+
+bool	ft_handle_no_matches_found(t_list *lst, DIR *dir)
+{
+	ft_report_error("no matches found: ",
+		((t_token *)lst->content)->content, 1);
+	ft_close_directory(dir);
+	return (false);
+}
+
+bool	ft_skip_entry(struct dirent **entry, DIR *dir, const char *prefix)
+{
+	if (((*entry)->d_name[0] == '.' && (ft_strlen((*entry)->d_name) == 1
+				|| (ft_strlen((*entry)->d_name) == 2
+					&& (*entry)->d_name[1] == '.')))
+		|| (ft_strncmp(prefix, ".", 1) != 0
+			&& ft_strncmp((*entry)->d_name, ".", 1) == 0))
+	{
+		*entry = readdir(dir);
+		return (true);
+	}
+	return (false);
+}
+
+void	ft_create_and_insert_new_node(t_list **lst,
+		const char *path, const char *entry_name)
+{
+	t_token	*new_token;
+	t_list	*new_node;
+
+	new_token = (t_token *)malloc(sizeof(t_token));
+	if (!new_token)
+		exit(EXIT_FAILURE);
+	new_token->content = ft_strjoin(path, entry_name);
+	if (!new_token->content)
+		exit(EXIT_FAILURE);
+	new_node = ft_lstnew(new_token);
+	if (!new_node)
+		exit(EXIT_FAILURE);
+	ft_insert_new_node(lst, new_node);
+}
+
+bool	ft_list_files_in_directory_with_pattern(const char *path, t_list *lst,
+		const char *prefix, const char *postfix)
+{
+	DIR				*dir;
+	struct dirent	*entry;
+	bool			mf;
+
+	mf = false;
+	dir = ft_open_directory(path, &entry);
+	if (!dir)
+		return (false);
 	while (entry != NULL)
 	{
-		if ((entry->d_name[0] == '.' && ((ft_strlen(entry->d_name) == 1)
-					|| (ft_strlen(entry->d_name) == 2
-						&& entry->d_name[1] == '.')))
-			|| (ft_strncmp(prefix, ".", 1) != 0
-				&& ft_strncmp(entry->d_name, ".", 1) == 0))
-		{
-			entry = readdir(dir);
-			continue ;
-		}
-		if ((ft_strncmp(entry->d_name, prefix, ft_strlen(prefix)) == 0)
-			&& (ft_strlen(entry->d_name)
-				>= ft_strlen(prefix) + ft_strlen(postfix))
-			&& (ft_strcmp(entry->d_name + ft_strlen(entry->d_name)
-					- ft_strlen(postfix), postfix) == 0))
-		{
-			matches_found = true;
-			new_token = (t_token *)malloc(sizeof(t_token));
-			if (!new_token)
-				exit(EXIT_FAILURE);
-			new_token->content = ft_strjoin(path, entry->d_name);
-			if (!new_token->content)
-				exit(EXIT_FAILURE);
-			new_node = ft_lstnew(new_token);
-			if (!new_node)
-				exit(EXIT_FAILURE);
-			if (lst)
-			{
-				new_node->next = lst->next;
-				lst->next = new_node;
-				lst = lst->next;
-			}
-			else
-				lst = new_node;
-		}
+		ft_skip_entry(&entry, dir, prefix);
+		if (ft_is_matching_pattern(entry->d_name, prefix, postfix, &mf))
+			ft_create_and_insert_new_node(&lst, path, entry->d_name);
 		entry = readdir(dir);
 	}
-	if (!matches_found)
-	{
-		ft_report_error("no matches found: ", ((t_token *)lst->content)->content, 1);
-		return (false);
-	}
+	if (!mf)
+		return (ft_handle_no_matches_found(lst, dir));
+	return (ft_close_directory(dir));
+}
+
+bool	ft_close_directory(DIR *dir)
+{
 	if (closedir(dir) == -1)
 		perror("closedir failed");
 	return (true);
