@@ -6,7 +6,7 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/22 19:38:41 by anikoyan          #+#    #+#             */
-/*   Updated: 2024/12/23 00:03:47 by anikoyan         ###   ########.fr       */
+/*   Updated: 2024/12/24 20:02:10 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,13 +96,13 @@ bool	has_matching_parentheses(t_list *lst)
 			parentheses_count--;
 			if (parentheses_count < 0)
 				return (ft_report_error("parse error near: ",
-						"closing parentheses ahead", 1));
+						token->content, 1));
 		}
 		tmp = tmp->next;
 	}
 	if (parentheses_count != 0)
 		return (ft_report_error("parse error near: ",
-				"unmatched parentheses", 1));
+				"(", 1));
 	return (false);
 }
 
@@ -130,7 +130,7 @@ bool	has_matching_single_quotes(t_list *lst)
 	}
 	if (single_quotes)
 		return (ft_report_error("parse error near: ",
-				"unmatched single quote", 1));
+				"\'", 1));
 	return (false);
 }
 
@@ -158,7 +158,7 @@ bool	has_matching_double_quotes(t_list *lst)
 	}
 	if (double_quotes)
 		return (ft_report_error("parse error near: ",
-				"unmatched double quote", 1));
+				"\"", 1));
 	return (false);
 }
 

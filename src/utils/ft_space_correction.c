@@ -6,7 +6,7 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/09 14:11:07 by anikoyan          #+#    #+#             */
-/*   Updated: 2024/11/18 18:38:15 by anikoyan         ###   ########.fr       */
+/*   Updated: 2024/12/24 20:00:27 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -138,6 +138,7 @@ static unsigned short	calculate_output_length(char *input)
 static void	process_non_space_token(char *input,
 		char *output, unsigned short *i, unsigned short *j)
 {
+	// ISSUE: )( should turn into ) ( and case "()" should remain the same
 	if (*j > 0 && output[*j - 1] != ' ' && input[*i] == ')')
 		output[(*j)++] = ' ';
 	output[(*j)++] = input[(*i)++];
