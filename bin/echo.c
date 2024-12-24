@@ -12,6 +12,19 @@
 
 #include "../../includes/minishell.h"
 
+static char	*expand_variable(const char *str)
+{
+	char	*expanded;
+
+	if (str[0] == '$' && str[1] != '\0')
+		expanded = getenv(str + 1);
+	else
+		expanded = (char *)str;
+	if (expanded == NULL)
+		expanded = "";
+	return (expanded);
+}
+
 static bool	is_n_flag(const char *str)
 {
 	int	i;
@@ -44,11 +57,13 @@ int	ft_echo(int argc, char **argv)
 {
 	int		i;
 	bool	n_flag;
+	char	*expanded;
 
 	i = handle_flags(argc, argv, &n_flag);
 	while (i < argc)
 	{
-		if (write(STDOUT_FILENO, argv[i], ft_strlen(argv[i])) == -1)
+		expanded = expand_variable(argv[i]);
+		if (write(STDOUT_FILENO, expanded, ft_strlen(expanded)) == -1)
 			return (write_error("ft_echo: ",
 					"write error on argument ", argv[i]));
 		if (i + 1 < argc && write(STDOUT_FILENO, " ", 1) == -1)
