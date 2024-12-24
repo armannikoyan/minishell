@@ -6,7 +6,7 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/22 19:38:41 by anikoyan          #+#    #+#             */
-/*   Updated: 2024/12/24 20:02:10 by anikoyan         ###   ########.fr       */
+/*   Updated: 2024/12/24 20:09:46 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,7 +80,7 @@ bool	has_unmatched_quotes(t_token *token)
 
 bool	has_matching_parentheses(t_list *lst)
 {
-	int		parentheses_count;
+	short	parentheses_count;
 	t_list	*tmp;
 	t_token	*token;
 
@@ -108,12 +108,12 @@ bool	has_matching_parentheses(t_list *lst)
 
 bool	has_matching_single_quotes(t_list *lst)
 {
-	int		single_quotes;
-	int		i;
-	t_list	*tmp;
-	t_token	*token;
+	bool			single_quotes;
+	unsigned short	i;
+	t_list			*tmp;
+	t_token			*token;
 
-	single_quotes = 0;
+	single_quotes = false;
 	tmp = lst;
 	while (tmp)
 	{
@@ -136,12 +136,12 @@ bool	has_matching_single_quotes(t_list *lst)
 
 bool	has_matching_double_quotes(t_list *lst)
 {
-	int		double_quotes;
-	int		i;
-	t_list	*tmp;
-	t_token	*token;
+	bool			double_quotes;
+	unsigned short	i;
+	t_list			*tmp;
+	t_token			*token;
 
-	double_quotes = 0;
+	double_quotes = false;
 	tmp = lst;
 	while (tmp)
 	{
