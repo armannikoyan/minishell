@@ -89,10 +89,10 @@ bool	ft_handle_no_matches_found(t_list *lst, DIR *dir)
 bool	ft_skip_entry(struct dirent *entry, const char *prefix)
 {
 	if ((entry->d_name[0] == '.' && ((ft_strlen(entry->d_name) == 1)
-			|| (ft_strlen(entry->d_name) == 2
-				&& entry->d_name[1] == '.')))
-			|| (ft_strncmp(prefix, ".", 1) != 0
-				&& ft_strncmp(entry->d_name, ".", 1) == 0))
+				|| (ft_strlen(entry->d_name) == 2
+					&& entry->d_name[1] == '.')))
+		|| (ft_strncmp(prefix, ".", 1) != 0
+			&& ft_strncmp(entry->d_name, ".", 1) == 0))
 		return (true);
 	return (false);
 }

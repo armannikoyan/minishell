@@ -91,6 +91,6 @@ void			write_string(const char *str1,
 					const char *str2, const char *str3);
 
 DIR				*ft_open_directory(const char *path, struct dirent **entry);
-bool			 ft_close_directory(DIR *dir);
+bool			ft_close_directory(DIR *dir);
 
 #endif
