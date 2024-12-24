@@ -6,7 +6,7 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 09:34:14 by anikoyan          #+#    #+#             */
-/*   Updated: 2024/12/23 15:37:55 by anikoyan         ###   ########.fr       */
+/*   Updated: 2024/12/24 19:52:23 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@ void	ft_quote_removal(t_token *token)
 	char			*new_content;
 	unsigned short	len;
 
+	// ISSUE: if the token is a string with quotes, the quotes are not removed properly
 	if ((token->content[0] == '\'' || token->content[0] == '\"')
 		&& token->content[0] == token->content[ft_strlen(token->content) - 1])
 	{
@@ -85,17 +86,14 @@ bool	ft_handle_no_matches_found(t_list *lst, DIR *dir)
 	return (false);
 }
 
-bool	ft_skip_entry(struct dirent **entry, DIR *dir, const char *prefix)
+bool	ft_skip_entry(struct dirent *entry, const char *prefix)
 {
-	if (((*entry)->d_name[0] == '.' && (ft_strlen((*entry)->d_name) == 1
-				|| (ft_strlen((*entry)->d_name) == 2
-					&& (*entry)->d_name[1] == '.')))
-		|| (ft_strncmp(prefix, ".", 1) != 0
-			&& ft_strncmp((*entry)->d_name, ".", 1) == 0))
-	{
-		*entry = readdir(dir);
+	if ((entry->d_name[0] == '.' && ((ft_strlen(entry->d_name) == 1)
+			|| (ft_strlen(entry->d_name) == 2
+				&& entry->d_name[1] == '.')))
+			|| (ft_strncmp(prefix, ".", 1) != 0
+				&& ft_strncmp(entry->d_name, ".", 1) == 0))
 		return (true);
-	}
 	return (false);
 }
 
@@ -130,9 +128,9 @@ bool	ft_list_files_in_directory_with_pattern(const char *path, t_list *lst,
 		return (false);
 	while (entry != NULL)
 	{
-		ft_skip_entry(&entry, dir, prefix);
-		if (ft_is_matching_pattern(entry->d_name, prefix, postfix, &mf))
-			ft_create_and_insert_new_node(&lst, path, entry->d_name);
+		if (!ft_skip_entry(entry, prefix))
+			if (ft_is_matching_pattern(entry->d_name, prefix, postfix, &mf))
+				ft_create_and_insert_new_node(&lst, path, entry->d_name);
 		entry = readdir(dir);
 	}
 	if (!mf)
