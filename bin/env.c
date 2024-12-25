@@ -24,7 +24,6 @@ int	ft_env(int argc, char **argv, char **envp)
 	while (envp[i])
 	{
 		write_string(envp[i], "\n", NULL);
-		write(STDOUT_FILENO, "\n", 1);
 		i++;
 	}
 	return (EXIT_SUCCESS);

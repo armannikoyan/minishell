@@ -85,6 +85,8 @@ int	ft_cd(int argc, char **argv, char **envp)
 {
 	int	cd_ret;
 
+	if (argc > 2)
+		return (write_error("cd: ", "too many arguments\n", NULL));
 	if (argc < 2 || !argv[1])
 		return (go_to_path(0, envp));
 	if (ft_strcmp(argv[1], "-") == 0)

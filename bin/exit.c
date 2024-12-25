@@ -41,7 +41,7 @@ static void	write_int_to_str(int value, char *str)
 	str[i] = '\0';
 }
 
-static int	is_valid_number(char *str)
+static int	is_valid_number(const char *str)
 {
 	int	i;
 
