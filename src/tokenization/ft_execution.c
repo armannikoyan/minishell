@@ -6,7 +6,7 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/13 18:44:10 by anikoyan          #+#    #+#             */
-/*   Updated: 2024/12/22 23:04:12 by anikoyan         ###   ########.fr       */
+/*   Updated: 2024/12/25 16:12:28 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,12 +27,14 @@ void	ft_exec(t_tree *tree, char **envp)
 		ft_exec_command(tree->root, envp);
 }
 
-// void	ft_handle_heredoc(t_node *node, char **envp)
-// {
-// 	// Placeholder for heredoc implementation
-// 	fprintf(stderr, "Heredoc not implemented\n");
-// 	g_errno = 1;
-// }
+void	ft_handle_heredoc(t_node *node, char **envp)
+{
+	// TODO: Implement heredoc
+	(void)node;
+	(void)envp;
+	fprintf(stderr, "Heredoc not implemented\n");
+	g_errno = 1;
+}
 
 void	ft_exec_command(t_node *node, char **envp)
 {
@@ -113,7 +115,7 @@ void	ft_handle_pipe(t_node *node, char **envp)
 	}
 	if (pid1 == 0)
 	{
-		close(fd[0]); // Close read end
+		close(fd[0]);
 		dup2(fd[1], STDOUT_FILENO);
 		close(fd[1]);
 		ft_exec(&(t_tree){node->left}, envp);
@@ -127,7 +129,7 @@ void	ft_handle_pipe(t_node *node, char **envp)
 	}
 	if (pid2 == 0)
 	{
-		close(fd[1]); // Close write end
+		close(fd[1]);
 		dup2(fd[0], STDIN_FILENO);
 		close(fd[0]);
 		ft_exec(&(t_tree){node->right}, envp);
@@ -144,9 +146,9 @@ void	ft_handle_input_redirection(t_node *node, char **envp)
 	int		fd;
 	pid_t	pid;
 
-	if (!node || !node->left || !node->right)
+	if (!node || !node->left || !node->content[1])
 		return ;
-	fd = open(node->right->content[0], O_RDONLY);
+	fd = open(node->content[1], O_RDONLY);
 	if (fd == -1)
 	{
 		perror("open failed");
@@ -178,9 +180,9 @@ void	ft_handle_output_redirection(t_node *node, char **envp, int flags)
 	int		fd;
 	pid_t	pid;
 
-	if (!node || !node->left || !node->right)
+	if (!node || !node->left)
 		return ;
-	fd = open(node->right->content[0], O_WRONLY | O_CREAT | flags, 0644);
+	fd = open(node->content[1], O_WRONLY | O_CREAT | flags, 0644);
 	if (fd == -1)
 	{
 		perror("open failed");
@@ -231,9 +233,8 @@ void	ft_exec_operator(t_node *node, char **envp)
 		ft_handle_output_redirection(node, envp, O_TRUNC);
 	else if (ft_strcmp(node->content[0], ">>") == 0)
 		ft_handle_output_redirection(node, envp, O_APPEND);
-	// else if (ft_strcmp(node->content[0], "<<") == 0) {
-	// 	ft_handle_heredoc(node, envp);
-	// }
+	else if (ft_strcmp(node->content[0], "<<") == 0)
+		ft_handle_heredoc(node, envp);
 	else
 	{
 		fprintf(stderr, "Unknown operator: %s\n", node->content[0]);

@@ -6,7 +6,7 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/18 16:57:05 by anikoyan          #+#    #+#             */
-/*   Updated: 2024/12/16 22:23:01 by anikoyan         ###   ########.fr       */
+/*   Updated: 2024/12/25 19:10:21 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,6 +89,22 @@ char	*ft_entry_info(void)
 	return (prompt);
 }
 
+void printf_list(t_list *lst)
+{
+	t_list *tmp;
+
+	tmp = lst;
+	while (tmp)
+	{
+		ft_printf("--------------\n");
+		ft_printf("content: %s\n", ((t_token *)tmp->content)->content);
+		ft_printf("type: %c\n", ((t_token *)tmp->content)->type);
+		ft_printf("subshell_level: %d\n", ((t_token *)tmp->content)->subshell_level);
+		ft_printf("--------------\n");
+		tmp = tmp->next;
+	}
+}
+
 static void	handle_input(char *input, char **envp, t_list **lst, t_tree **tree)
 {
 	char	*tmp;
@@ -103,15 +119,20 @@ static void	handle_input(char *input, char **envp, t_list **lst, t_tree **tree)
 	free(input);
 	if (!lst)
 		exit(EXIT_FAILURE);
-	if (!ft_has_syntax_error(lst))
+	if (ft_has_syntax_error(lst))
 	{
-		*tree = ft_tree_build(lst);
-		if (!*tree)
-			exit(EXIT_FAILURE);
-		ft_exec(*tree, envp);
+		ft_lstclear(lst, ft_tokendelone);
+		free(lst);
+		return ;
 	}
+	printf_list(*lst);
+	(void)tree;
+	// *tree = ft_tree_build(lst);
+	// if (!*tree)
+	// 	exit(EXIT_FAILURE);
 	ft_lstclear(lst, ft_tokendelone);
 	free(lst);
+	// ft_exec(*tree, envp);
 }
 
 static void	run_shell_loop(char **envp)
@@ -131,6 +152,7 @@ static void	run_shell_loop(char **envp)
 		{
 			add_history(input);
 			handle_input(input, envp, lst, &tree);
+			ft_tree_dtor(&tree);
 		}
 		else if (!input)
 		{
