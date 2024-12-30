@@ -6,7 +6,7 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/18 16:57:05 by anikoyan          #+#    #+#             */
-/*   Updated: 2024/12/25 23:21:18 by anikoyan         ###   ########.fr       */
+/*   Updated: 2024/12/30 21:22:18 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -109,13 +109,12 @@ static void	handle_input(char *input, char **envp, t_list **lst, t_tree **tree)
 		free(lst);
 		return ;
 	}
-	(void)tree;
-	// *tree = ft_tree_build(lst);
-	// if (!*tree)
-	// 	exit(EXIT_FAILURE);
+	*tree = ft_tree_build(lst);
+	if (!*tree)
+		exit(EXIT_FAILURE);
 	ft_lstclear(lst, ft_tokendelone);
 	free(lst);
-	// ft_exec(*tree, envp);
+	ft_exec(*tree, envp);
 }
 
 static void	run_shell_loop(char **envp)

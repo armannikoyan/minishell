@@ -6,7 +6,7 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/13 18:44:10 by anikoyan          #+#    #+#             */
-/*   Updated: 2024/12/25 16:12:28 by anikoyan         ###   ########.fr       */
+/*   Updated: 2024/12/30 21:18:08 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,11 +29,90 @@ void	ft_exec(t_tree *tree, char **envp)
 
 void	ft_handle_heredoc(t_node *node, char **envp)
 {
-	// TODO: Implement heredoc
-	(void)node;
-	(void)envp;
-	fprintf(stderr, "Heredoc not implemented\n");
-	g_errno = 1;
+	pid_t	pid;
+	int		fd;
+	char	*line;
+	char	*temp_file = "/tmp/minishell_heredoc.tmp";
+
+	if (!node || !node->content[1])
+	{
+		fprintf(stderr, "Heredoc: Missing delimiter\n");
+		g_errno = 1;
+		return ;
+	}
+	pid = fork();
+	if (pid == -1)
+	{
+		perror("fork failed");
+		exit(EXIT_FAILURE);
+	}
+	if (pid == 0)
+	{
+		fd = open(temp_file, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+		if (fd == -1)
+		{
+			perror("open failed");
+			exit(EXIT_FAILURE);
+		}
+		while (true)
+		{
+			line = readline("> ");
+			if (!line)
+				break;
+			if (ft_strcmp(line, node->content[1]) == 0)
+			{
+				free(line);
+				break;
+			}
+			write(fd, line, ft_strlen(line));
+			write(fd, "\n", 1);
+			free(line);
+		}
+		close(fd);
+		exit(EXIT_SUCCESS);
+	}
+	else
+	{
+		int	status;
+
+		waitpid(pid, &status, 0);
+		if (!WIFEXITED(status) || WEXITSTATUS(status) != 0)
+		{
+			fprintf(stderr, "Heredoc input failed\n");
+			g_errno = 1;
+			return ;
+		}
+		fd = open(temp_file, O_RDONLY);
+		if (fd == -1)
+		{
+			perror("open failed");
+			g_errno = 1;
+			return ;
+		}
+		pid = fork();
+		if (pid == -1)
+		{
+			perror("fork failed");
+			exit(EXIT_FAILURE);
+		}
+		if (pid == 0)
+		{
+			dup2(fd, STDIN_FILENO);
+			close(fd);
+			ft_exec(&(t_tree){node->left}, envp);
+			exit(g_errno);
+		}
+		else
+		{
+			close(fd);
+			waitpid(pid, &status, 0);
+			if (WIFEXITED(status))
+				g_errno = WEXITSTATUS(status);
+			else
+				g_errno = 1;
+		}
+		unlink(temp_file); // Make sure i can use this
+	}
 }
 
 void	ft_exec_command(t_node *node, char **envp)
@@ -69,7 +148,6 @@ void	ft_exec_command(t_node *node, char **envp)
 		}
 		return ;
 	}
-	// Regular command execution
 	pid = fork();
 	if (pid == -1)
 	{
@@ -237,7 +315,7 @@ void	ft_exec_operator(t_node *node, char **envp)
 		ft_handle_heredoc(node, envp);
 	else
 	{
-		fprintf(stderr, "Unknown operator: %s\n", node->content[0]);
+		fprintf(stderr, "Unknown operator: %s\n", node->content[0]); // change this
 		g_errno = 1;
 	}
 }

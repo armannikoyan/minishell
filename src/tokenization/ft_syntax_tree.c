@@ -6,7 +6,7 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/04 12:47:00 by anikoyan          #+#    #+#             */
-/*   Updated: 2024/12/22 20:53:16 by anikoyan         ###   ########.fr       */
+/*   Updated: 2024/12/30 20:07:54 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,8 +46,9 @@ static t_tree	*ft_tree_ctor(void)
 	return (new);
 }
 
-static void	ft_tree_dtor(t_tree **tree)
+void	ft_tree_dtor(t_tree **tree)
 {
+	// TODO: freeing the unalocated memory
 	t_node	*current;
 
 	if (!tree || !*tree)
@@ -249,6 +250,26 @@ static void	add_to_tree(t_tree *tree, t_node *node)
 		add_non_operator_node(tree, node);
 }
 
+void	ft_printf_tree(t_node *node)
+{
+	if (!node)
+		return ;
+	ft_printf("going left\n");
+	ft_printf_tree(node->left);
+	ft_printf("returning from left\n");
+	ft_printf("----------------\n");
+	for (int i = 0; node->content[i]; i++)
+	{
+		ft_printf("content: %s\n", node->content[i]);
+		ft_printf("i: %d\n", i);
+	}
+	ft_printf("type: %c\n", node->type);
+	ft_printf("----------------\n");
+	ft_printf("going right\n");
+	ft_printf_tree(node->right);
+	ft_printf("returning from right\n");
+}
+
 t_tree	*ft_tree_build(t_list **lst)
 {
 	t_tree	*tree;
@@ -266,7 +287,7 @@ t_tree	*ft_tree_build(t_list **lst)
 			add_to_tree(tree, new_node);
 		tmp = tmp->next;
 	}
-	ft_tree_dtor(NULL);
+	ft_printf_tree(tree->root);
 	return (tree);
 }
 
