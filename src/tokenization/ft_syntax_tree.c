@@ -6,14 +6,9 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/04 12:47:00 by anikoyan          #+#    #+#             */
-/*   Updated: 2024/12/31 22:36:12 by anikoyan         ###   ########.fr       */
+/*   Updated: 2024/12/31 22:44:58 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
-// TODO: fix echo 123 && sheesh || echo 456 case so that it prints:
-// 123
-// minishell: command not found: sheesh
-// 456
 
 #include "../../includes/minishell.h"
 
