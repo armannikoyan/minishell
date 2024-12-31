@@ -48,7 +48,6 @@ static t_tree	*ft_tree_ctor(void)
 
 void	ft_tree_dtor(t_tree **tree)
 {
-	// TODO: freeing the unalocated memory
 	t_node	*current;
 
 	if (!tree || !*tree)
@@ -252,16 +251,20 @@ static void	add_to_tree(t_tree *tree, t_node *node)
 
 void	ft_printf_tree(t_node *node)
 {
+	int	i;
+
+	i = 0;
 	if (!node)
 		return ;
 	ft_printf("going left\n");
 	ft_printf_tree(node->left);
 	ft_printf("returning from left\n");
 	ft_printf("----------------\n");
-	for (int i = 0; node->content[i]; i++)
+	while (node->content[i])
 	{
 		ft_printf("content: %s\n", node->content[i]);
 		ft_printf("i: %d\n", i);
+		i++;
 	}
 	ft_printf("type: %c\n", node->type);
 	ft_printf("----------------\n");
@@ -290,26 +293,3 @@ t_tree	*ft_tree_build(t_list **lst)
 	ft_printf_tree(tree->root);
 	return (tree);
 }
-
-// int	operator_precedence(char *op)
-// {
-// 	if (ft_strcmp(op, "&&") == 0 || ft_strcmp(op, "||") == 0)
-// 		return (3); // Lowest precedence
-// 	if (ft_strcmp(op, "|") == 0)
-// 		return (2);
-// 	if (ft_strcmp(op, "<") == 0 || ft_strcmp(op, ">") == 0
-// 		|| ft_strcmp(op, ">>") == 0 || ft_strcmp(op, "<<") == 0)
-// 		return (1); // Highest precedence
-// 	return (0); // Default for unknown
-// }
-
-// int	operator_has_higher_precedence(t_node *new_op, t_node *current_op)
-// {
-// 	int	new_prec;
-// 	int	current_prec;
-
-// 	new_prec = operator_precedence(new_op->content[0]);
-// 	current_prec = operator_precedence(current_op->content[0]);
-// 	// Higher precedence operator replaces current
-// 	return (new_prec > current_prec);
-// }

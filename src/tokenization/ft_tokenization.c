@@ -147,7 +147,7 @@ static void	ft_assign_command_type(t_token *token, t_list **tmp)
 
 static void	ft_assign_operator_type(t_list **tmp, t_token *token)
 {
-	t_token *next_token;
+	t_token	*next_token;
 
 	token->type = 'O';
 	if ((token->content[0] == '>' || token->content[0] == '<') && (*tmp)->next)
@@ -158,7 +158,8 @@ static void	ft_assign_operator_type(t_list **tmp, t_token *token)
 		{
 			next_token->type = 'F';
 			while ((*tmp)->next && (t_token *)(*tmp)->next->content
-					&& !ft_isoperator(((t_token *)(*tmp)->next->content)->content))
+					&& !ft_isoperator(((t_token *)(*tmp)
+							->next->content)->content))
 			{
 				*tmp = (*tmp)->next;
 				((t_token *)(*tmp)->content)->type = 'A';

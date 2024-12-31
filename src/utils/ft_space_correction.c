@@ -138,11 +138,12 @@ static unsigned short	calculate_output_length(char *input)
 static void	process_non_space_token(char *input,
 		char *output, unsigned short *i, unsigned short *j)
 {
-	// ISSUE: )( should turn into ) ( and case "()" should remain the same
-	if (*j > 0 && output[*j - 1] != ' ' && input[*i] == ')')
+	if (*j > 0 && output[*j - 1] != ' '
+		&& output[*j - 1] != '(' && input[*i] == ')')
 		output[(*j)++] = ' ';
 	output[(*j)++] = input[(*i)++];
-	if (output[*j - 1] == '(' && input[*i] && !ft_isspace(input[*i]))
+	if (output[*j - 1] == '('
+		&& input[*i] && !ft_isspace(input[*i]) && input[*i] != ')')
 		output[(*j)++] = ' ';
 }
 

@@ -12,20 +12,41 @@
 
 #include "../../includes/minishell.h"
 
-void	ft_quote_removal(t_token *token)
+static void	remove_surrounding_quotes(t_token *token)
 {
 	char			*new_content;
 	unsigned short	len;
 
-	// ISSUE: if the token is a string with quotes, the quotes are not removed properly
+	len = ft_strlen(token->content);
 	if ((token->content[0] == '\'' || token->content[0] == '\"')
-		&& token->content[0] == token->content[ft_strlen(token->content) - 1])
+		&& token->content[0] == token->content[len - 1])
 	{
-		len = ft_strlen(token->content);
 		new_content = ft_substr(token->content, 1, len - 2);
 		free(token->content);
 		token->content = new_content;
 	}
+}
+
+void	ft_quote_removal(t_token *token)
+{
+	unsigned short	len;
+	unsigned short	single_quote_count;
+	unsigned short	double_quote_count;
+
+	len = ft_strlen(token->content);
+	single_quote_count = 0;
+	double_quote_count = 0;
+	while (len > 0)
+	{
+		if (token->content[len] == '\'')
+			single_quote_count++;
+		else if (token->content[len] == '\"')
+			double_quote_count++;
+		len--;
+	}
+	if (single_quote_count % 2 != 0 || double_quote_count % 2 != 0)
+		return (ft_report_error("not even quotes: ", token->content, 1));
+	remove_surrounding_quotes(token);
 }
 
 DIR	*ft_open_directory(const char *path, struct dirent **entry)
