@@ -6,7 +6,7 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/18 17:00:14 by anikoyan          #+#    #+#             */
-/*   Updated: 2024/12/25 18:42:01 by anikoyan         ###   ########.fr       */
+/*   Updated: 2024/12/31 22:30:19 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,6 +42,7 @@ typedef struct s_node
 {
 	char			**content;
 	char			type;
+	unsigned short	subshell_level;
 	struct s_node	*left;
 	struct s_node	*right;
 }	t_node;

@@ -6,7 +6,7 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/22 19:38:41 by anikoyan          #+#    #+#             */
-/*   Updated: 2024/12/24 20:09:46 by anikoyan         ###   ########.fr       */
+/*   Updated: 2024/12/31 17:44:20 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,7 @@ bool	has_single_token_error(t_list **lst)
 
 bool	has_error_type_e(t_token *token)
 {
+	return (false); // TODO: fix this
 	if (token->type == 'E')
 		return (ft_report_error("command not found: ", token->content, 127));
 	return (false);

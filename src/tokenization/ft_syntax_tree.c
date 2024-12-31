@@ -6,13 +6,18 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/04 12:47:00 by anikoyan          #+#    #+#             */
-/*   Updated: 2024/12/30 20:07:54 by anikoyan         ###   ########.fr       */
+/*   Updated: 2024/12/31 22:36:12 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+// TODO: fix echo 123 && sheesh || echo 456 case so that it prints:
+// 123
+// minishell: command not found: sheesh
+// 456
+
 #include "../../includes/minishell.h"
 
-static t_node	*ft_node_ctor(char **content, char type)
+static t_node	*ft_node_ctor(char **content, char type, unsigned short subshell_level)
 {
 	t_node	*new;
 
@@ -21,6 +26,7 @@ static t_node	*ft_node_ctor(char **content, char type)
 		return (NULL);
 	new->content = content;
 	new->type = type;
+	new->subshell_level = subshell_level;
 	new->left = NULL;
 	new->right = NULL;
 	return (new);
@@ -69,8 +75,7 @@ static unsigned short	handle_o_token(t_list *tmp)
 {
 	if ((t_token *)tmp->content && ((t_token *)tmp->content)->type == 'O')
 	{
-		if (ft_strlen(((t_token *)tmp->content)->content) == 2
-			&& (((t_token *)tmp->content)->content[0] == '>'
+		if ((((t_token *)tmp->content)->content[0] == '>'
 				|| ((t_token *)tmp->content)->content[0] == '<'))
 			return (2);
 		else
@@ -112,17 +117,18 @@ static unsigned short	ft_contentlen(t_list **lst)
 }
 
 static void	parse_x_node(t_list **lst,
-		char ***content, unsigned short *i, char *type_of_node)
+		char ***content, char *type_of_node)
 {
 	t_list	*tmp;
+	unsigned short	i;
 
 	*type_of_node = 'X';
 	tmp = *lst;
+	i = 0;
 	while (tmp && (t_token *)tmp->content
 		&& ((t_token *)tmp->content)->type != 'O')
 	{
-		(*content)[*i] = ((t_token *)tmp->content)->content;
-		(*i)++;
+		(*content)[i++] = ((t_token *)tmp->content)->content;
 		tmp = tmp->next;
 	}
 	while (tmp && (t_token *)tmp->content
@@ -132,25 +138,26 @@ static void	parse_x_node(t_list **lst,
 	while (tmp && (t_token *)tmp->content
 		&& ((t_token *)tmp->content)->type == 'A')
 	{
-		(*content)[*i] = ((t_token *)tmp->content)->content;
-		(*i)++;
+		(*content)[i++] = ((t_token *)tmp->content)->content;
 		tmp = tmp->next;
 	}
 }
 
 static void	parse_o_node(t_list **lst,
-		char ***content, unsigned short *i, char *type_of_node)
+		char ***content, char *type_of_node)
 {
 	t_list	*tmp;
+	unsigned short	i;
 
 	*type_of_node = 'O';
 	tmp = *lst;
-	while (tmp && (t_token *)tmp->content
-		&& (((t_token *)tmp->content)->type == 'O'
-			|| ((t_token *)tmp->content)->type == 'F'))
+	i = 0;
+	(*content)[i++] = ((t_token *)tmp->content)->content;
+	tmp = tmp->next;
+	if (tmp && (t_token *)tmp->content
+		&& ((t_token *)tmp->content)->type == 'F')
 	{
-		(*content)[*i] = ((t_token *)tmp->content)->content;
-		(*i)++;
+		(*content)[i++] = ((t_token *)tmp->content)->content;
 		tmp = tmp->next;
 	}
 }
@@ -160,65 +167,37 @@ static t_node	*parse_node(t_list **lst)
 	char			**content;
 	char			type_of_node;
 	t_list			*tmp;
-	unsigned short	i;
 
 	if (!lst || !*lst)
 		exit(EXIT_FAILURE);
-	i = 0;
 	tmp = *lst;
 	content = (char **)malloc(sizeof(char *) * (ft_contentlen(&tmp) + 1));
 	if (!content)
 		exit(EXIT_FAILURE);
 	if ((t_token *)tmp->content && ((t_token *)tmp->content)->type == 'X')
-		parse_x_node(lst, &content, &i, &type_of_node);
+		parse_x_node(lst, &content, &type_of_node);
 	else if ((t_token *)tmp->content && ((t_token *)tmp->content)->type == 'O')
-		parse_o_node(lst, &content, &i, &type_of_node);
+		parse_o_node(lst, &content, &type_of_node);
 	else
 	{
 		free(content);
 		return (NULL);
 	}
-	return (ft_node_ctor(content, type_of_node));
+	return (ft_node_ctor(content, type_of_node, ((t_token *)tmp->content)->subshell_level));
 }
 
-int	operator_precedence(char *op)
-{
-	if (ft_strcmp(op, "&&") == 0 || ft_strcmp(op, "||") == 0)
-		return (3);
-	if (ft_strcmp(op, "|") == 0)
-		return (2);
-	if (ft_strcmp(op, "<") == 0 || ft_strcmp(op, ">") == 0
-		|| ft_strcmp(op, ">>") == 0 || ft_strcmp(op, "<<") == 0)
-		return (1);
-	return (0);
-}
-
-int	operator_has_higher_precedence(t_node *new_op, t_node *current_op)
-{
-	int	new_prec;
-	int	current_prec;
-
-	new_prec = operator_precedence(new_op->content[0]);
-	current_prec = operator_precedence(current_op->content[0]);
-	return (new_prec > current_prec);
-}
-
-static void	add_operator_node(t_tree *tree, t_node *node)
+static void add_operator_node(t_tree *tree, t_node *node)
 {
 	t_node	*current;
 
 	current = tree->root;
-	if (operator_has_higher_precedence(node, current))
+	if (!current)
 	{
-		node->left = current;
 		tree->root = node;
+		return;
 	}
-	else
-	{
-		while (current->right)
-			current = current->right;
-		current->right = node;
-	}
+	node->left = tree->root;
+	tree->root = node;
 }
 
 static void	add_non_operator_node(t_tree *tree, t_node *node)
@@ -251,26 +230,15 @@ static void	add_to_tree(t_tree *tree, t_node *node)
 
 void	ft_printf_tree(t_node *node)
 {
-	int	i;
-
-	i = 0;
 	if (!node)
 		return ;
-	ft_printf("going left\n");
 	ft_printf_tree(node->left);
-	ft_printf("returning from left\n");
-	ft_printf("----------------\n");
-	while (node->content[i])
-	{
-		ft_printf("content: %s\n", node->content[i]);
-		ft_printf("i: %d\n", i);
-		i++;
-	}
+	ft_printf("-----------------------\n");
+	ft_printf("%s\n", node->content[0]);
 	ft_printf("type: %c\n", node->type);
-	ft_printf("----------------\n");
-	ft_printf("going right\n");
+	ft_printf("subshell_level: %d\n", node->subshell_level);
+	ft_printf("-----------------------\n");
 	ft_printf_tree(node->right);
-	ft_printf("returning from right\n");
 }
 
 t_tree	*ft_tree_build(t_list **lst)

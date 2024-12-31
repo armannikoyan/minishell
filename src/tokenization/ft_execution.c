@@ -6,7 +6,7 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/13 18:44:10 by anikoyan          #+#    #+#             */
-/*   Updated: 2024/12/30 21:18:08 by anikoyan         ###   ########.fr       */
+/*   Updated: 2024/12/31 22:35:39 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,6 @@ void	ft_handle_heredoc(t_node *node, char **envp)
 
 	if (!node || !node->content[1])
 	{
-		fprintf(stderr, "Heredoc: Missing delimiter\n");
 		g_errno = 1;
 		return ;
 	}
@@ -111,7 +110,7 @@ void	ft_handle_heredoc(t_node *node, char **envp)
 			else
 				g_errno = 1;
 		}
-		unlink(temp_file); // Make sure i can use this
+		unlink(temp_file);
 	}
 }
 
@@ -158,8 +157,8 @@ void	ft_exec_command(t_node *node, char **envp)
 	{
 		if (execve(node->content[0], node->content, envp) == -1)
 		{
-			perror("execve failed");
-			exit(EXIT_FAILURE);
+			ft_report_error("command not found: ", node->content[0], 127);
+			exit(g_errno);
 		}
 	}
 	else
@@ -313,9 +312,4 @@ void	ft_exec_operator(t_node *node, char **envp)
 		ft_handle_output_redirection(node, envp, O_APPEND);
 	else if (ft_strcmp(node->content[0], "<<") == 0)
 		ft_handle_heredoc(node, envp);
-	else
-	{
-		fprintf(stderr, "Unknown operator: %s\n", node->content[0]); // change this
-		g_errno = 1;
-	}
 }

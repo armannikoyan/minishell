@@ -6,7 +6,7 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/18 16:57:05 by anikoyan          #+#    #+#             */
-/*   Updated: 2024/12/30 21:22:18 by anikoyan         ###   ########.fr       */
+/*   Updated: 2024/12/31 22:39:55 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,8 +57,6 @@ static void	ft_entry_info_helper(char **username, char **w_dir)
 {
 	char	*abs_wdir;
 
-	(void)username;
-	(void)w_dir;
 	abs_wdir = NULL;
 	abs_wdir = getcwd(abs_wdir, MAXPATHLEN);
 	*username = ft_subusr(abs_wdir);

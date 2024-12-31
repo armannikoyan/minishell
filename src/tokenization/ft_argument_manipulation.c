@@ -6,7 +6,7 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 09:34:14 by anikoyan          #+#    #+#             */
-/*   Updated: 2024/12/24 19:52:23 by anikoyan         ###   ########.fr       */
+/*   Updated: 2024/12/31 14:31:15 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,7 @@ static void	remove_surrounding_quotes(t_token *token)
 
 void	ft_quote_removal(t_token *token)
 {
+	// TODO: make so that cases like echo "123'sldkf" work
 	unsigned short	len;
 	unsigned short	single_quote_count;
 	unsigned short	double_quote_count;
@@ -45,7 +46,10 @@ void	ft_quote_removal(t_token *token)
 		len--;
 	}
 	if (single_quote_count % 2 != 0 || double_quote_count % 2 != 0)
-		return (ft_report_error("not even quotes: ", token->content, 1));
+	{
+		ft_report_error("not even quotes: ", token->content, 1);
+		return ;
+	}
 	remove_surrounding_quotes(token);
 }
 

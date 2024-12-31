@@ -6,15 +6,14 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/22 20:33:00 by anikoyan          #+#    #+#             */
-/*   Updated: 2024/12/30 21:18:53 by anikoyan         ###   ########.fr       */
+/*   Updated: 2024/12/31 22:40:34 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../includes/minishell.h"
 
-// ISSUE: echo < input_file > output_file
-// minishell: command not found: output_file
-// output_file considering as a command
+// ISSUE: cannot handle token type assignment for subshell
+// example: (echo 123)
 
 static bool	ft_try_command_path(t_token **token, char *directory)
 {
@@ -224,7 +223,10 @@ static void	ft_assign_token_type(t_list ***lst)
 		else if (ft_strcmp(token->content, "(") == 0)
 			ft_handle_subshell(lst, &tmp, prev);
 		else
-			token->type = 'E';
+		{
+			token->type = 'X';
+			ft_assign_argument_type(&tmp);
+		}
 		prev = tmp;
 		if (tmp)
 			tmp = tmp->next;
