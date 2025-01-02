@@ -29,25 +29,28 @@ static void	remove_surrounding_quotes(t_token *token)
 
 void	ft_quote_removal(t_token *token)
 {
-	// TODO: make so that cases like echo "123'sldkf" work
-	unsigned short	len;
-	unsigned short	single_quote_count;
-	unsigned short	double_quote_count;
+	unsigned short	quote_count;
+	char			starting_quote;
+	unsigned short	i;
 
-	len = ft_strlen(token->content);
-	single_quote_count = 0;
-	double_quote_count = 0;
-	while (len > 0)
+	if (!token || !token->content)
+		return ;
+	starting_quote = token->content[0];
+	if (ft_strlen(token->content) < 2
+		|| ((starting_quote != '\'' && starting_quote != '\"')
+			|| token->content[ft_strlen(token->content) - 1] != starting_quote))
+		return ;
+	quote_count = 0;
+	i = 0;
+	while (token->content[i])
 	{
-		if (token->content[len] == '\'')
-			single_quote_count++;
-		else if (token->content[len] == '\"')
-			double_quote_count++;
-		len--;
+		if (token->content[i] == starting_quote)
+			quote_count++;
+		i++;
 	}
-	if (single_quote_count % 2 != 0 || double_quote_count % 2 != 0)
+	if (quote_count % 2 != 0)
 	{
-		ft_report_error("not even quotes: ", token->content, 1);
+		ft_report_error("Unbalanced quotes: ", token->content, 1);
 		return ;
 	}
 	remove_surrounding_quotes(token);
@@ -166,7 +169,7 @@ bool	ft_list_files_in_directory_with_pattern(const char *path, t_list *lst,
 bool	ft_close_directory(DIR *dir)
 {
 	if (closedir(dir) == -1)
-		perror("closedir failed");
+		ft_report_error("closedir failed: ", strerror(errno), 1);
 	return (true);
 }
 

@@ -12,7 +12,8 @@
 
 #include "../../includes/minishell.h"
 
-static t_node	*ft_node_ctor(char **content, char type, unsigned short subshell_level)
+static t_node	*ft_node_ctor(char **content,
+		char type, unsigned short subshell_level)
 {
 	t_node	*new;
 
@@ -114,7 +115,7 @@ static unsigned short	ft_contentlen(t_list **lst)
 static void	parse_x_node(t_list **lst,
 		char ***content, char *type_of_node)
 {
-	t_list	*tmp;
+	t_list			*tmp;
 	unsigned short	i;
 
 	*type_of_node = 'X';
@@ -141,7 +142,7 @@ static void	parse_x_node(t_list **lst,
 static void	parse_o_node(t_list **lst,
 		char ***content, char *type_of_node)
 {
-	t_list	*tmp;
+	t_list			*tmp;
 	unsigned short	i;
 
 	*type_of_node = 'O';
@@ -178,10 +179,11 @@ static t_node	*parse_node(t_list **lst)
 		free(content);
 		return (NULL);
 	}
-	return (ft_node_ctor(content, type_of_node, ((t_token *)tmp->content)->subshell_level));
+	return (ft_node_ctor(content, type_of_node,
+			((t_token *)tmp->content)->subshell_level));
 }
 
-static void add_operator_node(t_tree *tree, t_node *node)
+static void	add_operator_node(t_tree *tree, t_node *node)
 {
 	t_node	*current;
 
@@ -189,7 +191,7 @@ static void add_operator_node(t_tree *tree, t_node *node)
 	if (!current)
 	{
 		tree->root = node;
-		return;
+		return ;
 	}
 	node->left = tree->root;
 	tree->root = node;
