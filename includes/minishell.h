@@ -6,7 +6,7 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/18 17:00:14 by anikoyan          #+#    #+#             */
-/*   Updated: 2024/12/31 22:30:19 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/01/04 22:45:31 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,6 +53,7 @@ typedef struct s_syntax_tree
 }	t_tree;
 
 void			ft_signal_handler(int signum);
+void			ft_heredoc_signal_handler(int sig);
 void			ft_error(char *str, int m_errno);
 void			ft_tokendelone(void *lst);
 void			ft_exec(t_tree *tree, char **envp);

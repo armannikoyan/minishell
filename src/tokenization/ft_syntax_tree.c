@@ -6,7 +6,7 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/04 12:47:00 by anikoyan          #+#    #+#             */
-/*   Updated: 2024/12/31 22:44:58 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/01/04 20:30:38 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -223,29 +223,18 @@ static void	add_to_tree(t_tree *tree, t_node *node)
 		add_non_operator_node(tree, node);
 }
 
-void	ft_printf_tree(t_node *node)
-{
-	if (!node)
-		return ;
-	ft_printf_tree(node->left);
-	ft_printf("-----------------------\n");
-	ft_printf("%s\n", node->content[0]);
-	ft_printf("type: %c\n", node->type);
-	ft_printf("subshell_level: %d\n", node->subshell_level);
-	ft_printf("-----------------------\n");
-	ft_printf_tree(node->right);
-}
-
 t_tree	*ft_tree_build(t_list **lst)
 {
 	t_tree	*tree;
 	t_list	*tmp;
 	t_node	*new_node;
 
-	tree = ft_tree_ctor();
-	tmp = *lst;
-	if (!tree || !lst || !*lst)
+	if (!lst || !*lst)
 		return (NULL);
+	tree = ft_tree_ctor();
+	if (!tree)
+		exit(EXIT_FAILURE);
+	tmp = *lst;
 	while (tmp)
 	{
 		new_node = parse_node(&tmp);
@@ -253,6 +242,5 @@ t_tree	*ft_tree_build(t_list **lst)
 			add_to_tree(tree, new_node);
 		tmp = tmp->next;
 	}
-	ft_printf_tree(tree->root);
 	return (tree);
 }

@@ -6,14 +6,11 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/22 20:33:00 by anikoyan          #+#    #+#             */
-/*   Updated: 2024/12/31 22:40:34 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/01/04 20:29:00 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../includes/minishell.h"
-
-// ISSUE: cannot handle token type assignment for subshell
-// example: (echo 123)
 
 static bool	ft_try_command_path(t_token **token, char *directory)
 {
@@ -167,41 +164,49 @@ static void	ft_assign_operator_type(t_list **tmp, t_token *token)
 	}
 }
 
-static void	ft_remove_subshell_token(t_list ***lst, t_list **tmp, t_list *prev)
+static void	ft_remove_subshell_token(t_list **lst, t_list **tmp, t_list *prev)
 {
 	if (prev)
 		prev->next = (*tmp)->next;
 	else
-		**lst = (*tmp)->next;
+		*lst = (*tmp)->next;
 	ft_lstdelone(*tmp, ft_tokendelone);
 	if (prev)
 		*tmp = prev->next;
 	else
-		*tmp = **lst;
+		*tmp = *lst;
 }
 
-static void	ft_handle_subshell(t_list ***lst, t_list **tmp, t_list *prev)
+static void	ft_assign_subshell_levels(t_list **lst)
 {
-	t_list		*tmp_next;
-	t_token		*token;
+	t_list	*tmp;
+	t_list	*prev;
+	t_token	*token;
+	int		current_level;
 
-	ft_remove_subshell_token(lst, tmp, prev);
-	while (*tmp && (t_token *)(*tmp)->content
-		&& ((t_token *)(*tmp)->content)->content
-		&& ft_strcmp(((t_token *)(*tmp)->content)->content, ")") != 0)
+	tmp = *lst;
+	prev = NULL;
+	current_level = 0;
+	while (tmp)
 	{
-		token = (t_token *)(*tmp)->content;
-		token->subshell_level += 1;
-		tmp_next = (*tmp)->next;
-		if (tmp_next && (t_token *)(tmp_next->content)
-			&& ((t_token *)tmp_next->content)->content
-			&& ft_strcmp(((t_token *)tmp_next->content)->content, ")") == 0)
+		token = (t_token *)tmp->content;
+		if (ft_strcmp(token->content, "(") == 0)
 		{
-			(*tmp)->next = tmp_next->next;
-			ft_lstdelone(tmp_next, ft_tokendelone);
-			break ;
+			current_level++;
+			ft_remove_subshell_token(lst, &tmp, prev);
 		}
-		*tmp = (*tmp)->next;
+		else if (ft_strcmp(token->content, ")") == 0)
+		{
+			if (current_level > 0)
+				current_level--;
+			ft_remove_subshell_token(lst, &tmp, prev);
+		}
+		else
+		{
+			token->subshell_level = current_level;
+			prev = tmp;
+			tmp = tmp->next;
+		}
 	}
 }
 
@@ -209,10 +214,8 @@ static void	ft_assign_token_type(t_list ***lst)
 {
 	t_list		*tmp;
 	t_token		*token;
-	t_list		*prev;
 
 	tmp = **lst;
-	prev = NULL;
 	while (tmp)
 	{
 		token = (t_token *)tmp->content;
@@ -220,14 +223,14 @@ static void	ft_assign_token_type(t_list ***lst)
 			ft_assign_command_type(token, &tmp);
 		else if (ft_isoperator(token->content))
 			ft_assign_operator_type(&tmp, token);
-		else if (ft_strcmp(token->content, "(") == 0)
-			ft_handle_subshell(lst, &tmp, prev);
+		else if (ft_strcmp(token->content, "(") == 0
+			|| ft_strcmp(token->content, ")") == 0)
+			token->type = 'S';
 		else
 		{
 			token->type = 'X';
 			ft_assign_argument_type(&tmp);
 		}
-		prev = tmp;
 		if (tmp)
 			tmp = tmp->next;
 	}
@@ -257,5 +260,6 @@ t_list	**ft_tokenization(char *input)
 	ft_assign_token_type(&lst);
 	if (!ft_process_path_patterns(lst))
 		ft_lstclear(lst, ft_tokendelone);
+	ft_assign_subshell_levels(lst);
 	return (lst);
 }

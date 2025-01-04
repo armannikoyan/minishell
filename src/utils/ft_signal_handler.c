@@ -6,11 +6,13 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/25 11:12:08 by anikoyan          #+#    #+#             */
-/*   Updated: 2024/09/26 16:33:45 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/01/04 22:45:11 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../includes/minishell.h"
+
+extern void	rl_replace_line(const char *text, int clear_undo);
 
 void	ft_signal_handler(int signum)
 {
@@ -26,4 +28,18 @@ void	ft_signal_handler(int signum)
 	}
 	else if (signum == SIGQUIT)
 		return ;
+}
+
+void	ft_heredoc_signal_handler(int sig)
+{
+	if (sig == SIGINT)
+	{
+		write(STDOUT_FILENO, "\n", 1);
+		exit(130);
+	}
+	else if (sig == SIGQUIT)
+	{
+		write(STDOUT_FILENO, "Quit (core dumped)\n", 20);
+		exit(131);
+	}
 }

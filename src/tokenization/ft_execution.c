@@ -6,7 +6,7 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/13 18:44:10 by anikoyan          #+#    #+#             */
-/*   Updated: 2024/12/31 22:35:39 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/01/04 22:47:05 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,23 +14,37 @@
 
 extern int	g_errno;
 
-void	ft_exec_operator(t_node *node, char **envp);
-void	ft_exec_command(t_node *node, char **envp);
+void	ft_exec_with_level(t_node *node, char **envp, unsigned short *current_level);
+void	ft_exec_operator(t_node *node, char **envp, unsigned short *current_level);
+void	ft_exec_command(t_node *node, char **envp, unsigned short *current_level);
+
 
 void	ft_exec(t_tree *tree, char **envp)
 {
+	static unsigned short	current_level = 0;
+
 	if (!tree || !tree->root)
 		return ;
-	if (tree->root->type == 'O')
-		ft_exec_operator(tree->root, envp);
+
+	ft_exec_with_level(tree->root, envp, &current_level);
+}
+
+void	ft_exec_with_level(t_node *node, char **envp, unsigned short *current_level)
+{
+	if (!node)
+		return ;
+	if (node->type == 'O')
+		ft_exec_operator(node, envp, current_level);
 	else
-		ft_exec_command(tree->root, envp);
+		ft_exec_command(node, envp, current_level);
 }
 
 void	ft_handle_heredoc(t_node *node, char **envp)
 {
+	// TODO: handle heredoc signals
 	pid_t	pid;
 	int		fd;
+	int		status;
 	char	*line;
 	char	*temp_file = "/tmp/minishell_heredoc.tmp";
 
@@ -53,6 +67,8 @@ void	ft_handle_heredoc(t_node *node, char **envp)
 			perror("open failed");
 			exit(EXIT_FAILURE);
 		}
+		signal(SIGINT, ft_heredoc_signal_handler);
+		signal(SIGQUIT, ft_heredoc_signal_handler);
 		while (true)
 		{
 			line = readline("> ");
@@ -72,13 +88,14 @@ void	ft_handle_heredoc(t_node *node, char **envp)
 	}
 	else
 	{
-		int	status;
-
+		signal(SIGINT, SIG_IGN);
+		signal(SIGQUIT, SIG_IGN);
 		waitpid(pid, &status, 0);
+		signal(SIGINT, ft_signal_handler);
+		signal(SIGQUIT, ft_signal_handler);
 		if (!WIFEXITED(status) || WEXITSTATUS(status) != 0)
 		{
-			fprintf(stderr, "Heredoc input failed\n");
-			g_errno = 1;
+			g_errno = status;
 			return ;
 		}
 		fd = open(temp_file, O_RDONLY);
@@ -114,27 +131,28 @@ void	ft_handle_heredoc(t_node *node, char **envp)
 	}
 }
 
-void	ft_exec_command(t_node *node, char **envp)
+void ft_exec_command(t_node *node, char **envp, unsigned short *current_level)
 {
-	pid_t	pid;
-	int		status;
+	pid_t pid;
+	int status;
 
 	if (!node || !node->content)
-		return ;
-	// Subshell has level for example (echo 123) has level 1 for each element in the brackets
-	// ((echo 123) | cat -e) has level 2 for each element in the brackets of (echo 123) and | and cat -e has 1
-	// TODO: Implement subshell execution with level right example of structure ((t_token *)node->content)->subshell_level
-	if (node->type == 'S')
+		return;
+
+	if (node->subshell_level > *current_level)
 	{
 		pid = fork();
 		if (pid == -1)
 		{
 			perror("fork failed");
-			exit(EXIT_FAILURE);
+			g_errno = 1;
+			return;
 		}
+
 		if (pid == 0)
 		{
-			ft_exec(&(t_tree){node->left}, envp);
+			*current_level = node->subshell_level;
+			ft_exec_with_level(node, envp, current_level);
 			exit(g_errno);
 		}
 		else
@@ -144,15 +162,19 @@ void	ft_exec_command(t_node *node, char **envp)
 				g_errno = WEXITSTATUS(status);
 			else
 				g_errno = 1;
+			return;
 		}
-		return ;
 	}
+
+	// Regular command execution
 	pid = fork();
 	if (pid == -1)
 	{
 		perror("fork failed");
-		exit(EXIT_FAILURE);
+		g_errno = 1;
+		return;
 	}
+
 	if (pid == 0)
 	{
 		if (execve(node->content[0], node->content, envp) == -1)
@@ -286,23 +308,24 @@ void	ft_handle_output_redirection(t_node *node, char **envp, int flags)
 	}
 }
 
-void	ft_exec_operator(t_node *node, char **envp)
+void	ft_exec_operator(t_node *node, char **envp, unsigned short *current_level)
 {
 	if (!node)
 		return ;
+
 	if (ft_strcmp(node->content[0], "|") == 0)
 		ft_handle_pipe(node, envp);
 	else if (ft_strcmp(node->content[0], "&&") == 0)
 	{
-		ft_exec(&(t_tree){node->left}, envp);
+		ft_exec_with_level(node->left, envp, current_level);
 		if (g_errno == 0)
-			ft_exec(&(t_tree){node->right}, envp);
+			ft_exec_with_level(node->right, envp, current_level);
 	}
 	else if (ft_strcmp(node->content[0], "||") == 0)
 	{
-		ft_exec(&(t_tree){node->left}, envp);
+		ft_exec_with_level(node->left, envp, current_level);
 		if (g_errno != 0)
-			ft_exec(&(t_tree){node->right}, envp);
+			ft_exec_with_level(node->right, envp, current_level);
 	}
 	else if (ft_strcmp(node->content[0], "<") == 0)
 		ft_handle_input_redirection(node, envp);

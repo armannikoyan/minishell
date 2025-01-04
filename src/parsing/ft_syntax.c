@@ -6,7 +6,7 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/22 19:38:41 by anikoyan          #+#    #+#             */
-/*   Updated: 2024/12/31 17:44:20 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/01/03 20:10:20 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,14 +24,6 @@ bool	has_single_token_error(t_list **lst)
 			|| token->content[0] != '>')
 		&& (*lst)->next == NULL)
 		return (ft_report_error("parse error near: ", token->content, 1));
-	return (false);
-}
-
-bool	has_error_type_e(t_token *token)
-{
-	return (false); // TODO: fix this
-	if (token->type == 'E')
-		return (ft_report_error("command not found: ", token->content, 127));
 	return (false);
 }
 
@@ -177,8 +169,7 @@ bool	ft_has_syntax_error(t_list **lst)
 	while (tmp)
 	{
 		token = (t_token *)tmp->content;
-		if (has_error_type_e(token)
-			|| has_consecutive_operators(token, tmp->next)
+		if (has_consecutive_operators(token, tmp->next)
 			|| has_invalid_operator_file(token, tmp->next)
 			|| has_operator_followed_by_operator(token, tmp->next)
 			|| has_unmatched_quotes(token)
