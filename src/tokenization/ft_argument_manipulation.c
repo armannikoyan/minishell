@@ -6,7 +6,7 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 09:34:14 by anikoyan          #+#    #+#             */
-/*   Updated: 2024/12/31 14:31:15 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/01/04 23:03:53 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,7 @@ static void	remove_surrounding_quotes(t_token *token)
 	}
 }
 
+// ISSUE: not working properly for case echo '1'2'3' which should be echo 123 after quote removal
 void	ft_quote_removal(t_token *token)
 {
 	unsigned short	quote_count;
@@ -37,8 +38,7 @@ void	ft_quote_removal(t_token *token)
 		return ;
 	starting_quote = token->content[0];
 	if (ft_strlen(token->content) < 2
-		|| ((starting_quote != '\'' && starting_quote != '\"')
-			|| token->content[ft_strlen(token->content) - 1] != starting_quote))
+		|| (starting_quote != '\'' && starting_quote != '\"'))
 		return ;
 	quote_count = 0;
 	i = 0;
@@ -48,9 +48,10 @@ void	ft_quote_removal(t_token *token)
 			quote_count++;
 		i++;
 	}
+	ft_printf("quote_count: %d\n", quote_count);
 	if (quote_count % 2 != 0)
 	{
-		ft_report_error("Unbalanced quotes: ", token->content, 1);
+		ft_report_error("parse error near: ", &starting_quote, 1);
 		return ;
 	}
 	remove_surrounding_quotes(token);
@@ -169,7 +170,7 @@ bool	ft_list_files_in_directory_with_pattern(const char *path, t_list *lst,
 bool	ft_close_directory(DIR *dir)
 {
 	if (closedir(dir) == -1)
-		ft_report_error("closedir failed: ", strerror(errno), 1);
+		ft_report_error("closedir failed: ", NULL, 1);
 	return (true);
 }
 
