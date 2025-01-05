@@ -27,34 +27,51 @@ static void	remove_surrounding_quotes(t_token *token)
 	}
 }
 
-// ISSUE: not working properly for case echo '1'2'3' which should be echo 123 after quote removal
+static int	is_starting_quote(char c)
+{
+	return (c == '\'' || c == '\"');
+}
+
+static char	*process_quote_remove(const char *content, char starting_quote)
+{
+	size_t	i;
+	size_t	j;
+	char	*result;
+
+	result = malloc(strlen(content) + 1);
+	if (!result)
+	{
+		perror("Memory allocation failed");
+		exit(EXIT_FAILURE);
+	}
+	i = 1;
+	j = 0;
+	while (content[i])
+	{
+		if (content[i] == starting_quote)
+		{
+			i++;
+			continue ;
+		}
+		result[j++] = content[i++];
+	}
+	result[j] = '\0';
+	return (result);
+}
+
 void	ft_quote_removal(t_token *token)
 {
-	unsigned short	quote_count;
-	char			starting_quote;
-	unsigned short	i;
+	char	starting_quote;
+	char	*processed_content;
 
 	if (!token || !token->content)
 		return ;
 	starting_quote = token->content[0];
-	if (ft_strlen(token->content) < 2
-		|| (starting_quote != '\'' && starting_quote != '\"'))
+	if (!is_starting_quote(starting_quote))
 		return ;
-	quote_count = 0;
-	i = 0;
-	while (token->content[i])
-	{
-		if (token->content[i] == starting_quote)
-			quote_count++;
-		i++;
-	}
-	ft_printf("quote_count: %d\n", quote_count);
-	if (quote_count % 2 != 0)
-	{
-		ft_report_error("parse error near: ", &starting_quote, 1);
-		return ;
-	}
-	remove_surrounding_quotes(token);
+	processed_content = process_quote_remove(token->content, starting_quote);
+	free(token->content);
+	token->content = processed_content;
 }
 
 DIR	*ft_open_directory(const char *path, struct dirent **entry)

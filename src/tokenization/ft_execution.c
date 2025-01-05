@@ -42,14 +42,106 @@ void	ft_exec_with_level(t_node *node,
 		ft_exec_command(node, envp, current_level);
 }
 
-void	ft_handle_heredoc(t_node *node, char **envp)
+void	handle_open_error(void)
 {
-	// TODO: handle heredoc signals
+	perror("open failed");
+	g_errno = 1;
+}
+
+void	parent_wait_and_set_status(pid_t pid, int *status)
+{
+	waitpid(pid, status, 0);
+	if (WIFEXITED(*status))
+		g_errno = WEXITSTATUS(*status);
+	else
+		g_errno = 1;
+}
+
+void	child_heredoc_process(t_node *node, const char *temp_file)
+{
+	int		fd;
+	char	*line;
+
+	fd = open(temp_file, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+	if (fd == -1)
+		handle_open_error();
+	signal(SIGINT, ft_heredoc_signal_handler);
+	signal(SIGQUIT, ft_heredoc_signal_handler);
+	while (true)
+	{
+		line = readline("> ");
+		if (!line || ft_strcmp(line, node->content[1]) == 0)
+		{
+			free(line);
+			break ;
+		}
+		write(fd, line, ft_strlen(line));
+		write(fd, "\n", 1);
+		free(line);
+	}
+	close(fd);
+	exit(EXIT_SUCCESS);
+}
+
+void	setup_heredoc(t_node *node, char **envp, const char *temp_file)
+{
+	pid_t	pid;
+	int		status;
+
+	pid = fork();
+	if (pid == -1)
+		handle_fork_error();
+	if (pid == 0)
+		child_heredoc_process(node, temp_file);
+	else
+	{
+		signal(SIGINT, SIG_IGN);
+		signal(SIGQUIT, SIG_IGN);
+		parent_wait_and_set_status(pid, &status);
+		signal(SIGINT, ft_signal_handler);
+		signal(SIGQUIT, ft_signal_handler);
+		if (g_errno != 0)
+			return ;
+	}
+}
+
+void	execute_heredoc_child(t_node *node, char **envp, int fd)
+{
+	dup2(fd, STDIN_FILENO);
+	close(fd);
+	ft_exec(&(t_tree){node->left}, envp);
+	exit(g_errno);
+}
+
+void	handle_heredoc_execution(t_node *node,
+		char **envp, const char *temp_file)
+{
 	pid_t	pid;
 	int		fd;
 	int		status;
-	char	*line;
-	char	*temp_file;
+
+	fd = open(temp_file, O_RDONLY);
+	if (fd == -1)
+	{
+		handle_open_error();
+		return ;
+	}
+	pid = fork();
+	if (pid == -1)
+		handle_fork_error();
+	if (pid == 0)
+		execute_heredoc_child(node, envp, fd);
+	else
+	{
+		close(fd);
+		parent_wait_and_set_status(pid, &status);
+	}
+	unlink(temp_file);
+}
+
+void	ft_handle_heredoc(t_node *node, char **envp)
+{
+	const char	*temp_file;
 
 	temp_file = "/tmp/minishell_heredoc.tmp";
 	if (!node || !node->content[1])
@@ -57,131 +149,34 @@ void	ft_handle_heredoc(t_node *node, char **envp)
 		g_errno = 1;
 		return ;
 	}
-	pid = fork();
-	if (pid == -1)
-	{
-		perror("fork failed");
-		exit(EXIT_FAILURE);
-	}
-	if (pid == 0)
-	{
-		fd = open(temp_file, O_WRONLY | O_CREAT | O_TRUNC, 0644);
-		if (fd == -1)
-		{
-			perror("open failed");
-			exit(EXIT_FAILURE);
-		}
-		signal(SIGINT, ft_heredoc_signal_handler);
-		signal(SIGQUIT, ft_heredoc_signal_handler);
-		while (true)
-		{
-			line = readline("> ");
-			if (!line)
-				break ;
-			if (ft_strcmp(line, node->content[1]) == 0)
-			{
-				free(line);
-				break ;
-			}
-			write(fd, line, ft_strlen(line));
-			write(fd, "\n", 1);
-			free(line);
-		}
-		close(fd);
-		exit(EXIT_SUCCESS);
-	}
-	else
-	{
-		signal(SIGINT, SIG_IGN);
-		signal(SIGQUIT, SIG_IGN);
-		waitpid(pid, &status, 0);
-		signal(SIGINT, ft_signal_handler);
-		signal(SIGQUIT, ft_signal_handler);
-		if (!WIFEXITED(status) || WEXITSTATUS(status) != 0)
-		{
-			g_errno = status;
-			return ;
-		}
-		fd = open(temp_file, O_RDONLY);
-		if (fd == -1)
-		{
-			perror("open failed");
-			g_errno = 1;
-			return ;
-		}
-		pid = fork();
-		if (pid == -1)
-		{
-			perror("fork failed");
-			exit(EXIT_FAILURE);
-		}
-		if (pid == 0)
-		{
-			dup2(fd, STDIN_FILENO);
-			close(fd);
-			ft_exec(&(t_tree){node->left}, envp);
-			exit(g_errno);
-		}
-		else
-		{
-			close(fd);
-			waitpid(pid, &status, 0);
-			if (WIFEXITED(status))
-				g_errno = WEXITSTATUS(status);
-			else
-				g_errno = 1;
-		}
-		unlink(temp_file);
-	}
+	setup_heredoc(node, envp, temp_file);
+	if (g_errno == 0)
+		handle_heredoc_execution(node, envp, temp_file);
 }
 
-void	ft_exec_command(t_node *node,
+void	handle_fork_error(void)
+{
+	perror("fork failed");
+	g_errno = 1;
+}
+
+void	execute_subshell(t_node *node,
 		char **envp, unsigned short *current_level)
 {
 	pid_t	pid;
 	int		status;
 
-	if (!node || !node->content)
-		return ;
-	if (node->subshell_level > *current_level)
-	{
-		pid = fork();
-		if (pid == -1)
-		{
-			perror("fork failed");
-			g_errno = 1;
-			return ;
-		}
-		if (pid == 0)
-		{
-			*current_level = node->subshell_level;
-			ft_exec_with_level(node, envp, current_level);
-			exit(g_errno);
-		}
-		else
-		{
-			waitpid(pid, &status, 0);
-			if (WIFEXITED(status))
-				g_errno = WEXITSTATUS(status);
-			else
-				g_errno = 1;
-			return ;
-		}
-	}
 	pid = fork();
 	if (pid == -1)
 	{
-		perror("fork failed");
-		g_errno = 1;
+		handle_fork_error();
 		return ;
 	}
 	if (pid == 0)
 	{
-		if (execve(node->content[0], node->content, envp) == -1)
-		{
-			ft_report_error("command not found: ", node->content[0], 127);
-			exit(g_errno);
-		}
+		*current_level = node->subshell_level;
+		ft_exec_with_level(node, envp, current_level);
+		exit(g_errno);
 	}
 	else
 	{
@@ -191,6 +186,53 @@ void	ft_exec_command(t_node *node,
 		else
 			g_errno = 1;
 	}
+}
+
+void	execute_command_in_child(t_node *node, char **envp)
+{
+	if (execve(node->content[0], node->content, envp) == -1)
+	{
+		ft_report_error("command not found: ", node->content[0], 127);
+		exit(g_errno);
+	}
+}
+
+void	execute_command(t_node *node, char **envp)
+{
+	pid_t	pid;
+	int		status;
+
+	pid = fork();
+	if (pid == -1)
+	{
+		handle_fork_error();
+		return ;
+	}
+	if (pid == 0)
+	{
+		execute_command_in_child(node, envp);
+	}
+	else
+	{
+		waitpid(pid, &status, 0);
+		if (WIFEXITED(status))
+			g_errno = WEXITSTATUS(status);
+		else
+			g_errno = 1;
+	}
+}
+
+void	ft_exec_command(t_node *node,
+		char **envp, unsigned short *current_level)
+{
+	if (!node || !node->content)
+		return ;
+	if (node->subshell_level > *current_level)
+	{
+		execute_subshell(node, envp, current_level);
+		return ;
+	}
+	execute_command(node, envp);
 }
 
 static void	ft_execute_pipe_child(t_node *node,
