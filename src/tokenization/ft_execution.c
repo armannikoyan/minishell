@@ -14,22 +14,25 @@
 
 extern int	g_errno;
 
-void	ft_exec_with_level(t_node *node, char **envp, unsigned short *current_level);
-void	ft_exec_operator(t_node *node, char **envp, unsigned short *current_level);
-void	ft_exec_command(t_node *node, char **envp, unsigned short *current_level);
-
+void	ft_exec_with_level(t_node *node,
+			char **envp, unsigned short *current_level);
+void	ft_exec_operator(t_node *node,
+			char **envp, unsigned short *current_level);
+void	ft_exec_command(t_node *node,
+			char **envp, unsigned short *current_level);
 
 void	ft_exec(t_tree *tree, char **envp)
 {
-	static unsigned short	current_level = 0;
+	static unsigned short	current_level;
 
+	current_level = 0;
 	if (!tree || !tree->root)
 		return ;
-
 	ft_exec_with_level(tree->root, envp, &current_level);
 }
 
-void	ft_exec_with_level(t_node *node, char **envp, unsigned short *current_level)
+void	ft_exec_with_level(t_node *node,
+		char **envp, unsigned short *current_level)
 {
 	if (!node)
 		return ;
@@ -46,8 +49,9 @@ void	ft_handle_heredoc(t_node *node, char **envp)
 	int		fd;
 	int		status;
 	char	*line;
-	char	*temp_file = "/tmp/minishell_heredoc.tmp";
+	char	*temp_file;
 
+	temp_file = "/tmp/minishell_heredoc.tmp";
 	if (!node || !node->content[1])
 	{
 		g_errno = 1;
@@ -73,11 +77,11 @@ void	ft_handle_heredoc(t_node *node, char **envp)
 		{
 			line = readline("> ");
 			if (!line)
-				break;
+				break ;
 			if (ft_strcmp(line, node->content[1]) == 0)
 			{
 				free(line);
-				break;
+				break ;
 			}
 			write(fd, line, ft_strlen(line));
 			write(fd, "\n", 1);
@@ -131,14 +135,14 @@ void	ft_handle_heredoc(t_node *node, char **envp)
 	}
 }
 
-void ft_exec_command(t_node *node, char **envp, unsigned short *current_level)
+void	ft_exec_command(t_node *node,
+		char **envp, unsigned short *current_level)
 {
-	pid_t pid;
-	int status;
+	pid_t	pid;
+	int		status;
 
 	if (!node || !node->content)
-		return;
-
+		return ;
 	if (node->subshell_level > *current_level)
 	{
 		pid = fork();
@@ -146,9 +150,8 @@ void ft_exec_command(t_node *node, char **envp, unsigned short *current_level)
 		{
 			perror("fork failed");
 			g_errno = 1;
-			return;
+			return ;
 		}
-
 		if (pid == 0)
 		{
 			*current_level = node->subshell_level;
@@ -162,19 +165,16 @@ void ft_exec_command(t_node *node, char **envp, unsigned short *current_level)
 				g_errno = WEXITSTATUS(status);
 			else
 				g_errno = 1;
-			return;
+			return ;
 		}
 	}
-
-	// Regular command execution
 	pid = fork();
 	if (pid == -1)
 	{
 		perror("fork failed");
 		g_errno = 1;
-		return;
+		return ;
 	}
-
 	if (pid == 0)
 	{
 		if (execve(node->content[0], node->content, envp) == -1)
@@ -193,6 +193,37 @@ void ft_exec_command(t_node *node, char **envp, unsigned short *current_level)
 	}
 }
 
+static void	ft_execute_pipe_child(t_node *node,
+		char **envp, int fd, int redirect_fd)
+{
+	dup2(fd, redirect_fd);
+	close(fd);
+	ft_exec(&(t_tree){node}, envp);
+	exit(g_errno);
+}
+
+static void	ft_create_pipe(int fd[2])
+{
+	if (pipe(fd) == -1)
+	{
+		perror("pipe failed");
+		exit(EXIT_FAILURE);
+	}
+}
+
+static pid_t	ft_fork_process(void)
+{
+	pid_t	pid;
+
+	pid = fork();
+	if (pid == -1)
+	{
+		perror("fork failed");
+		exit(EXIT_FAILURE);
+	}
+	return (pid);
+}
+
 void	ft_handle_pipe(t_node *node, char **envp)
 {
 	int		fd[2];
@@ -201,43 +232,44 @@ void	ft_handle_pipe(t_node *node, char **envp)
 
 	if (!node || !node->left || !node->right)
 		return ;
-	if (pipe(fd) == -1)
-	{
-		perror("pipe failed");
-		exit(EXIT_FAILURE);
-	}
-	pid1 = fork();
-	if (pid1 == -1)
-	{
-		perror("fork failed");
-		exit(EXIT_FAILURE);
-	}
+	ft_create_pipe(fd);
+	pid1 = ft_fork_process();
 	if (pid1 == 0)
 	{
 		close(fd[0]);
-		dup2(fd[1], STDOUT_FILENO);
-		close(fd[1]);
-		ft_exec(&(t_tree){node->left}, envp);
-		exit(g_errno);
+		ft_execute_pipe_child(node->left, envp, fd[1], STDOUT_FILENO);
 	}
-	pid2 = fork();
-	if (pid2 == -1)
-	{
-		perror("fork failed");
-		exit(EXIT_FAILURE);
-	}
+	pid2 = ft_fork_process();
 	if (pid2 == 0)
 	{
 		close(fd[1]);
-		dup2(fd[0], STDIN_FILENO);
-		close(fd[0]);
-		ft_exec(&(t_tree){node->right}, envp);
-		exit(g_errno);
+		ft_execute_pipe_child(node->right, envp, fd[0], STDIN_FILENO);
 	}
 	close(fd[0]);
 	close(fd[1]);
 	waitpid(pid1, NULL, 0);
 	waitpid(pid2, NULL, 0);
+}
+
+static void	ft_execute_input_child_process(t_node *node, char **envp, int fd)
+{
+	dup2(fd, STDIN_FILENO);
+	close(fd);
+	ft_exec(&(t_tree){node->left}, envp);
+	exit(g_errno);
+}
+
+static int	ft_open_file_for_input_redirection(const char *filepath)
+{
+	int	fd;
+
+	fd = open(filepath, O_RDONLY);
+	if (fd == -1)
+	{
+		perror("open failed");
+		g_errno = 1;
+	}
+	return (fd);
 }
 
 void	ft_handle_input_redirection(t_node *node, char **envp)
@@ -247,13 +279,9 @@ void	ft_handle_input_redirection(t_node *node, char **envp)
 
 	if (!node || !node->left || !node->content[1])
 		return ;
-	fd = open(node->content[1], O_RDONLY);
+	fd = ft_open_file_for_input_redirection(node->content[1]);
 	if (fd == -1)
-	{
-		perror("open failed");
-		g_errno = 1;
 		return ;
-	}
 	pid = fork();
 	if (pid == -1)
 	{
@@ -261,17 +289,33 @@ void	ft_handle_input_redirection(t_node *node, char **envp)
 		exit(EXIT_FAILURE);
 	}
 	if (pid == 0)
-	{
-		dup2(fd, STDIN_FILENO);
-		close(fd);
-		ft_exec(&(t_tree){node->left}, envp);
-		exit(g_errno);
-	}
+		ft_execute_input_child_process(node, envp, fd);
 	else
 	{
 		close(fd);
 		waitpid(pid, NULL, 0);
 	}
+}
+
+static void	ft_execute_child_process(t_node *node, char **envp, int fd)
+{
+	dup2(fd, STDOUT_FILENO);
+	close(fd);
+	ft_exec(&(t_tree){node->left}, envp);
+	exit(g_errno);
+}
+
+static int	ft_open_file_for_redirection(const char *filepath, int flags)
+{
+	int	fd;
+
+	fd = open(filepath, O_WRONLY | O_CREAT | flags, 0644);
+	if (fd == -1)
+	{
+		perror("open failed");
+		g_errno = 1;
+	}
+	return (fd);
 }
 
 void	ft_handle_output_redirection(t_node *node, char **envp, int flags)
@@ -281,13 +325,9 @@ void	ft_handle_output_redirection(t_node *node, char **envp, int flags)
 
 	if (!node || !node->left)
 		return ;
-	fd = open(node->content[1], O_WRONLY | O_CREAT | flags, 0644);
+	fd = ft_open_file_for_redirection(node->content[1], flags);
 	if (fd == -1)
-	{
-		perror("open failed");
-		g_errno = 1;
 		return ;
-	}
 	pid = fork();
 	if (pid == -1)
 	{
@@ -295,12 +335,7 @@ void	ft_handle_output_redirection(t_node *node, char **envp, int flags)
 		exit(EXIT_FAILURE);
 	}
 	if (pid == 0)
-	{
-		dup2(fd, STDOUT_FILENO);
-		close(fd);
-		ft_exec(&(t_tree){node->left}, envp);
-		exit(g_errno);
-	}
+		ft_execute_child_process(node, envp, fd);
 	else
 	{
 		close(fd);
@@ -308,11 +343,11 @@ void	ft_handle_output_redirection(t_node *node, char **envp, int flags)
 	}
 }
 
-void	ft_exec_operator(t_node *node, char **envp, unsigned short *current_level)
+void	ft_exec_operator(t_node *node,
+		char **envp, unsigned short *current_level)
 {
 	if (!node)
 		return ;
-
 	if (ft_strcmp(node->content[0], "|") == 0)
 		ft_handle_pipe(node, envp);
 	else if (ft_strcmp(node->content[0], "&&") == 0)
