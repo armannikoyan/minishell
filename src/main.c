@@ -6,7 +6,7 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/18 16:57:05 by anikoyan          #+#    #+#             */
-/*   Updated: 2025/01/04 20:39:19 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/01/06 19:05:24 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -146,6 +146,8 @@ static void	run_shell_loop(char **envp)
 
 int	main(int argc, char **argv, char **envp)
 {
+	// TODO: change shell level to +1
+	// TODO: change shell name to minishell
 	(void)argc;
 	(void)argv;
 	signal(SIGINT, ft_signal_handler);
