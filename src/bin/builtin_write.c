@@ -6,11 +6,11 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/22 23:35:45 by anikoyan          #+#    #+#             */
-/*   Updated: 2024/12/22 23:35:51 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/01/06 18:24:34 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../includes/minishell.h"
+#include "../../includes/minishell.h"
 
 int	write_error(const char *prefix, const char *message, const char *arg)
 {

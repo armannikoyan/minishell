@@ -6,11 +6,11 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/22 23:35:11 by anikoyan          #+#    #+#             */
-/*   Updated: 2024/12/22 23:35:37 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/01/06 18:24:02 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../includes/minishell.h"
+#include "../../includes/minishell.h"
 
 int	is_valid_env_var_key(const char *str)
 {

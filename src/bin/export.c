@@ -6,13 +6,13 @@
 /*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/15 17:06:01 by gsimonia          #+#    #+#             */
-/*   Updated: 2024/11/20 14:54:53 by gsimonia         ###   ########.fr       */
+/*   Updated: 2025/01/06 18:33:50 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../includes/minishell.h"
 
-static char	**create_new_envp(char **envp, int new_var_size)
+static char	**create_new_envp(char **envp)
 {
 	int		i;
 	char	**new_envp;
@@ -54,7 +54,7 @@ static int	set_env_var(char ***envp, const char *key, const char *value)
 	char	**new_envp;
 	int		index;
 
-	new_envp = create_new_envp(*envp, ft_strlen(key) + ft_strlen(value) + 2);
+	new_envp = create_new_envp(*envp);
 	if (!new_envp)
 		return (EXIT_FAILURE);
 	i = 0;
@@ -97,7 +97,7 @@ static void	print_sorted_env(char **envp)
 	i = 0;
 	while (envp[i])
 		write_string("declare -x ", envp[i++], "\n");
-	return (EXIT_SUCCESS);
+	return ;
 }
 
 int	ft_export(int argc, char **argv, char **envp)
@@ -106,6 +106,7 @@ int	ft_export(int argc, char **argv, char **envp)
 	char	*key;
 	char	*value;
 
+	(void)argc;
 	i = 1;
 	if (!argv[i])
 	{
@@ -116,12 +117,14 @@ int	ft_export(int argc, char **argv, char **envp)
 	{
 		if (!is_valid_env_var_key(argv[i]))
 			return (write_error("ft_export",
-					argv[i], "not a valid identifier", false));
+					argv[i], "not a valid identifier"));
 		else if (ft_strchr(argv[i], '=') != NULL)
 		{
-			key = ft_strtok(argv[i], "=");
-			value = ft_strtok(NULL, "=");
-			set_env_var(envp, key, value);
+			// ISSUE: ft_strtok needs 3 arguments but only 2 are provided
+			//
+			// key = ft_strtok(argv[i], "=");
+			// value = ft_strtok(NULL, "=");
+			set_env_var(&envp, key, value);
 		}
 		i++;
 	}

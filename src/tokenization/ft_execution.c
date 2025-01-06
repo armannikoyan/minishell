@@ -6,7 +6,7 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/13 18:44:10 by anikoyan          #+#    #+#             */
-/*   Updated: 2025/01/04 22:47:05 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/01/06 18:52:17 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,8 @@ void	ft_exec_operator(t_node *node,
 			char **envp, unsigned short *current_level);
 void	ft_exec_command(t_node *node,
 			char **envp, unsigned short *current_level);
+void	handle_fork_error(void);
+void	setup_heredoc(t_node *node, const char *temp_file);
 
 void	ft_exec(t_tree *tree, char **envp)
 {
@@ -83,7 +85,7 @@ void	child_heredoc_process(t_node *node, const char *temp_file)
 	exit(EXIT_SUCCESS);
 }
 
-void	setup_heredoc(t_node *node, char **envp, const char *temp_file)
+void	setup_heredoc(t_node *node, const char *temp_file)
 {
 	pid_t	pid;
 	int		status;
@@ -149,7 +151,7 @@ void	ft_handle_heredoc(t_node *node, char **envp)
 		g_errno = 1;
 		return ;
 	}
-	setup_heredoc(node, envp, temp_file);
+	setup_heredoc(node, temp_file);
 	if (g_errno == 0)
 		handle_heredoc_execution(node, envp, temp_file);
 }
@@ -188,12 +190,39 @@ void	execute_subshell(t_node *node,
 	}
 }
 
+int	ft_mtx_strlen(char **mtx)
+{
+	int	i;
+
+	i = 0;
+	while (mtx[i])
+		i++;
+	return (i);
+}
+
 void	execute_command_in_child(t_node *node, char **envp)
 {
-	if (execve(node->content[0], node->content, envp) == -1)
+	if (ft_strcmp(node->content[0], "echo") == 0)
+		ft_echo(ft_mtx_strlen(node->content), node->content);
+	else if (ft_strcmp(node->content[0], "cd") == 0)
+		ft_cd(ft_mtx_strlen(node->content), node->content, envp);
+	else if (ft_strcmp(node->content[0], "pwd") == 0)
+		ft_pwd(ft_mtx_strlen(node->content), node->content);
+	else if (ft_strcmp(node->content[0], "export") == 0)
+		ft_export(ft_mtx_strlen(node->content), node->content, envp);
+	else if (ft_strcmp(node->content[0], "unset") == 0)
+		ft_unset(ft_mtx_strlen(node->content), node->content, envp);
+	else if (ft_strcmp(node->content[0], "env") == 0)
+		ft_env(ft_mtx_strlen(node->content), node->content, envp);
+	else if (ft_strcmp(node->content[0], "exit") == 0)
+		ft_exit(ft_mtx_strlen(node->content), node->content);
+	else
 	{
-		ft_report_error("command not found: ", node->content[0], 127);
-		exit(g_errno);
+		if (execve(node->content[0], node->content, envp) == -1)
+		{
+			ft_report_error("command not found: ", node->content[0], 127);
+			exit(g_errno);
+		}
 	}
 }
 

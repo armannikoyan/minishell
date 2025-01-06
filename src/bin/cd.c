@@ -6,11 +6,13 @@
 /*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/15 17:04:00 by gsimonia          #+#    #+#             */
-/*   Updated: 2024/11/20 15:00:55 by gsimonia         ###   ########.fr       */
+/*   Updated: 2025/01/06 18:28:25 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../includes/minishell.h"
+
+extern int	g_errno;
 
 static char	*get_env_path(char **envp, const char *var, size_t len)
 {
@@ -31,7 +33,7 @@ static int	update_oldpwd(char **envp)
 
 	i = 0;
 	if (getcwd(cwd, PATH_MAX) == NULL)
-		return (write_error("cd: ", strerror(errno), NULL));
+		return (write_error("cd: ", strerror(g_errno), NULL));
 	oldpwd = (char *)malloc(ft_strlen("OLDPWD=") + ft_strlen(cwd) + 1);
 	if (!oldpwd)
 		return (write_error("cd: ", "memory allocation failed\n", NULL));
@@ -75,7 +77,7 @@ static int	go_to_path(int option, char **envp)
 	if (chdir(env_path) < 0)
 	{
 		free(env_path);
-		return (write_error("cd: ", strerror(errno), NULL));
+		return (write_error("cd: ", strerror(g_errno), NULL));
 	}
 	free(env_path);
 	return (EXIT_SUCCESS);
@@ -95,6 +97,6 @@ int	ft_cd(int argc, char **argv, char **envp)
 		return (write_error("cd: ", "failed to update OLDPWD\n", NULL));
 	cd_ret = chdir(argv[1]);
 	if (cd_ret < 0)
-		return (write_error("cd: ", strerror(errno), argv[1]));
+		return (write_error("cd: ", strerror(g_errno), argv[1]));
 	return (EXIT_SUCCESS);
 }

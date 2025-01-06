@@ -6,7 +6,7 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/22 20:33:00 by anikoyan          #+#    #+#             */
-/*   Updated: 2025/01/04 20:29:00 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/01/06 18:39:55 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -224,6 +224,11 @@ static void	ft_assign_token_type(t_list ***lst)
 	while (tmp)
 	{
 		token = (t_token *)tmp->content;
+		if (ft_strcmp(token->content, "echo") == 0 || ft_strcmp(token->content, "cd") == 0
+			|| ft_strcmp(token->content, "pwd") == 0 || ft_strcmp(token->content, "export") == 0
+			|| ft_strcmp(token->content, "unset") == 0 || ft_strcmp(token->content, "env") == 0
+			|| ft_strcmp(token->content, "exit") == 0)
+			ft_assign_command_type(token, &tmp);
 		if (ft_identify_command(&token, ft_split(getenv("PATH"), ':')))
 			ft_assign_command_type(token, &tmp);
 		else if (ft_isoperator(token->content))

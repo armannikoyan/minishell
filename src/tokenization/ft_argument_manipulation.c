@@ -6,26 +6,11 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 09:34:14 by anikoyan          #+#    #+#             */
-/*   Updated: 2025/01/04 23:03:53 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/01/06 18:27:30 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../includes/minishell.h"
-
-static void	remove_surrounding_quotes(t_token *token)
-{
-	char			*new_content;
-	unsigned short	len;
-
-	len = ft_strlen(token->content);
-	if ((token->content[0] == '\'' || token->content[0] == '\"')
-		&& token->content[0] == token->content[len - 1])
-	{
-		new_content = ft_substr(token->content, 1, len - 2);
-		free(token->content);
-		token->content = new_content;
-	}
-}
 
 static int	is_starting_quote(char c)
 {
@@ -38,7 +23,7 @@ static char	*process_quote_remove(const char *content, char starting_quote)
 	size_t	j;
 	char	*result;
 
-	result = malloc(strlen(content) + 1);
+	result = malloc(ft_strlen(content) + 1);
 	if (!result)
 	{
 		perror("Memory allocation failed");

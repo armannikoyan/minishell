@@ -14,6 +14,8 @@ SRCS = main.c \
        ft_tokendelone.c ft_report_error.c) \
        $(addprefix tokenization/, \
        ft_tokenization.c ft_syntax_tree.c ft_execution.c ft_argument_manipulation.c) \
+       $(addprefix bin/, \
+       builtin_utils.c builtin_write.c cd.c echo.c env.c exit.c export.c pwd.c unset.c) \
 
 OBJS = $(SRCS:%.c=$(OBJ_DIR)/%.o)
 
