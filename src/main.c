@@ -6,7 +6,7 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/18 16:57:05 by anikoyan          #+#    #+#             */
-/*   Updated: 2025/01/07 18:52:30 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/01/07 21:48:55 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,26 +15,6 @@
 int	g_errno;
 
 extern void	rl_clear_history(void);
-
-static char	*ft_subusr(char *abs_wdir)
-{
-	unsigned int	len;
-	short			slash_count;
-	size_t			i;
-
-	slash_count = 0;
-	i = 0;
-	while (slash_count != 2)
-	{
-		if (abs_wdir[i] == '/')
-			slash_count++;
-		i++;
-	}
-	len = 0;
-	while ((&(abs_wdir[i]))[len] != '/')
-		len++;
-	return (ft_substr(abs_wdir, i, len));
-}
 
 static char	*ft_subwdir(char *abs_wdir)
 {
@@ -45,11 +25,13 @@ static char	*ft_subwdir(char *abs_wdir)
 	while (abs_wdir[i])
 		i++;
 	len = 0;
-	while (abs_wdir[i - 1] != '/')
+	while (abs_wdir[i - 1] != '/' && i > 0)
 	{
 		i--;
 		len++;
 	}
+	if (len == 0)
+		return (ft_strdup("/"));
 	return (ft_substr(abs_wdir, i, len));
 }
 
@@ -59,7 +41,7 @@ static void	ft_entry_info_helper(char **username, char **w_dir)
 
 	abs_wdir = NULL;
 	abs_wdir = getcwd(abs_wdir, MAXPATHLEN);
-	*username = ft_subusr(abs_wdir);
+	*username = ft_strdup(getenv("LOGNAME"));
 	*w_dir = ft_subwdir(abs_wdir);
 	free(abs_wdir);
 }
