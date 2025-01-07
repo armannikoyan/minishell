@@ -6,7 +6,7 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/22 20:33:00 by anikoyan          #+#    #+#             */
-/*   Updated: 2025/01/07 22:16:22 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/01/07 22:35:16 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -215,6 +215,19 @@ static void	ft_assign_subshell_levels(t_list **lst)
 		ft_handle_token(lst, &tmp, &prev, &current_level);
 }
 
+bool	ft_isbuiltin(t_token *token)
+{
+	if (ft_strcmp(token->content, "echo") == 0
+		|| ft_strcmp(token->content, "cd") == 0
+		|| ft_strcmp(token->content, "pwd") == 0
+		|| ft_strcmp(token->content, "export") == 0
+		|| ft_strcmp(token->content, "unset") == 0
+		|| ft_strcmp(token->content, "env") == 0
+		|| ft_strcmp(token->content, "exit") == 0)
+		return (true);
+	return (false);
+}
+
 static void	ft_assign_token_type(t_list ***lst)
 {
 	t_list		*tmp;
@@ -224,10 +237,7 @@ static void	ft_assign_token_type(t_list ***lst)
 	while (tmp)
 	{
 		token = (t_token *)tmp->content;
-		if (ft_strcmp(token->content, "echo") == 0 || ft_strcmp(token->content, "cd") == 0
-			|| ft_strcmp(token->content, "pwd") == 0 || ft_strcmp(token->content, "export") == 0
-			|| ft_strcmp(token->content, "unset") == 0 || ft_strcmp(token->content, "env") == 0
-			|| ft_strcmp(token->content, "exit") == 0)
+		if (ft_isbuiltin(token))
 		{
 			token->type = 'X';
 			ft_assign_argument_type(&tmp);

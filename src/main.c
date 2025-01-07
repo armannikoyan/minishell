@@ -6,7 +6,7 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/18 16:57:05 by anikoyan          #+#    #+#             */
-/*   Updated: 2025/01/07 21:54:36 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/01/07 22:38:51 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -126,19 +126,17 @@ static void	run_shell_loop(char **envp)
 	}
 }
 
-int	main(int argc, char **argv, char **envp)
+char	**ft_copy_envp(char **envp)
 {
 	char			**envp_cpy;
 	char			*tmp;
 	unsigned int	i;
 
-	(void)argc;
-	(void)argv;
 	envp_cpy = (char **)malloc(sizeof(char *) * (ft_mtx_strlen(envp) + 1));
 	if (!envp_cpy)
 		exit(EXIT_FAILURE);
-	i = 0;
-	while (envp[i])
+	i = -1;
+	while (envp[++i])
 	{
 		if (ft_strncmp(envp[i], "SHELL=", 6) == 0)
 			envp_cpy[i] = ft_strdup("SHELL=minishell");
@@ -152,10 +150,19 @@ int	main(int argc, char **argv, char **envp)
 			envp_cpy[i] = ft_strdup(envp[i]);
 		if (!envp_cpy[i])
 			exit(EXIT_FAILURE);
-		i++;
 	}
 	envp_cpy[i] = NULL;
+	return (envp_cpy);
+}
+
+int	main(int argc, char **argv, char **envp)
+{
+	char			**envp_cpy;
+
+	(void)argc;
+	(void)argv;
 	signal(SIGINT, ft_signal_handler);
 	signal(SIGQUIT, ft_signal_handler);
+	envp_cpy = ft_copy_envp(envp);
 	run_shell_loop(envp_cpy);
 }
