@@ -6,7 +6,7 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/18 19:33:11 by anikoyan          #+#    #+#             */
-/*   Updated: 2024/12/22 23:18:32 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/01/07 23:40:05 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@ void	ft_error(char *str, int m_errno)
 		if (!tmp)
 			exit(EXIT_FAILURE);
 		free(str);
-		str = ft_strjoin(tmp, "\n\n");
+		str = ft_strjoin(tmp, "\n");
 		free(tmp);
 		if (!str)
 			exit(EXIT_FAILURE);
