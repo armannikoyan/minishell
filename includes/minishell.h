@@ -6,7 +6,7 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/18 17:00:14 by anikoyan          #+#    #+#             */
-/*   Updated: 2025/01/04 22:45:31 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/01/07 18:52:45 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,6 +85,7 @@ int				ft_unset(int argc, char **argv, char **envp);
 int				is_valid_env_var_key(const char *str);
 int				write_error(const char *prefix,
 					const char *message, const char *arg);
+int				ft_mtx_strlen(char **mtx);
 
 long long		ft_long_atoi(const char *str);
 

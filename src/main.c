@@ -6,7 +6,7 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/18 16:57:05 by anikoyan          #+#    #+#             */
-/*   Updated: 2025/01/06 19:46:31 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/01/07 18:52:30 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -137,6 +137,7 @@ static void	run_shell_loop(char **envp)
 		else if (!input)
 		{
 			free(prompt);
+			ft_free_2d_array((void ***)&envp);
 			rl_clear_history();
 			exit(EXIT_SUCCESS);
 		}
@@ -146,11 +147,34 @@ static void	run_shell_loop(char **envp)
 
 int	main(int argc, char **argv, char **envp)
 {
-	// TODO: change shell level to +1
-	// TODO: change shell name to minishell
+	char			**envp_cpy;
+	char			*tmp;
+	unsigned int	i;
+
 	(void)argc;
 	(void)argv;
+	envp_cpy = (char **)malloc(sizeof(char *) * (ft_mtx_strlen(envp) + 1));
+	if (!envp_cpy)
+		exit(EXIT_FAILURE);
+	i = 0;
+	while (envp[i])
+	{
+		if (ft_strncmp(envp[i], "SHELL=", 6) == 0)
+			envp_cpy[i] = ft_strdup("SHELL=minishell");
+		else if (ft_strncmp(envp[i], "SHLVL=", 6) == 0)
+		{
+			tmp = ft_itoa(ft_atoi(envp[i] + 6) + 1);
+			envp_cpy[i] = ft_strjoin("SHLVL=", tmp);
+			free(tmp);
+		}
+		else
+			envp_cpy[i] = ft_strdup(envp[i]);
+		if (!envp_cpy[i])
+			exit(EXIT_FAILURE);
+		i++;
+	}
+	envp_cpy[i] = NULL;
 	signal(SIGINT, ft_signal_handler);
 	signal(SIGQUIT, ft_signal_handler);
-	run_shell_loop(envp);
+	run_shell_loop(envp_cpy);
 }
