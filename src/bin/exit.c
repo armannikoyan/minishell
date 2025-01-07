@@ -12,6 +12,8 @@
 
 #include "../../includes/minishell.h"
 
+extern int	g_errno;
+
 static void	write_int_to_str(int value, char *str)
 {
 	int		i;
@@ -101,6 +103,7 @@ int	ft_exit(int argc, char **argv)
 	}
 	else
 		exit_code = 0;
+	g_errno == exit_code;
 	write_int_to_str(exit_code, exit_code_str);
 	return (kill_parent_process(exit_code_str));
 }
