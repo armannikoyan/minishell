@@ -209,11 +209,33 @@ void	execute_command_in_child(t_node *node, char **envp)
 	}
 }
 
-void	execute_command(t_node *node, char **envp)
+static void	handle_fork_and_execute(t_node *node, char **envp)
 {
 	pid_t	pid;
 	int		status;
 
+	pid = fork();
+	if (pid == -1)
+	{
+		handle_fork_error();
+		return ;
+	}
+	if (pid == 0)
+	{
+		execute_command_in_child(node, envp);
+	}
+	else
+	{
+		waitpid(pid, &status, 0);
+		if (WIFEXITED(status))
+			g_errno = WEXITSTATUS(status);
+		else
+			g_errno = 1;
+	}
+}
+
+void	execute_command(t_node *node, char **envp)
+{
 	if (ft_strcmp(node->content[0], "echo") == 0)
 		g_errno = ft_echo(ft_mtx_strlen(node->content), node->content);
 	else if (ft_strcmp(node->content[0], "cd") == 0)
@@ -229,26 +251,7 @@ void	execute_command(t_node *node, char **envp)
 	else if (ft_strcmp(node->content[0], "exit") == 0)
 		g_errno = ft_exit(ft_mtx_strlen(node->content), node->content);
 	else
-	{
-		pid = fork();
-		if (pid == -1)
-		{
-			handle_fork_error();
-			return ;
-		}
-		if (pid == 0)
-		{
-			execute_command_in_child(node, envp);
-		}
-		else
-		{
-			waitpid(pid, &status, 0);
-			if (WIFEXITED(status))
-				g_errno = WEXITSTATUS(status);
-			else
-				g_errno = 1;
-		}
-	}
+		handle_fork_and_execute(node, envp);
 }
 
 void	ft_exec_command(t_node *node,

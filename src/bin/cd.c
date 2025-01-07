@@ -14,13 +14,12 @@
 
 extern int	g_errno;
 
-// BUG: cannot use cd ~: cd: Operation not permitted~
 static char	*get_env_path(char **envp, const char *var, size_t len)
 {
 	while (*envp)
 	{
 		if (ft_strncmp(*envp, var, len) == 0 && (*envp)[len] == '=')
-			return (ft_strdup(*envp + len));
+			return (ft_strdup(*envp + len + 1));
 		envp++;
 	}
 	return (NULL);
@@ -61,9 +60,9 @@ static int	go_to_path(int option, char **envp)
 
 	env_path = NULL;
 	if (option == 0)
-		env_path = get_env_path(envp, "HOME=", 5);
+		env_path = get_env_path(envp, "HOME", 4);
 	else if (option == 1)
-		env_path = get_env_path(envp, "OLDPWD=", 7);
+		env_path = get_env_path(envp, "OLDPWD", 6);
 	if (!env_path)
 	{
 		if (option == 0)
@@ -84,9 +83,35 @@ static int	go_to_path(int option, char **envp)
 	return (EXIT_SUCCESS);
 }
 
+static int	expand_home_and_cd(const char *path_with_tilde, char **envp)
+{
+	char	*home;
+	char	*expanded_path;
+	int		cd_ret;
+
+	home = get_env_path(envp, "HOME", 4);
+	if (!home)
+		return (write_error(NULL, "cd: HOME not set\n", NULL));
+	expanded_path = (char *)malloc(ft_strlen(home)
+			+ ft_strlen(path_with_tilde));
+	if (!expanded_path)
+	{
+		free(home);
+		return (write_error("cd: ", "memory allocation failed\n", NULL));
+	}
+	ft_strcpy(expanded_path, home);
+	ft_strcat(expanded_path, path_with_tilde + 1);
+	free(home);
+	cd_ret = chdir(expanded_path);
+	free(expanded_path);
+	if (cd_ret < 0)
+		return (write_error("cd: ", strerror(g_errno), path_with_tilde));
+	return (EXIT_SUCCESS);
+}
+
 int	ft_cd(int argc, char **argv, char **envp)
 {
-	int	cd_ret;
+	int		cd_ret;
 
 	if (argc > 2)
 		return (write_error("cd: ", "too many arguments\n", NULL));
@@ -94,6 +119,13 @@ int	ft_cd(int argc, char **argv, char **envp)
 		return (go_to_path(0, envp));
 	if (ft_strcmp(argv[1], "-") == 0)
 		return (go_to_path(1, envp));
+	if (argv[1][0] == '~')
+	{
+		cd_ret = expand_home_and_cd(argv[1], envp);
+		if (cd_ret != EXIT_SUCCESS)
+			return (cd_ret);
+		return (EXIT_SUCCESS);
+	}
 	if (update_oldpwd(envp) == EXIT_FAILURE)
 		return (write_error("cd: ", "failed to update OLDPWD\n", NULL));
 	cd_ret = chdir(argv[1]);
