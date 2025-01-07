@@ -228,6 +228,12 @@ bool	ft_isbuiltin(t_token *token)
 	return (false);
 }
 
+static void	ft_handle_argument(t_list **tmp, t_token *token)
+{
+	token->type = 'X';
+	ft_assign_argument_type(tmp);
+}
+
 static void	ft_assign_token_type(t_list ***lst)
 {
 	t_list		*tmp;
@@ -238,10 +244,7 @@ static void	ft_assign_token_type(t_list ***lst)
 	{
 		token = (t_token *)tmp->content;
 		if (ft_isbuiltin(token))
-		{
-			token->type = 'X';
-			ft_assign_argument_type(&tmp);
-		}
+			ft_handle_argument(&tmp, token);
 		else if (ft_identify_command(&token, ft_split(getenv("PATH"), ':')))
 			ft_assign_command_type(token, &tmp);
 		else if (ft_isoperator(token->content))
@@ -250,10 +253,7 @@ static void	ft_assign_token_type(t_list ***lst)
 			|| ft_strcmp(token->content, ")") == 0)
 			token->type = 'S';
 		else
-		{
-			token->type = 'X';
-			ft_assign_argument_type(&tmp);
-		}
+			ft_handle_argument(&tmp, token);
 		if (tmp)
 			tmp = tmp->next;
 	}
