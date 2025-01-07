@@ -6,7 +6,7 @@
 /*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/15 17:04:00 by gsimonia          #+#    #+#             */
-/*   Updated: 2025/01/06 18:28:25 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/01/07 22:29:26 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 
 extern int	g_errno;
 
+// BUG: cannot use cd ~: cd: Operation not permitted~
 static char	*get_env_path(char **envp, const char *var, size_t len)
 {
 	while (*envp)
