@@ -75,11 +75,11 @@ static long long	convert_to_exit_code(const char *str)
 
 static int	kill_parent_process(const char *exit_code_str)
 {
-	pid_t	ppid;
+	pid_t	pid;
 
-	ppid = getppid();
+	pid = getpid();
 	write_string("Exiting with code ", exit_code_str, "\n");
-	if (kill(ppid, SIGTERM) == -1)
+	if (kill(pid, SIGTERM) == -1)
 		return (write_error("kill_parent_process: ",
 				"Failed to kill parent process\n", NULL));
 	return (EXIT_SUCCESS);
