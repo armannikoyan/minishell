@@ -6,12 +6,14 @@
 /*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/15 17:03:48 by gsimonia          #+#    #+#             */
-/*   Updated: 2024/11/20 14:53:38 by gsimonia         ###   ########.fr       */
+/*   Updated: 2025/01/07 21:59:40 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../includes/minishell.h"
 
+// ISSUE: no need to expand variables on command side
+// FIX: needed asap
 static char	*expand_variable(const char *str)
 {
 	char	*expanded;
