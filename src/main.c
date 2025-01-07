@@ -6,7 +6,7 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/18 16:57:05 by anikoyan          #+#    #+#             */
-/*   Updated: 2025/01/07 21:48:55 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/01/07 21:54:36 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -119,7 +119,6 @@ static void	run_shell_loop(char **envp)
 		else if (!input)
 		{
 			free(prompt);
-			ft_free_2d_array((void ***)&envp);
 			rl_clear_history();
 			exit(EXIT_SUCCESS);
 		}
