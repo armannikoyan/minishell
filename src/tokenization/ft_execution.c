@@ -243,7 +243,7 @@ void	execute_command(t_node *node, char **envp)
 	else if (ft_strcmp(node->content[0], "pwd") == 0)
 		g_errno = ft_pwd(ft_mtx_strlen(node->content), node->content);
 	else if (ft_strcmp(node->content[0], "export") == 0)
-		g_errno = ft_export(ft_mtx_strlen(node->content), node->content, envp);
+		g_errno = ft_export(ft_mtx_strlen(node->content), node->content, &envp);
 	else if (ft_strcmp(node->content[0], "unset") == 0)
 		g_errno = ft_unset(ft_mtx_strlen(node->content), node->content, envp);
 	else if (ft_strcmp(node->content[0], "env") == 0)

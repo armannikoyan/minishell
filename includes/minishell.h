@@ -79,7 +79,7 @@ int				ft_cd(int argc, char **argv, char **envp);
 int				ft_echo(int argc, char **argv);
 int				ft_env(int argc, char **argv, char **envp);
 int				ft_exit(int argc, char **argv);
-int				ft_export(int argc, char **argv, char **envp);
+int				ft_export(int argc, char **argv, char ***envp);
 int				ft_pwd(int argc, char **argv);
 int				ft_unset(int argc, char **argv, char **envp);
 int				is_valid_env_var_key(const char *str);
