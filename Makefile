@@ -6,14 +6,19 @@ LIBFT_DIR = libs/libft
 
 DEPS = includes/minishell.h
 
-SRCS = main.c \
+SRCS = main.c ft_utils.c \
        $(addprefix parsing/, \
-       ft_syntax.c ft_env_expansion.c ft_env_expansion_utils.c) \
+       ft_syntax.c ft_env_expansion.c ft_env_expansion_utils.c \
+	   ft_parsing_utils.c) \
        $(addprefix utils/, \
        ft_error.c ft_signal_handler.c ft_isoperator.c ft_space_correction.c \
-       ft_tokendelone.c ft_report_error.c) \
+       ft_tokendelone.c ft_report_error.c ft_space_correction_utils.c) \
        $(addprefix tokenization/, \
-       ft_tokenization.c ft_syntax_tree.c ft_execution.c ft_argument_manipulation.c) \
+       ft_tokenization.c ft_syntax_tree.c ft_execution.c ft_argument_manipulation.c \
+	   ft_tok_utils.c ft_tok_utils2.c ft_argument_quote.c ft_argument_process.c \
+	   ft_argument_utils.c  ft_syntax_tree_parse.c ft_syntax_node.c \
+	   ft_exectuion_pipe.c ft_execution_command.c ft_execution_errors.c \
+	   ft_execution_heredoc.c ft_execution_redirections.c) \
        $(addprefix bin/, \
        builtin_utils.c builtin_write.c cd.c echo.c env.c exit.c export.c pwd.c unset.c) \
 

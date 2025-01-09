@@ -74,12 +74,6 @@ static char	*concat_and_update(char *expanded_input,
 	return (expanded_input);
 }
 
-static void	append_character(char *expanded_input, char c, unsigned short *j)
-{
-	expanded_input[*j] = c;
-	(*j)++;
-}
-
 static char	*ft_str_envjoin(char *input, char **env_output)
 {
 	unsigned short	i;

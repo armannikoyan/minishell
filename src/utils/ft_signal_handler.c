@@ -14,20 +14,35 @@
 
 extern void	rl_replace_line(const char *text, int clear_undo);
 
-void	ft_signal_handler(int signum)
+void	ft_signal_handler(int sig)
 {
 	char	*prompt;
 
 	prompt = ft_entry_info();
-	if (signum == SIGINT)
+	if (sig == SIGINT)
 	{
 		rl_on_new_line();
 		rl_replace_line("", 0);
 		rl_redisplay();
 		ft_printf("\n%s", prompt);
 	}
-	else if (signum == SIGQUIT)
+	else if (sig == SIGQUIT)
 		return ;
+}
+
+void	ft_parent_child_signal_handler(int sig)
+{
+	if (sig == SIGINT)
+		write(STDOUT_FILENO, "\n", 1);
+}
+
+void	ft_child_signal_handler(int sig)
+{
+	if (sig == SIGINT)
+	{
+		write(STDOUT_FILENO, "\n", 1);
+		exit(130);
+	}
 }
 
 void	ft_heredoc_signal_handler(int sig)

@@ -35,7 +35,7 @@ static bool	ft_try_command_path(t_token **token, char *directory)
 	return (result);
 }
 
-static bool	ft_identify_command(t_token **token, char **path)
+bool	ft_identify_command(t_token **token, char **path)
 {
 	int		i;
 	bool	result;
@@ -77,31 +77,6 @@ static unsigned short	ft_calculate_length(char *input, unsigned short index)
 	return (len);
 }
 
-static void	ft_fill_content(t_token *token,
-	char *input, unsigned short *index, unsigned short len)
-{
-	unsigned short	i;
-
-	token->content = (char *)malloc(sizeof(char) * (len + 1));
-	if (!token->content)
-		exit(EXIT_FAILURE);
-	i = 0;
-	while (input[*index] && input[*index] != ' ')
-	{
-		if (input[*index] == '\"' || input[*index] == '\'')
-		{
-			token->content[i++] = input[(*index)++];
-			while (input[*index] && input[*index] != '\"'
-				&& input[*index] != '\'')
-				token->content[i++] = input[(*index)++];
-		}
-		token->content[i++] = input[(*index)++];
-	}
-	token->content[i] = '\0';
-	while (input[*index] && input[*index] == ' ')
-		(*index)++;
-}
-
 static t_token	*ft_build_token(char *input, unsigned short *index)
 {
 	t_token			*token;
@@ -114,149 +89,6 @@ static t_token	*ft_build_token(char *input, unsigned short *index)
 	len = ft_calculate_length(input, *index);
 	ft_fill_content(token, input, index, len);
 	return (token);
-}
-
-static void	ft_assign_argument_type(t_list **tmp)
-{
-	while (*tmp && (*tmp)->next && (t_token *)(*tmp)->next->content
-		&& ((t_token *)(*tmp)->next->content)->content
-		&& !ft_isoperator(((t_token *)(*tmp)->next->content)->content))
-	{
-		((t_token *)(*tmp)->next->content)->type = 'A';
-		*tmp = (*tmp)->next;
-	}
-}
-
-static void	ft_assign_command_type(t_token *token, t_list **tmp)
-{
-	struct stat	statbuf;
-
-	if (stat(token->content, &statbuf) == 0 && !S_ISDIR(statbuf.st_mode)
-		&& (statbuf.st_mode & (S_IXUSR | S_IXGRP | S_IXOTH)))
-	{
-		token->type = 'X';
-		ft_assign_argument_type(tmp);
-	}
-	else
-		token->type = 'E';
-}
-
-static void	ft_assign_operator_type(t_list **tmp, t_token *token)
-{
-	t_token	*next_token;
-
-	token->type = 'O';
-	if ((token->content[0] == '>' || token->content[0] == '<') && (*tmp)->next)
-	{
-		*tmp = (*tmp)->next;
-		next_token = (t_token *)(*tmp)->content;
-		if (next_token)
-		{
-			next_token->type = 'F';
-			while ((*tmp)->next && (t_token *)(*tmp)->next->content
-					&& !ft_isoperator(((t_token *)(*tmp)
-							->next->content)->content))
-			{
-				*tmp = (*tmp)->next;
-				((t_token *)(*tmp)->content)->type = 'A';
-			}
-		}
-	}
-}
-
-static void	ft_remove_subshell_token(t_list **lst, t_list **tmp, t_list *prev)
-{
-	if (prev)
-		prev->next = (*tmp)->next;
-	else
-		*lst = (*tmp)->next;
-	ft_lstdelone(*tmp, ft_tokendelone);
-	if (prev)
-		*tmp = prev->next;
-	else
-		*tmp = *lst;
-}
-
-static void	ft_handle_token(t_list **lst,
-		t_list **tmp, t_list **prev, int *current_level)
-{
-	t_token	*token;
-
-	token = (t_token *)(*tmp)->content;
-	if (ft_strcmp(token->content, "(") == 0)
-	{
-		(*current_level)++;
-		ft_remove_subshell_token(lst, tmp, *prev);
-	}
-	else if (ft_strcmp(token->content, ")") == 0)
-	{
-		if (*current_level > 0)
-			(*current_level)--;
-		ft_remove_subshell_token(lst, tmp, *prev);
-	}
-	else
-	{
-		token->subshell_level = *current_level;
-		*prev = *tmp;
-		*tmp = (*tmp)->next;
-	}
-}
-
-static void	ft_assign_subshell_levels(t_list **lst)
-{
-	t_list	*tmp;
-	t_list	*prev;
-	int		current_level;
-
-	tmp = *lst;
-	prev = NULL;
-	current_level = 0;
-	while (tmp)
-		ft_handle_token(lst, &tmp, &prev, &current_level);
-}
-
-bool	ft_isbuiltin(t_token *token)
-{
-	if (ft_strcmp(token->content, "echo") == 0
-		|| ft_strcmp(token->content, "cd") == 0
-		|| ft_strcmp(token->content, "pwd") == 0
-		|| ft_strcmp(token->content, "export") == 0
-		|| ft_strcmp(token->content, "unset") == 0
-		|| ft_strcmp(token->content, "env") == 0
-		|| ft_strcmp(token->content, "exit") == 0)
-		return (true);
-	return (false);
-}
-
-static void	ft_handle_argument(t_list **tmp, t_token *token)
-{
-	token->type = 'X';
-	ft_assign_argument_type(tmp);
-}
-
-static void	ft_assign_token_type(t_list ***lst)
-{
-	t_list		*tmp;
-	t_token		*token;
-
-	tmp = **lst;
-	while (tmp)
-	{
-		token = (t_token *)tmp->content;
-		if (ft_isbuiltin(token))
-			ft_handle_argument(&tmp, token);
-		else if (ft_identify_command(&token, ft_split(getenv("PATH"), ':')))
-			ft_assign_command_type(token, &tmp);
-		else if (ft_isoperator(token->content))
-			ft_assign_operator_type(&tmp, token);
-		else if (ft_strcmp(token->content, "(") == 0
-			|| ft_strcmp(token->content, ")") == 0)
-			token->type = 'S';
-		else
-			ft_handle_argument(&tmp, token);
-		if (tmp)
-			tmp = tmp->next;
-	}
 }
 
 t_list	**ft_tokenization(char *input)
