@@ -6,7 +6,7 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/18 16:57:05 by anikoyan          #+#    #+#             */
-/*   Updated: 2025/01/07 22:38:51 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/01/09 10:17:16 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,7 @@ char	*ft_entry_info(void)
 	return (prompt);
 }
 
-static void	handle_input(char *input, char **envp, t_list **lst, t_tree **tree)
+static void	handle_input(char *input, char ***envp, t_list **lst, t_tree **tree)
 {
 	char	*tmp;
 
@@ -47,7 +47,7 @@ static void	handle_input(char *input, char **envp, t_list **lst, t_tree **tree)
 	input = ft_space_correction(tmp);
 	free(tmp);
 	tmp = input;
-	input = ft_env_expansion(tmp, envp);
+	input = ft_env_expansion(tmp, *envp);
 	free(tmp);
 	lst = ft_tokenization(input);
 	free(input);
@@ -67,7 +67,7 @@ static void	handle_input(char *input, char **envp, t_list **lst, t_tree **tree)
 	ft_exec(*tree, envp);
 }
 
-static void	run_shell_loop(char **envp)
+static void	run_shell_loop(char ***envp)
 {
 	char	*input;
 	char	*prompt;
@@ -134,5 +134,5 @@ int	main(int argc, char **argv, char **envp)
 	signal(SIGINT, ft_signal_handler);
 	signal(SIGQUIT, ft_signal_handler);
 	envp_cpy = ft_copy_envp(envp);
-	run_shell_loop(envp_cpy);
+	run_shell_loop(&envp_cpy);
 }

@@ -6,7 +6,7 @@
 /*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 16:22:41 by gsimonia          #+#    #+#             */
-/*   Updated: 2025/01/09 08:55:25 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/01/09 10:07:10 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,27 +83,17 @@ void	execute_command_in_child(t_node *node, char **envp)
 	exit(g_errno);
 }
 
-void	execute_command(t_node *node, char **envp)
+void	execute_command(t_node *node, char ***envp)
 {
 	ft_expand_error_code(node);
-	// printf("testing before EXPORTT");
-	// for (int j = 0; envp[j] != NULL; j++)
-	// {
-	// 	printf("envp[%d] address: %p, value: %s\n", j, (void *)envp[j], envp[j]);
-	// }
 	if (ft_strcmp(node->content[0], "cd") == 0)
-		g_errno = ft_cd(ft_mtx_strlen(node->content), node->content, envp);
+		g_errno = ft_cd(ft_mtx_strlen(node->content), node->content, *envp);
 	else if (ft_strcmp(node->content[0], "export") == 0)
-		g_errno = ft_export(ft_mtx_strlen(node->content), node->content, &envp);
+		g_errno = ft_export(ft_mtx_strlen(node->content), node->content, envp);
 	else if (ft_strcmp(node->content[0], "unset") == 0)
-		g_errno = ft_unset(ft_mtx_strlen(node->content), node->content, envp);
+		g_errno = ft_unset(ft_mtx_strlen(node->content), node->content, *envp);
 	else if (ft_strcmp(node->content[0], "exit") == 0)
 		g_errno = ft_exit(ft_mtx_strlen(node->content), node->content);
 	else
-		handle_fork_and_execute(node, envp);
-	// printf("testing after EXPORTT");
-	// for (int j = 0; envp[j] != NULL; j++)
-	// {
-	// 	printf("envp[%d] address: %p, value: %s\n", j, (void *)envp[j], envp[j]);
-	// }
+		handle_fork_and_execute(node, *envp);
 }

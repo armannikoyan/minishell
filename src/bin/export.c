@@ -6,7 +6,7 @@
 /*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/15 17:06:01 by gsimonia          #+#    #+#             */
-/*   Updated: 2025/01/06 18:33:50 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/01/09 10:16:15 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -143,13 +143,12 @@ int	ft_export(int argc, char **argv, char ***envp)
 	char	*value;
 	char	*save_ptr;
 
-	(void)argc;
-	i = 1;
-	if (!argv[i])
+	if (argc == 1)
 	{
 		print_sorted_env(*envp);
 		return (EXIT_SUCCESS);
 	}
+	i = 1;
 	while (argv[i])
 	{
 		if (!is_valid_env_var_key(argv[i]))

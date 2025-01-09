@@ -6,7 +6,7 @@
 /*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 16:22:34 by gsimonia          #+#    #+#             */
-/*   Updated: 2025/01/09 16:22:35 by gsimonia         ###   ########.fr       */
+/*   Updated: 2025/01/09 10:10:59 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 extern int	g_errno;
 
-void	ft_handle_heredoc(t_node *node, char **envp)
+void	ft_handle_heredoc(t_node *node, char ***envp)
 {
 	const char	*temp_file;
 
@@ -52,7 +52,7 @@ void	setup_heredoc(t_node *node, const char *temp_file)
 }
 
 void	handle_heredoc_execution(t_node *node,
-		char **envp, const char *temp_file)
+		char ***envp, const char *temp_file)
 {
 	pid_t	pid;
 	int		fd;
@@ -103,7 +103,7 @@ void	child_heredoc_process(t_node *node, const char *temp_file)
 	exit(EXIT_SUCCESS);
 }
 
-void	execute_heredoc_child(t_node *node, char **envp, int fd)
+void	execute_heredoc_child(t_node *node, char ***envp, int fd)
 {
 	dup2(fd, STDIN_FILENO);
 	close(fd);

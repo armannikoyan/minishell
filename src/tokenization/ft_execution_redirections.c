@@ -6,7 +6,7 @@
 /*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 16:22:30 by gsimonia          #+#    #+#             */
-/*   Updated: 2025/01/09 16:22:31 by gsimonia         ###   ########.fr       */
+/*   Updated: 2025/01/09 10:13:21 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,7 @@ static int	ft_open_file_for_input_redirection(const char *filepath)
 	return (fd);
 }
 
-void	ft_handle_input_redirection(t_node *node, char **envp)
+void	ft_handle_input_redirection(t_node *node, char ***envp)
 {
 	int		fd;
 	pid_t	pid;
@@ -65,7 +65,7 @@ static int	ft_open_file_for_redirection(const char *filepath, int flags)
 	return (fd);
 }
 
-void	ft_handle_output_redirection(t_node *node, char **envp, int flags)
+void	ft_handle_output_redirection(t_node *node, char ***envp, int flags)
 {
 	int		fd;
 	pid_t	pid;
@@ -90,7 +90,7 @@ void	ft_handle_output_redirection(t_node *node, char **envp, int flags)
 	}
 }
 
-void	ft_execute_input_child_process(t_node *node, char **envp, int fd)
+void	ft_execute_input_child_process(t_node *node, char ***envp, int fd)
 {
 	dup2(fd, STDIN_FILENO);
 	close(fd);

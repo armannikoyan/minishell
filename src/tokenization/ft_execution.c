@@ -6,7 +6,7 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/13 18:44:10 by anikoyan          #+#    #+#             */
-/*   Updated: 2025/01/06 19:45:08 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/01/09 10:12:14 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 extern int	g_errno;
 
 void	ft_exec_with_level(t_node *node,
-		char **envp, unsigned short *current_level)
+		char ***envp, unsigned short *current_level)
 {
 	if (!node)
 		return ;
@@ -26,7 +26,7 @@ void	ft_exec_with_level(t_node *node,
 }
 
 void	execute_subshell(t_node *node,
-		char **envp, unsigned short *current_level)
+		char ***envp, unsigned short *current_level)
 {
 	pid_t	pid;
 	int		status;
@@ -54,7 +54,7 @@ void	execute_subshell(t_node *node,
 }
 
 void	ft_exec_command(t_node *node,
-		char **envp, unsigned short *current_level)
+		char ***envp, unsigned short *current_level)
 {
 	if (!node || !node->content)
 		return ;
@@ -66,7 +66,7 @@ void	ft_exec_command(t_node *node,
 	execute_command(node, envp);
 }
 
-void	ft_execute_child_process(t_node *node, char **envp, int fd)
+void	ft_execute_child_process(t_node *node, char ***envp, int fd)
 {
 	dup2(fd, STDOUT_FILENO);
 	close(fd);
@@ -75,7 +75,7 @@ void	ft_execute_child_process(t_node *node, char **envp, int fd)
 }
 
 void	ft_exec_operator(t_node *node,
-		char **envp, unsigned short *current_level)
+		char ***envp, unsigned short *current_level)
 {
 	if (!node)
 		return ;

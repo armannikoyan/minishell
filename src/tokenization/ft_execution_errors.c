@@ -6,7 +6,7 @@
 /*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 16:22:38 by gsimonia          #+#    #+#             */
-/*   Updated: 2025/01/09 16:22:39 by gsimonia         ###   ########.fr       */
+/*   Updated: 2025/01/09 09:58:02 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,7 +35,7 @@ void	handle_fork_error(void)
 	g_errno = 1;
 }
 
-void	ft_exec(t_tree *tree, char **envp)
+void	ft_exec(t_tree *tree, char ***envp)
 {
 	static unsigned short	current_level;
 

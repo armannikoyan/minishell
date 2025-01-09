@@ -6,7 +6,7 @@
 /*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 16:22:44 by gsimonia          #+#    #+#             */
-/*   Updated: 2025/01/09 16:22:45 by gsimonia         ###   ########.fr       */
+/*   Updated: 2025/01/09 10:06:05 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 extern int	g_errno;
 
-void	ft_handle_pipe(t_node *node, char **envp)
+void	ft_handle_pipe(t_node *node, char ***envp)
 {
 	int		fd[2];
 	pid_t	pid1;
@@ -42,7 +42,7 @@ void	ft_handle_pipe(t_node *node, char **envp)
 }
 
 void	ft_execute_pipe_child(t_node *node,
-		char **envp, int fd, int redirect_fd)
+		char ***envp, int fd, int redirect_fd)
 {
 	dup2(fd, redirect_fd);
 	close(fd);

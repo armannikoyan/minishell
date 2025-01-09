@@ -6,7 +6,7 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/18 17:00:14 by anikoyan          #+#    #+#             */
-/*   Updated: 2025/01/07 18:52:45 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/01/09 10:13:45 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,7 +59,7 @@ void			ft_child_signal_handler(int sig);
 void			ft_heredoc_signal_handler(int sig);
 void			ft_error(char *str, int m_errno);
 void			ft_tokendelone(void *lst);
-void			ft_exec(t_tree *tree, char **envp);
+void			ft_exec(t_tree *tree, char ***envp);
 void			ft_tree_dtor(t_tree **tree);
 bool			ft_process_path_patterns(t_list **lst);
 t_tree			*ft_tree_build(t_list **lst);
@@ -150,32 +150,32 @@ void			ft_create_and_insert_new_node(t_list **lst,
 					const char *path, const char *entry_name);
 
 void			ft_exec_with_level(t_node *node,
-					char **envp, unsigned short *current_level);
+					char ***envp, unsigned short *current_level);
 void			ft_exec_operator(t_node *node,
-					char **envp, unsigned short *current_level);
+					char ***envp, unsigned short *current_level);
 void			ft_exec_command(t_node *node,
-					char **envp, unsigned short *current_level);
+					char ***envp, unsigned short *current_level);
 void			handle_fork_error(void);
 void			setup_heredoc(t_node *node, const char *temp_file);
-void			execute_command(t_node *node, char **envp);
+void			execute_command(t_node *node, char ***envp);
 void			ft_expand_error_code(t_node *node);
-void			ft_handle_heredoc(t_node *node, char **envp);
-void			ft_handle_input_redirection(t_node *node, char **envp);
+void			ft_handle_heredoc(t_node *node, char ***envp);
+void			ft_handle_input_redirection(t_node *node, char ***envp);
 void			ft_handle_output_redirection(t_node *node,
-					char **envp, int flags);
-void			ft_handle_pipe(t_node *node, char **envp);
+					char ***envp, int flags);
+void			ft_handle_pipe(t_node *node, char ***envp);
 void			handle_open_error(void);
-void			ft_execute_child_process(t_node *node, char **envp, int fd);
+void			ft_execute_child_process(t_node *node, char ***envp, int fd);
 void			ft_create_pipe(int fd[2]);
 void			ft_execute_pipe_child(t_node *node,
-					char **envp, int fd, int redirect_fd);
+					char ***envp, int fd, int redirect_fd);
 void			execute_command_in_child(t_node *node, char **envp);
 void			handle_heredoc_execution(t_node *node,
-					char **envp, const char *temp_file);
+					char ***envp, const char *temp_file);
 void			child_heredoc_process(t_node *node, const char *temp_file);
 void			parent_wait_and_set_status(pid_t pid, int *status);
-void			execute_heredoc_child(t_node *node, char **envp, int fd);
+void			execute_heredoc_child(t_node *node, char ***envp, int fd);
 void			ft_execute_input_child_process(t_node *node,
-					char **envp, int fd);
+					char ***envp, int fd);
 
 #endif
