@@ -14,16 +14,6 @@
 
 extern int	g_errno;
 
-void	ft_exec(t_tree *tree, char **envp)
-{
-	static unsigned short	current_level;
-
-	current_level = 0;
-	if (!tree || !tree->root)
-		return ;
-	ft_exec_with_level(tree->root, envp, &current_level);
-}
-
 void	ft_exec_with_level(t_node *node,
 		char **envp, unsigned short *current_level)
 {
