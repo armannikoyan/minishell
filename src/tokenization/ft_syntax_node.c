@@ -6,7 +6,7 @@
 /*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 16:22:26 by gsimonia          #+#    #+#             */
-/*   Updated: 2025/01/09 16:22:27 by gsimonia         ###   ########.fr       */
+/*   Updated: 2025/01/09 09:24:55 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,6 +75,7 @@ void	parse_x_node(t_list **lst, char ***content, char *type_of_node)
 		(*content)[i++] = ((t_token *)tmp->content)->content;
 		tmp = tmp->next;
 	}
+	(*content)[i] = NULL;
 }
 
 void	parse_o_node(t_list **lst, char ***content, char *type_of_node)
@@ -93,4 +94,5 @@ void	parse_o_node(t_list **lst, char ***content, char *type_of_node)
 		(*content)[i++] = ((t_token *)tmp->content)->content;
 		tmp = tmp->next;
 	}
+	(*content)[i] = NULL;
 }
