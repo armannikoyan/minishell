@@ -60,7 +60,13 @@ void	execute_command_in_child(t_node *node, char **envp)
 {
 	signal(SIGINT, ft_child_signal_handler);
 	signal(SIGQUIT, SIG_IGN);
-	if (execve(node->content[0], node->content, envp) == -1)
+	if (ft_strcmp(node->content[0], "echo") == 0)
+		g_errno = ft_echo(ft_mtx_strlen(node->content), node->content);
+	else if (ft_strcmp(node->content[0], "env") == 0)
+		g_errno = ft_env(ft_mtx_strlen(node->content), node->content, envp);
+	else if (ft_strcmp(node->content[0], "pwd") == 0)
+		g_errno = ft_pwd(ft_mtx_strlen(node->content), node->content);
+	else if (execve(node->content[0], node->content, envp) == -1)
 	{
 		ft_report_error("command not found: ", node->content[0], 127);
 		exit(g_errno);
@@ -75,18 +81,12 @@ void	execute_command(t_node *node, char **envp)
 	// {
 	// 	printf("envp[%d] address: %p, value: %s\n", j, (void *)envp[j], envp[j]);
 	// }
-	if (ft_strcmp(node->content[0], "echo") == 0)
-		g_errno = ft_echo(ft_mtx_strlen(node->content), node->content);
-	else if (ft_strcmp(node->content[0], "cd") == 0)
+	if (ft_strcmp(node->content[0], "cd") == 0)
 		g_errno = ft_cd(ft_mtx_strlen(node->content), node->content, envp);
-	else if (ft_strcmp(node->content[0], "pwd") == 0)
-		g_errno = ft_pwd(ft_mtx_strlen(node->content), node->content);
 	else if (ft_strcmp(node->content[0], "export") == 0)
 		g_errno = ft_export(ft_mtx_strlen(node->content), node->content, &envp);
 	else if (ft_strcmp(node->content[0], "unset") == 0)
 		g_errno = ft_unset(ft_mtx_strlen(node->content), node->content, envp);
-	else if (ft_strcmp(node->content[0], "env") == 0)
-		g_errno = ft_env(ft_mtx_strlen(node->content), node->content, envp);
 	else if (ft_strcmp(node->content[0], "exit") == 0)
 		g_errno = ft_exit(ft_mtx_strlen(node->content), node->content);
 	else
