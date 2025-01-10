@@ -44,6 +44,7 @@ static void	handle_fork_and_execute(t_node *node, char **envp)
 void	ft_expand_error_code(t_node *node)
 {
 	unsigned short	i;
+
 	if (!node)
 		return ;
 	i = 0;

@@ -16,30 +16,25 @@ static char	**create_new_envp(char **envp)
 {
 	int		i;
 	char	**new_envp;
-	int		j;
 
 	i = 0;
 	while (envp[i])
 		i++;
-	new_envp = malloc(sizeof(char *) * (i + 1));
+	new_envp = malloc(sizeof(char *) * (i + 2));
 	if (!new_envp)
 		return (NULL);
-	j = 0;
-	while (j < i)
+	i = 0;
+	while (envp[i])
 	{
-		new_envp[j] = ft_strdup(envp[j]);
-		if (!new_envp[j])
+		new_envp[i] = ft_strdup(envp[i]);
+		if (!new_envp[i])
 		{
-			j--;
-			while (j >= 0)
-			{
-				free(new_envp[j]);
-				j--;
-			}
+			while (--i >= 0)
+				free(new_envp[i]);
 			free(new_envp);
 			return (NULL);
 		}
-		j++;
+		i++;
 	}
 	new_envp[i] = NULL;
 	return (new_envp);
@@ -49,7 +44,6 @@ static int	set_new_var(char **new_envp, char *key, char *value, int index)
 {
 	char	*new_var;
 
-	new_var = NULL;
 	if (!key || !value)
 	{
 		write_error("export", "key or value is NULL\n", NULL);
@@ -65,24 +59,66 @@ static int	set_new_var(char **new_envp, char *key, char *value, int index)
 	return (EXIT_SUCCESS);
 }
 
+static void	swap_last_two(char **envp)
+{
+	int		i;
+	int		last_index;
+	int		second_last_index;
+	char	*tmp;
+
+	i = 0;
+	last_index = -1;
+	second_last_index = -1;
+	while (envp[i])
+	{
+		if (envp[i + 1] == NULL)
+			last_index = i;
+		else if (envp[i + 2] == NULL)
+			second_last_index = i;
+		i++;
+	}
+	if (last_index != -1 && second_last_index != -1)
+	{
+		tmp = envp[last_index];
+		envp[last_index] = envp[second_last_index];
+		envp[second_last_index] = tmp;
+	}
+}
+
 static int	set_env_var(char ***envp, const char *key, const char *value)
 {
 	int		i;
-	char	**new_envp;
 	int		index;
+	char	**new_envp;
 	int		k;
+	int		new_var_added;
 
 	i = 0;
+	index = -1;
+	new_var_added = 0;
 	new_envp = create_new_envp(*envp);
 	if (!new_envp)
 		return (EXIT_FAILURE);
 	while ((*envp)[i])
+	{
+		if (ft_strncmp((*envp)[i],
+			key, ft_strlen(key)) == 0 && (*envp)[i][ft_strlen(key)] == '=')
+		{
+			index = i;
+			break ;
+		}
 		i++;
-	index = i;
-	if (set_new_var(new_envp, (char *)key, (char *)value, index) != EXIT_SUCCESS)
+	}
+	if (index == -1)
+	{
+		index = i;
+		new_var_added = 1;
+	}
+	if (set_new_var(new_envp,
+			(char *)key, (char *)value, index) != EXIT_SUCCESS)
 	{
 		k = 0;
-		while (k < index)
+		while (k < i)
 		{
 			free(new_envp[k]);
 			k++;
@@ -90,16 +126,15 @@ static int	set_env_var(char ***envp, const char *key, const char *value)
 		free(new_envp);
 		return (EXIT_FAILURE);
 	}
-	if (*envp)
+	if (new_var_added)
+		swap_last_two(new_envp);
+	k = 0;
+	while ((*envp)[k])
 	{
-		k = 0;
-		while ((*envp)[k])
-		{
-			free((*envp)[k]);
-			k++;
-		}
-		free(*envp);
+		free((*envp)[k]);
+		k++;
 	}
+	free(*envp);
 	*envp = new_envp;
 	return (EXIT_SUCCESS);
 }
@@ -126,13 +161,7 @@ static void	print_sorted_env(char **envp)
 		}
 		i++;
 	}
-	i = 0;
-	while (envp[i])
-	{
-		write_string("declare -x ", envp[i], "\n");
-		i++;
-	}
-	return ;
+	print_env(envp);
 }
 
 int	ft_export(int argc, char **argv, char ***envp)
@@ -143,12 +172,12 @@ int	ft_export(int argc, char **argv, char ***envp)
 	char	*value;
 	char	*save_ptr;
 
+	i = 1;
 	if (argc == 1)
 	{
 		print_sorted_env(*envp);
 		return (EXIT_SUCCESS);
 	}
-	i = 1;
 	while (argv[i])
 	{
 		if (!is_valid_env_var_key(argv[i]))
@@ -157,7 +186,8 @@ int	ft_export(int argc, char **argv, char ***envp)
 		{
 			arg_copy = ft_strdup(argv[i]);
 			if (!arg_copy)
-				return (write_error("export", "memory allocation failed\n", NULL));
+				return (write_error("export",
+						"memory allocation failed\n", NULL));
 			key = ft_strtok(arg_copy, "=", &save_ptr);
 			value = ft_strtok(NULL, "=", &save_ptr);
 			if (set_env_var(envp, key, value) != EXIT_SUCCESS)

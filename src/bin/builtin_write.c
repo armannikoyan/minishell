@@ -35,3 +35,15 @@ void	write_string(const char *str1, const char *str2, const char *str3)
 	if (str3)
 		write(1, str3, ft_strlen(str3));
 }
+
+void	print_env(char **envp)
+{
+	int	i;
+
+	i = 0;
+	while (envp[i])
+	{
+		write_string("declare -x ", envp[i], "\n");
+		i++;
+	}
+}

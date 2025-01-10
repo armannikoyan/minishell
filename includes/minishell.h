@@ -25,6 +25,7 @@
 # include <sys/wait.h>
 # include <dirent.h>
 # include <fcntl.h>
+# include <string.h>
 
 # include "../libs/libft/libft.h"
 
@@ -96,6 +97,7 @@ char			*ft_strtok(char *str, const char *delimiters, char **save_ptr);
 
 void			write_string(const char *str1,
 					const char *str2, const char *str3);
+void			print_env(char **envp);
 
 DIR				*ft_open_directory(const char *path, struct dirent **entry);
 bool			ft_close_directory(DIR *dir);
