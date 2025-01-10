@@ -6,13 +6,13 @@
 /*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/15 17:06:01 by gsimonia          #+#    #+#             */
-/*   Updated: 2025/01/09 10:16:15 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/01/10 20:04:37 by gsimonia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../includes/minishell.h"
 
-static char	**create_new_envp(char **envp)
+char	**create_new_envp(char **envp)
 {
 	int		i;
 	char	**new_envp;
@@ -40,7 +40,7 @@ static char	**create_new_envp(char **envp)
 	return (new_envp);
 }
 
-static int	set_new_var(char **new_envp, char *key, char *value, int index)
+int	set_new_var(char **new_envp, char *key, char *value, int index)
 {
 	char	*new_var;
 
@@ -59,7 +59,7 @@ static int	set_new_var(char **new_envp, char *key, char *value, int index)
 	return (EXIT_SUCCESS);
 }
 
-static void	swap_last_two(char **envp)
+void	swap_last_two(char **envp)
 {
 	int		i;
 	int		last_index;
@@ -83,85 +83,6 @@ static void	swap_last_two(char **envp)
 		envp[last_index] = envp[second_last_index];
 		envp[second_last_index] = tmp;
 	}
-}
-
-static int	set_env_var(char ***envp, const char *key, const char *value)
-{
-	int		i;
-	int		index;
-	char	**new_envp;
-	int		k;
-	int		new_var_added;
-
-	i = 0;
-	index = -1;
-	new_var_added = 0;
-	new_envp = create_new_envp(*envp);
-	if (!new_envp)
-		return (EXIT_FAILURE);
-	while ((*envp)[i])
-	{
-		if (ft_strncmp((*envp)[i],
-			key, ft_strlen(key)) == 0 && (*envp)[i][ft_strlen(key)] == '=')
-		{
-			index = i;
-			break ;
-		}
-		i++;
-	}
-	if (index == -1)
-	{
-		index = i;
-		new_var_added = 1;
-	}
-	if (set_new_var(new_envp,
-			(char *)key, (char *)value, index) != EXIT_SUCCESS)
-	{
-		k = 0;
-		while (k < i)
-		{
-			free(new_envp[k]);
-			k++;
-		}
-		free(new_envp);
-		return (EXIT_FAILURE);
-	}
-	if (new_var_added)
-		swap_last_two(new_envp);
-	k = 0;
-	while ((*envp)[k])
-	{
-		free((*envp)[k]);
-		k++;
-	}
-	free(*envp);
-	*envp = new_envp;
-	return (EXIT_SUCCESS);
-}
-
-static void	print_sorted_env(char **envp)
-{
-	int		i;
-	int		j;
-	char	*tmp;
-
-	i = 0;
-	while (envp[i])
-	{
-		j = i + 1;
-		while (envp[j])
-		{
-			if (envp[i] && envp[j] && ft_strcmp(envp[i], envp[j]) > 0)
-			{
-				tmp = envp[i];
-				envp[i] = envp[j];
-				envp[j] = tmp;
-			}
-			j++;
-		}
-		i++;
-	}
-	print_env(envp);
 }
 
 int	handle_export_argument(char *arg, char ***envp)

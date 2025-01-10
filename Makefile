@@ -20,7 +20,8 @@ SRCS = main.c ft_utils.c \
 	   ft_exectuion_pipe.c ft_execution_command.c ft_execution_errors.c \
 	   ft_execution_heredoc.c ft_execution_redirections.c) \
        $(addprefix bin/, \
-       builtin_utils.c builtin_write.c cd.c echo.c env.c exit.c export.c pwd.c unset.c) \
+       builtin_utils.c builtin_write.c cd.c echo.c env.c exit.c export.c export_var.c \
+	   pwd.c unset.c) \
 
 OBJS = $(SRCS:%.c=$(OBJ_DIR)/%.o)
 

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
+/*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/18 17:00:14 by anikoyan          #+#    #+#             */
-/*   Updated: 2025/01/09 10:13:45 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/01/10 20:04:50 by gsimonia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,14 +90,21 @@ int				is_valid_env_var_key(const char *str);
 int				write_error(const char *prefix,
 					const char *message, const char *arg);
 int				ft_mtx_strlen(char **mtx);
+int				set_new_var(char **new_envp,
+					char *key, char *value, int index);
+int				set_env_var(char ***envp,
+					const char *key, const char *value);
 
 long long		ft_long_atoi(const char *str);
 
 char			*ft_strtok(char *str, const char *delimiters, char **save_ptr);
+char			**create_new_envp(char **envp);
 
 void			write_string(const char *str1,
 					const char *str2, const char *str3);
 void			print_env(char **envp);
+void			print_sorted_env(char **envp);
+void			swap_last_two(char **envp);
 
 DIR				*ft_open_directory(const char *path, struct dirent **entry);
 bool			ft_close_directory(DIR *dir);

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   builtin_write.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
+/*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/22 23:35:45 by anikoyan          #+#    #+#             */
-/*   Updated: 2025/01/06 18:24:34 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/01/10 20:01:32 by gsimonia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,4 +46,29 @@ void	print_env(char **envp)
 		write_string("declare -x ", envp[i], "\n");
 		i++;
 	}
+}
+
+void	print_sorted_env(char **envp)
+{
+	int		i;
+	int		j;
+	char	*tmp;
+
+	i = 0;
+	while (envp[i])
+	{
+		j = i + 1;
+		while (envp[j])
+		{
+			if (envp[i] && envp[j] && ft_strcmp(envp[i], envp[j]) > 0)
+			{
+				tmp = envp[i];
+				envp[i] = envp[j];
+				envp[j] = tmp;
+			}
+			j++;
+		}
+		i++;
+	}
+	print_env(envp);
 }
