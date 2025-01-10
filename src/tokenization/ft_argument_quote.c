@@ -6,11 +6,13 @@
 /*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 16:22:52 by gsimonia          #+#    #+#             */
-/*   Updated: 2025/01/09 16:22:53 by gsimonia         ###   ########.fr       */
+/*   Updated: 2025/01/10 15:57:28 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../includes/minishell.h"
+
+// ISSUE: cases: echo "123"'4'5 -> 12345 and echo "123'4'5 -> syntax error arent working
 
 static int	is_starting_quote(char c)
 {
