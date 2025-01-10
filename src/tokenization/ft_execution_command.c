@@ -6,7 +6,7 @@
 /*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 16:22:41 by gsimonia          #+#    #+#             */
-/*   Updated: 2025/01/09 10:07:10 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/01/10 15:45:32 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,6 +86,14 @@ void	execute_command_in_child(t_node *node, char **envp)
 
 void	execute_command(t_node *node, char ***envp)
 {
+	unsigned short	i;
+	char	*tmp;
+
+	i = 0;
+	while ((*envp)[i] && ft_strncmp((*envp)[i], "_=", 2) != 0)
+		i++;
+	tmp = (*envp)[i];
+	(*envp)[i] = ft_strjoin("_=", node->content[0]);
 	ft_expand_error_code(node);
 	if (ft_strcmp(node->content[0], "cd") == 0)
 		g_errno = ft_cd(ft_mtx_strlen(node->content), node->content, *envp);
@@ -97,4 +105,6 @@ void	execute_command(t_node *node, char ***envp)
 		g_errno = ft_exit(ft_mtx_strlen(node->content), node->content);
 	else
 		handle_fork_and_execute(node, *envp);
+	free((*envp)[i]);
+	(*envp)[i] = tmp;
 }
