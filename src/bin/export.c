@@ -164,13 +164,30 @@ static void	print_sorted_env(char **envp)
 	print_env(envp);
 }
 
-int	ft_export(int argc, char **argv, char ***envp)
+int	handle_export_argument(char *arg, char ***envp)
 {
-	int		i;
 	char	*arg_copy;
 	char	*key;
 	char	*value;
 	char	*save_ptr;
+
+	arg_copy = ft_strdup(arg);
+	if (!arg_copy)
+		return (write_error("export", "memory allocation failed\n", NULL));
+	key = ft_strtok(arg_copy, "=", &save_ptr);
+	value = ft_strtok(NULL, "=", &save_ptr);
+	if (set_env_var(envp, key, value) != EXIT_SUCCESS)
+	{
+		free(arg_copy);
+		return (EXIT_FAILURE);
+	}
+	free(arg_copy);
+	return (EXIT_SUCCESS);
+}
+
+int	ft_export(int argc, char **argv, char ***envp)
+{
+	int	i;
 
 	i = 1;
 	if (argc == 1)
@@ -184,18 +201,8 @@ int	ft_export(int argc, char **argv, char ***envp)
 			return (write_error("export", argv[i], "not a valid identifier\n"));
 		else if (ft_strchr(argv[i], '=') != NULL)
 		{
-			arg_copy = ft_strdup(argv[i]);
-			if (!arg_copy)
-				return (write_error("export",
-						"memory allocation failed\n", NULL));
-			key = ft_strtok(arg_copy, "=", &save_ptr);
-			value = ft_strtok(NULL, "=", &save_ptr);
-			if (set_env_var(envp, key, value) != EXIT_SUCCESS)
-			{
-				free(arg_copy);
+			if (handle_export_argument(argv[i], envp) != EXIT_SUCCESS)
 				return (EXIT_FAILURE);
-			}
-			free(arg_copy);
 		}
 		i++;
 	}
