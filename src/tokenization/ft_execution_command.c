@@ -6,7 +6,7 @@
 /*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 16:22:41 by gsimonia          #+#    #+#             */
-/*   Updated: 2025/01/11 20:02:57 by gsimonia         ###   ########.fr       */
+/*   Updated: 2025/01/11 15:25:39 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,6 +43,7 @@ static void	handle_fork_and_execute(t_node *node, char **envp)
 
 void	ft_expand_error_code(t_node *node)
 {
+	// ISSUE: make so that $?HOME -> g_errnoHOME
 	unsigned short	i;
 
 	if (!node)

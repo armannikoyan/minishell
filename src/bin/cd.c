@@ -6,7 +6,7 @@
 /*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/15 17:04:00 by gsimonia          #+#    #+#             */
-/*   Updated: 2025/01/11 20:25:15 by gsimonia         ###   ########.fr       */
+/*   Updated: 2025/01/11 15:28:15 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,7 @@ static int	update_oldpwd(char **envp)
 		return (ft_report_error("cd", strerror(g_errno), 1));
 	oldpwd = (char *)malloc(ft_strlen("OLDPWD=") + ft_strlen(cwd) + 1);
 	if (!oldpwd)
-		return (ft_report_error("cd", "memory allocation failed", 1));
+		return (ft_report_error("cd: ", "memory allocation failed", 1));
 	ft_strcpy(oldpwd, "OLDPWD=");
 	ft_strcat(oldpwd, cwd);
 	while (envp[i])
@@ -66,8 +66,8 @@ static int	go_to_path(int option, char **envp)
 	if (!env_path)
 	{
 		if (option == 0)
-			return (ft_report_error("cd", "HOME not set", 1));
-		return (ft_report_error("cd", "OLDPWD not set", 1));
+			return (ft_report_error("cd: ", "HOME not set", 1));
+		return (ft_report_error("cd: ", "OLDPWD not set", 1));
 	}
 	if (update_oldpwd(envp) != EXIT_SUCCESS)
 	{
@@ -77,7 +77,7 @@ static int	go_to_path(int option, char **envp)
 	if (chdir(env_path) < 0)
 	{
 		free(env_path);
-		return (ft_report_error("cd", "unknown error occurred", 1));
+		return (ft_report_error("cd: ", "unknown error occurred", 1));
 	}
 	free(env_path);
 	return (EXIT_SUCCESS);
@@ -91,13 +91,13 @@ static int	expand_home_and_cd(const char *path_with_tilde, char **envp)
 
 	home = get_env_path(envp, "HOME", 4);
 	if (!home)
-		return (ft_report_error("cd", "HOME not set", 1));
+		return (ft_report_error("cd: ", "HOME not set", 1));
 	expanded_path = (char *)malloc(ft_strlen(home)
 			+ ft_strlen(path_with_tilde));
 	if (!expanded_path)
 	{
 		free(home);
-		return (ft_report_error("cd", "memory allocation failed", 1));
+		return (ft_report_error("cd: ", "memory allocation failed", 1));
 	}
 	ft_strcpy(expanded_path, home);
 	ft_strcat(expanded_path, path_with_tilde + 1);
@@ -117,7 +117,7 @@ int	ft_cd(int argc, char **argv, char **envp)
 	int		cd_ret;
 
 	if (argc > 2)
-		return (ft_report_error("cd", "too many arguments", 1));
+		return (ft_report_error("cd: ", "too many arguments", 1));
 	if (argc < 2 || !argv[1])
 		return (go_to_path(0, envp));
 	if (ft_strcmp(argv[1], "-") == 0)
