@@ -6,7 +6,7 @@
 /*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/15 17:07:07 by gsimonia          #+#    #+#             */
-/*   Updated: 2025/01/11 11:44:05 by gsimonia         ###   ########.fr       */
+/*   Updated: 2025/01/11 16:59:04 by gsimonia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,8 @@ int	ft_pwd(int argc, char **argv)
 // 				"failed to get current directory: Permission denied", 2));
 // 		else if (errno == ENOENT)
 // 			return (ft_report_error("pwd", 
-// 				"failed to get current directory: No such file or directory", 1));
+// 				"failed to get current directory:
+//				 No such file or directory", 1));
 // 		else
 // 			return (ft_report_error("pwd", strerror(errno), 1));
 // 	}
