@@ -6,7 +6,7 @@
 /*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/15 17:05:49 by gsimonia          #+#    #+#             */
-/*   Updated: 2025/01/07 21:54:57 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/01/11 11:55:11 by gsimonia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,13 +93,16 @@ int	ft_exit(int argc, char **argv)
 	char		exit_code_str[20];
 
 	if (argc > 2)
-		return (write_error("ft_exit: ", "too many arguments\n", NULL));
+		return (ft_report_error("ft_exit", "too many arguments", 1));
 	if (argc == 2)
 	{
 		if (!is_valid_number(argv[1]))
-			return (write_error("ft_exit: ",
-					": numeric argument required\n", argv[1]));
-		exit_code = convert_to_exit_code(argv[1]);
+		{
+			ft_report_error("ft_exit", "numeric argument required", 255);
+			exit_code = 255;
+		}
+		else
+			exit_code = convert_to_exit_code(argv[1]);
 	}
 	else
 		exit_code = 0;

@@ -6,7 +6,7 @@
 /*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/15 17:04:25 by gsimonia          #+#    #+#             */
-/*   Updated: 2025/01/06 18:28:48 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/01/11 11:31:22 by gsimonia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,9 +18,9 @@ int	ft_env(int argc, char **argv, char **envp)
 
 	(void)argv;
 	if (argc > 1)
-		return (write_error(NULL, "ft_env: too many arguments\n", NULL));
+		return (ft_report_error("env: ", "too many arguments", 128));
 	if (!envp || !*envp)
-		return (write_error(NULL, "ft_env: environment is empty\n", NULL));
+		return (ft_report_error("env: ", "environment is empty", 129));
 	i = 0;
 	while (envp[i])
 	{

@@ -6,7 +6,7 @@
 /*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/15 17:06:01 by gsimonia          #+#    #+#             */
-/*   Updated: 2025/01/10 20:04:37 by gsimonia         ###   ########.fr       */
+/*   Updated: 2025/01/11 14:08:49 by gsimonia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,12 +46,11 @@ int	set_new_var(char **new_envp, char *key, char *value, int index)
 
 	if (!key || !value)
 	{
-		write_error("export", "key or value is NULL\n", NULL);
-		return (EXIT_FAILURE);
+		return (ft_report_error("export", "key or value is NULL", 1));
 	}
 	new_var = malloc(ft_strlen(key) + ft_strlen(value) + 2);
 	if (!new_var)
-		return (write_error("export: ", "memory allocation failed\n", NULL));
+		return (ft_report_error("export", "memory allocation failed", 1));
 	ft_strcpy(new_var, key);
 	ft_strcat(new_var, "=");
 	ft_strcat(new_var, value);
@@ -94,7 +93,7 @@ int	handle_export_argument(char *arg, char ***envp)
 
 	arg_copy = ft_strdup(arg);
 	if (!arg_copy)
-		return (write_error("export", "memory allocation failed\n", NULL));
+		return (ft_report_error("export", "memory allocation failed", 1));
 	key = ft_strtok(arg_copy, "=", &save_ptr);
 	value = ft_strtok(NULL, "=", &save_ptr);
 	if (set_env_var(envp, key, value) != EXIT_SUCCESS)
@@ -119,7 +118,7 @@ int	ft_export(int argc, char **argv, char ***envp)
 	while (argv[i])
 	{
 		if (!is_valid_env_var_key(argv[i]))
-			return (write_error("export", argv[i], "not a valid identifier\n"));
+			return (ft_report_error(argv[i], " not a valid identifier", 1));
 		else if (ft_strchr(argv[i], '=') != NULL)
 		{
 			if (handle_export_argument(argv[i], envp) != EXIT_SUCCESS)
