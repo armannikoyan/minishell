@@ -6,7 +6,7 @@
 /*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 16:22:52 by gsimonia          #+#    #+#             */
-/*   Updated: 2025/01/11 05:35:13 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/01/11 05:44:00 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,8 +14,8 @@
 
 void	ft_quote_removal(t_token *token)
 {
-	char	quote;
-	char	*new_content;
+	char			quote;
+	char			*new_content;
 	unsigned short	len;
 	unsigned short	i;
 	unsigned short	j;
@@ -26,7 +26,8 @@ void	ft_quote_removal(t_token *token)
 	i = 0;
 	while (token->content[i])
 	{
-		while (token->content[i] && token->content[i] != '\'' && token->content[i] != '\"')
+		while (token->content[i] && token->content[i] != '\''
+			&& token->content[i] != '\"')
 		{
 			len++;
 			i++;
@@ -51,7 +52,8 @@ void	ft_quote_removal(t_token *token)
 	j = 0;
 	while (token->content[i])
 	{
-		while (token->content[i] && token->content[i] != '\'' && token->content[i] != '\"')
+		while (token->content[i] && token->content[i] != '\''
+			&& token->content[i] != '\"')
 			new_content[j++] = token->content[i++];
 		if (token->content[i])
 		{
@@ -70,13 +72,14 @@ void	ft_quote_removal(t_token *token)
 
 bool	ft_is_pattern_match(t_token *token)
 {
-	char	quote;
+	char			quote;
 	unsigned short	i;
 
 	i = 0;
 	while (token->content[i])
 	{
-		while (token->content[i] && token->content[i] != '\'' && token->content[i] != '\"')
+		while (token->content[i] && token->content[i] != '\''
+			&& token->content[i] != '\"')
 		{
 			if (token->content[i] == '*')
 				return (true);
