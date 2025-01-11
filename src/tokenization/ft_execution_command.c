@@ -6,7 +6,7 @@
 /*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 16:22:41 by gsimonia          #+#    #+#             */
-/*   Updated: 2025/01/11 10:02:44 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/01/11 10:53:27 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,7 +96,7 @@ void	execute_command(t_node *node, char ***envp)
 	(*envp)[i] = ft_strjoin("_=", node->content[0]);
 	ft_expand_error_code(node);
 	if (ft_strcmp(node->content[0], "cd") == 0)
-		g_errno = ft_cd(ft_mtx_strlen(node->content), node->content, *envp);
+		ft_cd(ft_mtx_strlen(node->content), node->content, *envp);
 	else if (ft_strcmp(node->content[0], "export") == 0)
 		ft_export(ft_mtx_strlen(node->content), node->content, envp);
 	else if (ft_strcmp(node->content[0], "unset") == 0)
