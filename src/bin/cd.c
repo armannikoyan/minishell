@@ -6,7 +6,7 @@
 /*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/15 17:04:00 by gsimonia          #+#    #+#             */
-/*   Updated: 2025/01/11 14:39:03 by gsimonia         ###   ########.fr       */
+/*   Updated: 2025/01/11 20:25:15 by gsimonia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -106,7 +106,7 @@ static int	expand_home_and_cd(const char *path_with_tilde, char **envp)
 	free(expanded_path);
 	if (cd_ret < 0)
 	{
-		ft_report_error("No such file or directory", NULL, 2);
+		ft_report_error("No such file or directory", NULL, 1);
 		return (EXIT_FAILURE);
 	}
 	return (EXIT_SUCCESS);
@@ -134,7 +134,7 @@ int	ft_cd(int argc, char **argv, char **envp)
 	cd_ret = chdir(argv[1]);
 	if (cd_ret < 0)
 	{
-		ft_report_error("No such file or directory", NULL, 2);
+		ft_report_error("No such file or directory", NULL, 1);
 		return (EXIT_FAILURE);
 	}
 	return (EXIT_SUCCESS);
