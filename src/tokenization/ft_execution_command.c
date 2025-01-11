@@ -6,7 +6,7 @@
 /*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 16:22:41 by gsimonia          #+#    #+#             */
-/*   Updated: 2025/01/11 04:29:32 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/01/11 10:02:44 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -98,9 +98,9 @@ void	execute_command(t_node *node, char ***envp)
 	if (ft_strcmp(node->content[0], "cd") == 0)
 		g_errno = ft_cd(ft_mtx_strlen(node->content), node->content, *envp);
 	else if (ft_strcmp(node->content[0], "export") == 0)
-		g_errno = ft_export(ft_mtx_strlen(node->content), node->content, envp);
+		ft_export(ft_mtx_strlen(node->content), node->content, envp);
 	else if (ft_strcmp(node->content[0], "unset") == 0)
-		g_errno = ft_unset(ft_mtx_strlen(node->content), node->content, *envp);
+		ft_unset(ft_mtx_strlen(node->content), node->content, *envp);
 	else if (ft_strcmp(node->content[0], "exit") == 0)
 		g_errno = ft_exit(ft_mtx_strlen(node->content), node->content);
 	else
