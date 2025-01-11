@@ -6,7 +6,7 @@
 /*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/15 17:06:01 by gsimonia          #+#    #+#             */
-/*   Updated: 2025/01/11 14:08:49 by gsimonia         ###   ########.fr       */
+/*   Updated: 2025/01/11 14:25:18 by gsimonia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -118,7 +118,7 @@ int	ft_export(int argc, char **argv, char ***envp)
 	while (argv[i])
 	{
 		if (!is_valid_env_var_key(argv[i]))
-			return (ft_report_error(argv[i], " not a valid identifier", 1));
+			return (ft_report_error(NULL, "not a valid identifier", 1));
 		else if (ft_strchr(argv[i], '=') != NULL)
 		{
 			if (handle_export_argument(argv[i], envp) != EXIT_SUCCESS)

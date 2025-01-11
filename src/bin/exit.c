@@ -6,7 +6,7 @@
 /*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/15 17:05:49 by gsimonia          #+#    #+#             */
-/*   Updated: 2025/01/11 11:55:11 by gsimonia         ###   ########.fr       */
+/*   Updated: 2025/01/11 15:03:24 by gsimonia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,16 +75,12 @@ static long long	convert_to_exit_code(const char *str)
 	return (exit_code % 256);
 }
 
-static int	kill_parent_process(const char *exit_code_str)
+static int kill_parent_process(const char *exit_code_str)
 {
-	pid_t	pid;
-
-	pid = getpid();
-	write_string("Exiting with code ", exit_code_str, "\n");
-	if (kill(pid, SIGTERM) == -1)
-		return (write_error("kill_parent_process: ",
-				"Failed to kill parent process\n", NULL));
-	return (EXIT_SUCCESS);
+    int exit_code;
+	
+	exit_code = ft_atoi(exit_code_str);
+    exit(exit_code);
 }
 
 int	ft_exit(int argc, char **argv)
@@ -93,12 +89,12 @@ int	ft_exit(int argc, char **argv)
 	char		exit_code_str[20];
 
 	if (argc > 2)
-		return (ft_report_error("ft_exit", "too many arguments", 1));
+		return (ft_report_error(NULL, "too many arguments", 1));
 	if (argc == 2)
 	{
 		if (!is_valid_number(argv[1]))
 		{
-			ft_report_error("ft_exit", "numeric argument required", 255);
+			ft_report_error(NULL, "numeric argument required", 255);
 			exit_code = 255;
 		}
 		else
