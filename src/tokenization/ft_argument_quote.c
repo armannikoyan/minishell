@@ -6,7 +6,7 @@
 /*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 16:22:52 by gsimonia          #+#    #+#             */
-/*   Updated: 2025/01/11 05:20:11 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/01/11 05:35:13 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,6 +70,27 @@ void	ft_quote_removal(t_token *token)
 
 bool	ft_is_pattern_match(t_token *token)
 {
-	return (token && token->content && ft_strchr(token->content, '*')
-		&& token->content[0] != '\'' && token->content[0] != '\"');
+	char	quote;
+	unsigned short	i;
+
+	i = 0;
+	while (token->content[i])
+	{
+		while (token->content[i] && token->content[i] != '\'' && token->content[i] != '\"')
+		{
+			if (token->content[i] == '*')
+				return (true);
+			i++;
+		}
+		if (token->content[i])
+		{
+			quote = token->content[i];
+			i++;
+		}
+		while (token->content[i] && token->content[i] != quote)
+			i++;
+		if (token->content[i])
+			i++;
+	}
+	return (false);
 }

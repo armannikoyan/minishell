@@ -6,7 +6,7 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 09:34:14 by anikoyan          #+#    #+#             */
-/*   Updated: 2025/01/06 18:27:30 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/01/11 05:36:46 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,6 +80,7 @@ bool	ft_process_path_patterns(t_list **lst_ref)
 		token = (t_token *)current->content;
 		if (ft_is_pattern_match(token))
 		{
+			ft_quote_removal(token);
 			if (!ft_process_pattern(lst_ref, current, prev, token))
 				return (false);
 		}
