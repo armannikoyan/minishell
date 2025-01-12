@@ -6,7 +6,7 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/25 14:49:16 by anikoyan          #+#    #+#             */
-/*   Updated: 2025/01/12 23:57:32 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/01/13 00:06:23 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,7 +46,7 @@ char    *ft_get_env(char *str, char **envp)
 		j++;
 	}
 	free(env);
-	return NULL;
+	return ("");
 }
 
 char	*ft_env_expansion(char *input, char **envp)
