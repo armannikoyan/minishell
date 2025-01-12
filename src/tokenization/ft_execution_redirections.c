@@ -6,7 +6,7 @@
 /*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 16:22:30 by gsimonia          #+#    #+#             */
-/*   Updated: 2025/01/12 23:39:13 by gsimonia         ###   ########.fr       */
+/*   Updated: 2025/01/13 02:26:18 by gsimonia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,12 +17,20 @@ extern int	g_errno;
 static int	ft_open_file_for_input_redirection(const char *filepath)
 {
 	int	fd;
+	char	*error_msg;
+	unsigned short	i;
 
 	fd = open(filepath, O_RDONLY);
 	if (fd == -1)
 	{
-		ft_printf("minishell: ");
-		perror(filepath);
+		error_msg = (char *)malloc(sizeof(char) * (ft_strlen("minishell: ") + ft_strlen(filepath) + 1));
+		ft_strcpy(error_msg, "minishell: ");
+		i = 0;
+		while (error_msg[i])
+			i++;
+		ft_strcpy(error_msg + i, filepath);
+		perror(error_msg);
+		free(error_msg);
 		g_errno = 1;
 	}
 	return (fd);
@@ -53,12 +61,20 @@ void	ft_handle_input_redirection(t_node *node, char ***envp)
 static int	ft_open_file_for_redirection(const char *filepath, int flags)
 {
 	int	fd;
+	char	*error_msg;
+	unsigned short	i;
 
 	fd = open(filepath, O_WRONLY | O_CREAT | flags, 0644);
 	if (fd == -1)
 	{
-		ft_printf("minishell: ");
-		perror(filepath);
+		error_msg = (char *)malloc(sizeof(char) * (ft_strlen("minishell: ") + ft_strlen(filepath) + 1));
+		ft_strcpy(error_msg, "minishell: ");
+		i = 0;
+		while (error_msg[i])
+			i++;
+		ft_strcpy(error_msg + i, filepath);
+		perror(error_msg);
+		free(error_msg);
 		g_errno = 1;
 	}
 	// {
