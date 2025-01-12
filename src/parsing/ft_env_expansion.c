@@ -6,7 +6,7 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/25 14:49:16 by anikoyan          #+#    #+#             */
-/*   Updated: 2025/01/12 07:28:48 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/01/12 23:57:32 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,18 +22,31 @@ static unsigned short	ft_get_env_name_len(char *str)
 	return (i);
 }
 
-static char	*ft_get_env(char *str, char **envp)
+char    *ft_get_env(char *str, char **envp)
 {
-	unsigned short	i;
-	unsigned short	j;
+	char            	*env;
+	unsigned short  env_len;
+	unsigned short  j;
 
-	i = ft_get_env_name_len(str);
+	env_len = ft_get_env_name_len(str);
+	env = (char *)malloc(sizeof(char) * (env_len + 2));
+	if (!env)
+		exit(EXIT_FAILURE);
+	ft_strlcpy(env, str, env_len + 1);
+	env[env_len] = '=';
+	env[env_len + 1] = '\0';
 	j = 0;
-	while (envp[j] && ft_strncmp(str, envp[j], i))
+	while (envp[j])
+	{
+		if (ft_strncmp(env, envp[j], env_len) == 0)
+		{
+			free(env);
+			return (envp[j] + env_len + 1);
+		}
 		j++;
-	if (envp[j])
-		return (envp[j] + i + 1);
-	return ("");
+	}
+	free(env);
+	return NULL;
 }
 
 char	*ft_env_expansion(char *input, char **envp)
