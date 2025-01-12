@@ -6,7 +6,7 @@
 /*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 16:23:03 by gsimonia          #+#    #+#             */
-/*   Updated: 2025/01/12 07:43:04 by gsimonia         ###   ########.fr       */
+/*   Updated: 2025/01/12 22:15:24 by gsimonia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@ bool	has_single_token_error(t_list **lst)
 		&& (token->content[0] != '<'
 			|| token->content[0] != '>')
 		&& (*lst)->next == NULL)
-		return (ft_report_error("parse error near: ", token->content, 1));
+		return (ft_report_error(token->content, " : is a directory", 126));
 	return (false);
 }
 

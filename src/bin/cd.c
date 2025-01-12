@@ -6,7 +6,7 @@
 /*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/15 17:04:00 by gsimonia          #+#    #+#             */
-/*   Updated: 2025/01/12 07:39:34 by gsimonia         ###   ########.fr       */
+/*   Updated: 2025/01/12 22:20:24 by gsimonia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -116,8 +116,8 @@ int	ft_cd(int argc, char **argv, char **envp)
 {
 	int		cd_ret;
 
-	if (argc > 2)
-		return (ft_report_error("cd: ", "too many arguments", 1));
+	// if (argc > 2)
+	// 	return (ft_report_error("cd: ", "too many arguments", 1));
 	if (argc < 2 || !argv[1])
 		return (go_to_path(0, envp));
 	if (ft_strcmp(argv[1], "-") == 0)
