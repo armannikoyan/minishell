@@ -6,7 +6,7 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/25 14:49:16 by anikoyan          #+#    #+#             */
-/*   Updated: 2025/01/13 00:30:17 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/01/13 00:38:57 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,11 +35,10 @@ char    *ft_get_env(char *str, char **envp)
 	ft_strlcpy(env, str, env_len + 1);
 	env[env_len] = '=';
 	env[env_len + 1] = '\0';
-	// ft_printf("%s\n", env);
 	j = 0;
 	while (envp[j])
 	{
-		if (ft_strncmp(env, envp[j], env_len) == 0)
+		if (ft_strncmp(env, envp[j], env_len + 1) == 0)
 		{
 			free(env);
 			return (envp[j] + env_len + 1);
