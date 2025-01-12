@@ -6,7 +6,7 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/13 18:44:10 by anikoyan          #+#    #+#             */
-/*   Updated: 2025/01/09 10:12:14 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/01/12 09:21:03 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,6 +79,7 @@ void	ft_exec_operator(t_node *node,
 {
 	if (!node)
 		return ;
+	ft_quote_removal(node);
 	if (ft_strcmp(node->content[0], "|") == 0)
 		ft_handle_pipe(node, envp);
 	else if (ft_strcmp(node->content[0], "&&") == 0)

@@ -6,7 +6,7 @@
 /*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/22 19:38:41 by anikoyan          #+#    #+#             */
-/*   Updated: 2025/01/12 07:47:48 by gsimonia         ###   ########.fr       */
+/*   Updated: 2025/01/12 08:37:04 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,31 +46,41 @@ bool	has_operator_followed_by_operator(t_token *token, t_list *next)
 	return (false);
 }
 
-bool	has_matching_parentheses(t_list *lst)
+bool	has_unmatching_parentheses(t_list *lst)
 {
-	short	parentheses_count;
-	t_list	*tmp;
 	t_token	*token;
+	unsigned short	i;
+	int	parentheses_count;
+	char	quote;
+	bool	in_quote;
 
 	parentheses_count = 0;
-	tmp = lst;
-	while (tmp)
+	in_quote = false;
+	i = 0;
+	token = lst->content;
+	quote = 0;
+	while (token->content[i])
 	{
-		token = (t_token *)tmp->content;
-		if (token->content[0] == '(')
-			parentheses_count++;
-		if (token->content[0] == ')' || token->content[1] == ')')
+		if ((token->content[i] == '\'' || token->content[i] == '\"')
+			&& ((token->content[i] == quote) || (quote == 0)))
 		{
-			parentheses_count--;
-			if (parentheses_count < 0)
-				return (ft_report_error("parse error near: ",
-						token->content, 1));
+			quote = token->content[i];
+			in_quote = !in_quote;
+			if (in_quote == false)
+				quote = 0;
 		}
-		tmp = tmp->next;
+		else if (token->content[i] == '(' && !in_quote)
+			parentheses_count++;
+		else if (token->content[i] == ')' && !in_quote)
+			parentheses_count--;
+		i++;
 	}
-	if (parentheses_count != 0)
+	if (parentheses_count > 0)
 		return (ft_report_error("parse error near: ",
-				"(", 1));
+					"(", 1));
+	else if (parentheses_count < 0)
+		return (ft_report_error("parse error near: ",
+					")", 1));
 	return (false);
 }
 
@@ -79,7 +89,7 @@ bool	ft_has_syntax_error(t_list **lst)
 	t_list	*tmp;
 	t_token	*token;
 
-	if (has_single_token_error(lst) || has_matching_parentheses(*lst))
+	if (has_single_token_error(lst) || has_unmatching_parentheses(*lst))
 		return (true);
 	tmp = *lst;
 	while (tmp)
@@ -88,6 +98,7 @@ bool	ft_has_syntax_error(t_list **lst)
 		if (has_consecutive_operators(token, tmp->next)
 			|| has_invalid_operator_file(token, tmp->next)
 			|| has_operator_followed_by_operator(token, tmp->next)
+			|| has_unmatching_parentheses(tmp)
 			|| (token->type == 'O' && !tmp->next
 				&& ft_report_error("parse error near: ", token->content, 1)))
 			return (true);

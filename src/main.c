@@ -6,7 +6,7 @@
 /*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/18 16:57:05 by anikoyan          #+#    #+#             */
-/*   Updated: 2025/01/12 04:46:40 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/01/12 09:13:40 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -99,7 +99,6 @@ static void	run_shell_loop(char ***envp)
 char	**ft_copy_envp(char **envp)
 {
 	char			**envp_cpy;
-	char			*tmp;
 	unsigned int	i;
 
 	envp_cpy = (char **)malloc(sizeof(char *) * (ft_mtx_strlen(envp) + 1));
@@ -108,16 +107,7 @@ char	**ft_copy_envp(char **envp)
 	i = -1;
 	while (envp[++i])
 	{
-		if (ft_strncmp(envp[i], "SHELL=", 6) == 0)
-			envp_cpy[i] = ft_strdup("SHELL=/bin/zsh");
-		else if (ft_strncmp(envp[i], "SHLVL=", 6) == 0)
-		{
-			tmp = ft_itoa(ft_atoi(envp[i] + 6) + 1);
-			envp_cpy[i] = ft_strjoin("SHLVL=", tmp);
-			free(tmp);
-		}
-		else
-			envp_cpy[i] = ft_strdup(envp[i]);
+		envp_cpy[i] = ft_strdup(envp[i]);
 		if (!envp_cpy[i])
 			exit(EXIT_FAILURE);
 	}

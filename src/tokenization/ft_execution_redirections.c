@@ -6,7 +6,7 @@
 /*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 16:22:30 by gsimonia          #+#    #+#             */
-/*   Updated: 2025/01/09 10:13:21 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/01/12 09:15:37 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@ static int	ft_open_file_for_input_redirection(const char *filepath)
 	fd = open(filepath, O_RDONLY);
 	if (fd == -1)
 	{
-		perror("open failed");
+		perror("minishell");
 		g_errno = 1;
 	}
 	return (fd);
@@ -39,10 +39,7 @@ void	ft_handle_input_redirection(t_node *node, char ***envp)
 		return ;
 	pid = fork();
 	if (pid == -1)
-	{
-		perror("fork failed");
 		exit(EXIT_FAILURE);
-	}
 	if (pid == 0)
 		ft_execute_input_child_process(node, envp, fd);
 	else
@@ -59,7 +56,7 @@ static int	ft_open_file_for_redirection(const char *filepath, int flags)
 	fd = open(filepath, O_WRONLY | O_CREAT | flags, 0644);
 	if (fd == -1)
 	{
-		perror("open failed");
+		perror("minishell");
 		g_errno = 1;
 	}
 	return (fd);
@@ -77,10 +74,7 @@ void	ft_handle_output_redirection(t_node *node, char ***envp, int flags)
 		return ;
 	pid = fork();
 	if (pid == -1)
-	{
-		perror("fork failed");
 		exit(EXIT_FAILURE);
-	}
 	if (pid == 0)
 		ft_execute_child_process(node, envp, fd);
 	else
