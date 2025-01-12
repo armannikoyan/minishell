@@ -27,9 +27,9 @@ OBJS = $(SRCS:%.c=$(OBJ_DIR)/%.o)
 
 CC = cc
 CFLAGS = -Wall -Wextra -Werror
-INC = -I/usr/local/Cellar/readline/8.2.13/include -I$(LIBFT_DIR) -Ireadline
+INC = -I$(LIBFT_DIR) -I../readline/readline
 LIBFT = $(LIBFT_DIR)/libft.a
-RL_LIB = -L/usr/local/Cellar/readline/8.2.13/lib -lreadline -lncurses
+RL_LIB = ../readline/libreadline.a -lncurses
 
 RM = rm -f
 
