@@ -6,7 +6,7 @@
 /*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 16:22:30 by gsimonia          #+#    #+#             */
-/*   Updated: 2025/01/12 09:15:37 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/01/12 23:39:13 by gsimonia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,8 @@ static int	ft_open_file_for_input_redirection(const char *filepath)
 	fd = open(filepath, O_RDONLY);
 	if (fd == -1)
 	{
-		perror("minishell");
+		ft_printf("minishell: ");
+		perror(filepath);
 		g_errno = 1;
 	}
 	return (fd);
@@ -56,9 +57,14 @@ static int	ft_open_file_for_redirection(const char *filepath, int flags)
 	fd = open(filepath, O_WRONLY | O_CREAT | flags, 0644);
 	if (fd == -1)
 	{
-		perror("minishell");
+		ft_printf("minishell: ");
+		perror(filepath);
 		g_errno = 1;
 	}
+	// {
+	// 	perror("minishell");
+	// 	g_errno = 1;
+	// }
 	return (fd);
 }
 
