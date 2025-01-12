@@ -6,7 +6,7 @@
 /*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/18 17:00:14 by anikoyan          #+#    #+#             */
-/*   Updated: 2025/01/12 07:36:55 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/01/13 00:22:24 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -112,6 +112,7 @@ DIR				*ft_open_directory(const char *path, struct dirent **entry);
 bool			ft_close_directory(DIR *dir);
 
 t_tree			*ft_tree_ctor(void);
+void			ft_node_dtor(t_node **node);
 
 t_node			*parse_node(t_list **lst);
 

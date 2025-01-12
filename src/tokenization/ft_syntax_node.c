@@ -6,13 +6,13 @@
 /*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 16:22:26 by gsimonia          #+#    #+#             */
-/*   Updated: 2025/01/09 09:24:55 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/01/13 00:21:57 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../includes/minishell.h"
 
-static void	ft_node_dtor(t_node **node)
+void	ft_node_dtor(t_node **node)
 {
 	if (!node || !*node)
 		return ;
