@@ -6,7 +6,7 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/25 14:49:16 by anikoyan          #+#    #+#             */
-/*   Updated: 2025/01/11 15:53:12 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/01/12 07:28:48 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -100,8 +100,8 @@ char	*ft_env_expansion(char *input, char **envp)
 			if (input[i] && input[i] != '?')
 			{
 				tmp = ft_get_env(input + i, envp);
-				while (*tmp)
-					output[j++] = *tmp++;
+				ft_strcpy(output + j, tmp);
+				j += ft_strlen(tmp);
 				i += ft_get_env_name_len(input + i);
 			}
 			else if (input[i])

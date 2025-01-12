@@ -6,7 +6,7 @@
 /*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/18 17:00:14 by anikoyan          #+#    #+#             */
-/*   Updated: 2025/01/12 07:36:10 by gsimonia         ###   ########.fr       */
+/*   Updated: 2025/01/12 07:36:55 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -133,7 +133,7 @@ bool			ft_is_matching_pattern(const char *entry_name,
 
 void			parse_x_node(t_list **lst, char ***content, char *type_of_node);
 void			parse_o_node(t_list **lst, char ***content, char *type_of_node);
-void			ft_quote_removal(t_token *token);
+void			ft_quote_removal(t_node *node);
 void			ft_assign_argument_type(t_list **tmp);
 void			ft_handle_argument(t_list **tmp, t_token *token);
 void			ft_assign_subshell_levels(t_list **lst);
