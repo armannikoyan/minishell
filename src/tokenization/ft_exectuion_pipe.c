@@ -6,7 +6,7 @@
 /*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 16:22:44 by gsimonia          #+#    #+#             */
-/*   Updated: 2025/01/13 02:11:58 by gsimonia         ###   ########.fr       */
+/*   Updated: 2025/01/13 03:13:05 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,8 @@ void	ft_handle_pipe(t_node *node, char ***envp)
 	int		fd[2];
 	pid_t	pid1;
 	pid_t	pid2;
+	int		status1;
+	int		status2;
 
 	if (!node || !node->left || !node->right)
 		return ;
@@ -37,12 +39,17 @@ void	ft_handle_pipe(t_node *node, char ***envp)
 	}
 	close(fd[0]);
 	close(fd[1]);
-	waitpid(pid1, NULL, 0);
-	waitpid(pid2, NULL, 0);
+	waitpid(pid1, &status1, 0);
+	waitpid(pid2, &status2, 0);
+	if (WIFEXITED(status2))
+		g_errno = WEXITSTATUS(status2);
+	else if (WIFEXITED(status1))
+		g_errno = WEXITSTATUS(status1);
+	else
+		g_errno = 1;
 }
 
-void	ft_execute_pipe_child(t_node *node,
-		char ***envp, int fd, int redirect_fd)
+void	ft_execute_pipe_child(t_node *node, char ***envp, int fd, int redirect_fd)
 {
 	dup2(fd, redirect_fd);
 	close(fd);

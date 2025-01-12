@@ -6,7 +6,7 @@
 /*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 16:22:30 by gsimonia          #+#    #+#             */
-/*   Updated: 2025/01/13 02:26:18 by gsimonia         ###   ########.fr       */
+/*   Updated: 2025/01/13 03:18:22 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,10 +77,6 @@ static int	ft_open_file_for_redirection(const char *filepath, int flags)
 		free(error_msg);
 		g_errno = 1;
 	}
-	// {
-	// 	perror("minishell");
-	// 	g_errno = 1;
-	// }
 	return (fd);
 }
 
