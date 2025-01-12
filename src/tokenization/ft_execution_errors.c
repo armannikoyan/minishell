@@ -6,7 +6,7 @@
 /*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 16:22:38 by gsimonia          #+#    #+#             */
-/*   Updated: 2025/01/09 09:58:02 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/01/13 00:42:06 by gsimonia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@ extern int	g_errno;
 
 void	handle_open_error(void)
 {
+	ft_printf("minishell: ");	
 	perror("open failed");
 	g_errno = 1;
 }
@@ -31,6 +32,7 @@ void	parent_wait_and_set_status(pid_t pid, int *status)
 
 void	handle_fork_error(void)
 {
+	ft_printf("minishell: ");
 	perror("fork failed");
 	g_errno = 1;
 }
