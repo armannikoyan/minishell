@@ -6,7 +6,7 @@
 /*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 16:22:44 by gsimonia          #+#    #+#             */
-/*   Updated: 2025/01/13 00:57:44 by gsimonia         ###   ########.fr       */
+/*   Updated: 2025/01/13 02:11:58 by gsimonia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,6 @@ void	ft_handle_pipe(t_node *node, char ***envp)
 	int		fd[2];
 	pid_t	pid1;
 	pid_t	pid2;
-	int		status;
 
 	if (!node || !node->left || !node->right)
 		return ;
@@ -38,15 +37,9 @@ void	ft_handle_pipe(t_node *node, char ***envp)
 	}
 	close(fd[0]);
 	close(fd[1]);
-
-	// Wait for the first child
-	waitpid(pid1, &status, 0);
-
-	// Wait for the second child and use its exit code as the pipeline's exit code
-	if (waitpid(pid2, &status, 0) != -1 && WIFEXITED(status))
-		g_errno = WEXITSTATUS(status); // Set g_errno to the exit code of the last command
+	waitpid(pid1, NULL, 0);
+	waitpid(pid2, NULL, 0);
 }
-
 
 void	ft_execute_pipe_child(t_node *node,
 		char ***envp, int fd, int redirect_fd)
