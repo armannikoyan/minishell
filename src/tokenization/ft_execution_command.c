@@ -6,7 +6,7 @@
 /*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 16:22:41 by gsimonia          #+#    #+#             */
-/*   Updated: 2025/01/11 15:25:39 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/01/12 07:41:28 by gsimonia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -112,3 +112,70 @@ void	execute_command(t_node *node, char ***envp)
 	free((*envp)[i]);
 	(*envp)[i] = tmp;
 }
+
+// void ft_expand_error_code(t_node *node)
+// {
+//     unsigned short i;
+//     char *expanded_content;
+//     size_t len;
+//     if (!node)
+//         return ;
+//     i = 0;
+//     while (node->content[i])
+//     {
+//         if (ft_strncmp(node->content[i], "$?", 2) == 0) // Check if the string starts with "$?"
+//         {
+//             // Calculate the new length: length of the error code + remaining part of the string
+//             len = ft_strlen(node->content[i]) - 2 + ft_strlen(ft_itoa(g_errno));
+//             // Allocate memory for the expanded string
+//             expanded_content = malloc(len + 1);
+//             if (!expanded_content)
+//                 return ; // Handle allocation failure (optional)
+//             // Copy the error code into the new string
+//             strcpy(expanded_content, ft_itoa(g_errno));
+//             // Append the rest of the string (after "$?")
+//             strcat(expanded_content, node->content[i] + 2);
+//             // Free the old content and assign the new expanded content
+//             free(node->content[i]);
+//             node->content[i] = expanded_content;
+//         }
+//         i++;
+//     }
+// }
+// void ft_expand_error_code(t_node *node)
+// {
+//     unsigned short i;
+//     char *found_pos;
+//     char *expanded_content;
+//     size_t len, original_len;
+//     if (!node)
+//         return ;
+//     i = 0;
+//     while (node->content[i])
+//     {
+//         // Search for "$?" anywhere in the string
+//         found_pos = strstr(node->content[i], "$?");
+//         // If we find "$?", replace it
+//         while (found_pos)
+//         {
+//             original_len = ft_strlen(node->content[i]);
+//             len = ft_strlen(ft_itoa(g_errno)) + (original_len - (found_pos - node->content[i]) - 2);
+//             // Allocate memory for the new string
+//             expanded_content = malloc(len + 1);
+//             if (!expanded_content)
+//                 return ; // Handle allocation failure (optional)
+//             // Copy the part before "$?"
+//             strncpy(expanded_content, node->content[i], found_pos - node->content[i]);
+//             // Append the error code (g_errno)
+//             strcat(expanded_content, ft_itoa(g_errno));
+//             // Append the part after "$?"
+//             strcat(expanded_content, found_pos + 2);
+//             // Free old content and assign new expanded content
+//             free(node->content[i]);
+//             node->content[i] = expanded_content;
+//             // Search for next occurrence of "$?"
+//             found_pos = strstr(node->content[i], "$?");
+//         }
+//         i++;
+//     }
+// }

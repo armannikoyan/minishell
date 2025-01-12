@@ -6,7 +6,7 @@
 /*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/15 17:07:07 by gsimonia          #+#    #+#             */
-/*   Updated: 2025/01/11 16:59:04 by gsimonia         ###   ########.fr       */
+/*   Updated: 2025/01/12 06:53:31 by gsimonia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,28 +24,3 @@ int	ft_pwd(int argc, char **argv)
 	write_string(cwd, "\n", NULL);
 	return (EXIT_SUCCESS);
 }
-
-// #include <errno.h>
-
-// int	ft_pwd(int argc, char **argv)
-// {
-// 	char	cwd[PATH_MAX];
-
-// 	(void)argc;
-// 	(void)argv;
-
-// 	if (getcwd(cwd, sizeof(cwd)) == NULL)
-// 	{
-// 		if (errno == EACCES)
-// 			return (ft_report_error("pwd", 
-// 				"failed to get current directory: Permission denied", 2));
-// 		else if (errno == ENOENT)
-// 			return (ft_report_error("pwd", 
-// 				"failed to get current directory:
-//				 No such file or directory", 1));
-// 		else
-// 			return (ft_report_error("pwd", strerror(errno), 1));
-// 	}
-// 	write_string(cwd, "\n", NULL);
-// 	return (EXIT_SUCCESS);
-// }

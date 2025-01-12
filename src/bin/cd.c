@@ -6,7 +6,7 @@
 /*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/15 17:04:00 by gsimonia          #+#    #+#             */
-/*   Updated: 2025/01/11 15:28:15 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/01/12 07:39:34 by gsimonia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,7 +83,7 @@ static int	go_to_path(int option, char **envp)
 	return (EXIT_SUCCESS);
 }
 
-static int	expand_home_and_cd(const char *path_with_tilde, char **envp)
+static int	expand_home_and_cd(const char *ang, char **envp)
 {
 	char	*home;
 	char	*expanded_path;
@@ -93,20 +93,20 @@ static int	expand_home_and_cd(const char *path_with_tilde, char **envp)
 	if (!home)
 		return (ft_report_error("cd: ", "HOME not set", 1));
 	expanded_path = (char *)malloc(ft_strlen(home)
-			+ ft_strlen(path_with_tilde));
+			+ ft_strlen(ang));
 	if (!expanded_path)
 	{
 		free(home);
 		return (ft_report_error("cd: ", "memory allocation failed", 1));
 	}
 	ft_strcpy(expanded_path, home);
-	ft_strcat(expanded_path, path_with_tilde + 1);
+	ft_strcat(expanded_path, ang + 1);
 	free(home);
 	cd_ret = chdir(expanded_path);
 	free(expanded_path);
 	if (cd_ret < 0)
 	{
-		ft_report_error("No such file or directory", NULL, 1);
+		ft_report_error_arg("cd: ", ": No such file or directory", 1, ang);
 		return (EXIT_FAILURE);
 	}
 	return (EXIT_SUCCESS);
@@ -134,7 +134,7 @@ int	ft_cd(int argc, char **argv, char **envp)
 	cd_ret = chdir(argv[1]);
 	if (cd_ret < 0)
 	{
-		ft_report_error("No such file or directory", NULL, 1);
+		ft_report_error_arg("cd: ", ": No such file or directory", 1, argv[1]);
 		return (EXIT_FAILURE);
 	}
 	return (EXIT_SUCCESS);

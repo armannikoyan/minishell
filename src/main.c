@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
+/*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/18 16:57:05 by anikoyan          #+#    #+#             */
-/*   Updated: 2025/01/09 10:17:16 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/01/12 06:50:45 by gsimonia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -109,7 +109,7 @@ char	**ft_copy_envp(char **envp)
 	while (envp[++i])
 	{
 		if (ft_strncmp(envp[i], "SHELL=", 6) == 0)
-			envp_cpy[i] = ft_strdup("SHELL=minishell");
+			envp_cpy[i] = ft_strdup("SHELL=/bin/zsh");
 		else if (ft_strncmp(envp[i], "SHLVL=", 6) == 0)
 		{
 			tmp = ft_itoa(ft_atoi(envp[i] + 6) + 1);

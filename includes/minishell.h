@@ -6,7 +6,7 @@
 /*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/18 17:00:14 by anikoyan          #+#    #+#             */
-/*   Updated: 2025/01/10 20:04:50 by gsimonia         ###   ########.fr       */
+/*   Updated: 2025/01/12 07:36:10 by gsimonia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,6 +74,8 @@ char			*ft_entry_info(void);
 bool			ft_has_syntax_error(t_list **lst);
 bool			ft_report_error(const char *prefix,
 					const char *content, int error_code);
+bool			ft_report_error_arg(const char *prefix, const char *content,
+					int error_code, const char *given);
 char			*ft_env_expansion(char *input, char **envp);
 char			*ft_space_correction(char *input);
 

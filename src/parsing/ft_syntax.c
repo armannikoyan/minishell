@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ft_syntax.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
+/*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/22 19:38:41 by anikoyan          #+#    #+#             */
-/*   Updated: 2025/01/04 22:56:52 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/01/12 07:47:48 by gsimonia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,7 +59,7 @@ bool	has_matching_parentheses(t_list *lst)
 		token = (t_token *)tmp->content;
 		if (token->content[0] == '(')
 			parentheses_count++;
-		else if (token->content[0] == ')')
+		if (token->content[0] == ')' || token->content[1] == ')')
 		{
 			parentheses_count--;
 			if (parentheses_count < 0)

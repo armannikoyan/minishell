@@ -6,42 +6,13 @@
 /*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/15 17:05:49 by gsimonia          #+#    #+#             */
-/*   Updated: 2025/01/11 16:58:07 by gsimonia         ###   ########.fr       */
+/*   Updated: 2025/01/12 07:36:37 by gsimonia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../includes/minishell.h"
 
 extern int	g_errno;
-
-// static void	write_int_to_str(int value, char *str)
-// {
-// 	int		i;
-// 	int		len;
-// 	char	temp[20];
-
-// 	i = 0;
-// 	len = 0;
-// 	if (value == 0)
-// 	{
-// 		str[i++] = '0';
-// 		str[i] = '\0';
-// 		return ;
-// 	}
-// 	while (value > 0)
-// 	{
-// 		temp[len] = (value % 10) + '0';
-// 		value /= 10;
-// 		len++;
-// 	}
-// 	while (len > 0)
-// 	{
-// 		str[i] = temp[len - 1];
-// 		i++;
-// 		len--;
-// 	}
-// 	str[i] = '\0';
-// }
 
 static int	is_valid_number(const char *str)
 {
@@ -88,13 +59,14 @@ int	ft_exit(int argc, char **argv)
 			exit_code = 1;
 		else
 			exit_code = 255;
-		ft_report_error(NULL, "too many arguments", exit_code);
+		ft_report_error("exit:", " too many arguments", exit_code);
 	}
 	else if (argc == 2)
 	{
 		if (!is_valid_number(argv[1]))
 		{
-			ft_report_error(NULL, "numeric argument required", 255);
+			ft_report_error_arg("exit: ",
+				": numeric argument required", 255, argv[1]);
 			exit_code = 255;
 		}
 		else

@@ -3,12 +3,11 @@
 /*                                                        :::      ::::::::   */
 /*   ft_env_expansion_utils.c                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
+/*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/30 17:14:08 by anikoyan          #+#    #+#             */
-/*   Updated: 2025/01/11 13:11:32 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/01/12 07:43:21 by gsimonia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../includes/minishell.h"
-
