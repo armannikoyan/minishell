@@ -27,7 +27,7 @@ OBJS = $(SRCS:%.c=$(OBJ_DIR)/%.o)
 
 CC = cc
 CFLAGS = -Wall -Wextra -Werror
-INC = -I$(LIBFT_DIR) -I../readline/readline
+INC = -I$(LIBFT_DIR)
 LIBFT = $(LIBFT_DIR)/libft.a
 RL_LIB = ../readline/libreadline.a -lncurses
 
