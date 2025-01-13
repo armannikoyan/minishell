@@ -6,7 +6,7 @@
 /*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/15 17:05:49 by gsimonia          #+#    #+#             */
-/*   Updated: 2025/01/13 20:03:41 by gsimonia         ###   ########.fr       */
+/*   Updated: 2025/01/14 01:07:10 by gsimonia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,12 +44,12 @@ static long long	convert_to_exit_code(const char *str)
 	return (exit_code % 256);
 }
 
-static int kill_parent_process(int exit_code)
+static int	kill_parent_process(int exit_code)
 {
-    exit(exit_code);
+	exit(exit_code);
 }
 
-int ft_exit(int argc, char **argv)
+int	ft_exit(int argc, char **argv)
 {
 	// write (2, "exit\n", 5);
 	if (argc > 2)

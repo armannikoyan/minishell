@@ -90,3 +90,4 @@ docker-compose.yml
 # Add any other files or directories specific to your project that you want to ignore here
 obj/
 minishell
+minishell_tester

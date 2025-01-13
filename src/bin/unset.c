@@ -6,7 +6,7 @@
 /*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/15 17:07:38 by gsimonia          #+#    #+#             */
-/*   Updated: 2025/01/13 19:34:16 by gsimonia         ###   ########.fr       */
+/*   Updated: 2025/01/14 01:07:56 by gsimonia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,8 +31,6 @@ static int	is_valid_env_var_key_unset(const char *str)
 		return (0);
 	return (1);
 }
-
-
 
 static int	get_env_var_index(char **envp, const char *key)
 {
@@ -74,7 +72,8 @@ int	ft_unset(int argc, char **argv, char **envp)
 	{
 		if (!is_valid_env_var_key_unset(argv[i]))
 		{
-			ft_report_error_arg("unset: `", "': not a valid identifier", 1, argv[i]);
+			ft_report_error_arg("unset: `",
+				"': not a valid identifier", 1, argv[i]);
 			exit_status = EXIT_FAILURE;
 		}
 		else

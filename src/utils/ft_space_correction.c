@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ft_space_correction.c                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
+/*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/09 14:11:07 by anikoyan          #+#    #+#             */
-/*   Updated: 2025/01/13 07:35:12 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/01/14 02:30:38 by gsimonia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,16 +18,12 @@ static void	process_token(char *input, unsigned short *i, unsigned short *len)
 		(*len)++;
 	if (input[*i] == ')' && input[*i - 1] && !ft_isspace(input[*i - 1]))
 		(*len)++;
-	if (input[*i] == '|' && input[*i + 1] == '|')
-	{
-		(*len)++;
-		(*i)++;
-	}
-	else if ((input[*i] == '>' && input[*i + 1] == '>')
+	if ((input[*i] == '|' && input[*i + 1] == '|')
+		|| (input[*i] == '>' && input[*i + 1] == '>')
 		|| (input[*i] == '<' && input[*i + 1] == '<'))
 	{
-		(*len)++;
 		(*i)++;
+		(*len)++;
 	}
 	else if (input[*i] == '&')
 	{

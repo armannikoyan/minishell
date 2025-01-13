@@ -6,7 +6,7 @@
 /*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/22 19:38:41 by anikoyan          #+#    #+#             */
-/*   Updated: 2025/01/14 00:48:26 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/01/14 02:13:34 by gsimonia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,6 +46,23 @@ bool	has_operator_followed_by_operator(t_token *token, t_list *next)
 	return (false);
 }
 
+static bool	handle_parentheses_error(int parentheses_count)
+{
+	if (parentheses_count > 0)
+		return (ft_report_error("parse error near: ", "(", 1));
+	else if (parentheses_count < 0)
+		return (ft_report_error("parse error near: ", ")", 1));
+	return (false);
+}
+
+static void	update_quote_state(char current_char, char *quote, bool *in_quote)
+{
+	*quote = current_char;
+	*in_quote = !(*in_quote);
+	if (*in_quote == false)
+		*quote = 0;
+}
+
 bool	has_unmatching_parentheses(t_list *lst)
 {
 	t_token			*token;
@@ -63,25 +80,14 @@ bool	has_unmatching_parentheses(t_list *lst)
 	{
 		if ((token->content[i] == '\'' || token->content[i] == '\"')
 			&& ((token->content[i] == quote) || (quote == 0)))
-		{
-			quote = token->content[i];
-			in_quote = !in_quote;
-			if (in_quote == false)
-				quote = 0;
-		}
+			update_quote_state(token->content[i], &quote, &in_quote);
 		else if (token->content[i] == '(' && !in_quote)
 			parentheses_count++;
 		else if (token->content[i] == ')' && !in_quote)
 			parentheses_count--;
 		i++;
 	}
-	if (parentheses_count > 0)
-		return (ft_report_error("parse error near: ",
-				"(", 1));
-	else if (parentheses_count < 0)
-		return (ft_report_error("parse error near: ",
-				")", 1));
-	return (false);
+	return (handle_parentheses_error(parentheses_count));
 }
 
 bool	ft_has_syntax_error(t_list **lst)

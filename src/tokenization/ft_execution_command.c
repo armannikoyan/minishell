@@ -6,7 +6,7 @@
 /*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 16:22:41 by gsimonia          #+#    #+#             */
-/*   Updated: 2025/01/14 00:50:15 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/01/14 02:21:14 by gsimonia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,68 +41,88 @@ static void	handle_fork_and_execute(t_node *node, char **envp)
 	}
 }
 
-void	ft_expand_error_code(t_node *node)
+static unsigned short	calculate_new_length(const char *str, int g_errno)
 {
-	char			*output;
-	char			*tmp;
-	bool			inside_quote;
 	unsigned short	len;
-	unsigned short	i;
+	unsigned short	j;
+	bool			inside_quote;
+	char			*tmp;
+
+	len = ft_strlen(str);
+	j = 0;
+	inside_quote = false;
+	while (str[j])
+	{
+		if (str[j] == '\'')
+			inside_quote = !inside_quote;
+		if (ft_strncmp(str + j, "$?", 2) == 0 && !inside_quote)
+		{
+			len -= 2;
+			tmp = ft_itoa(g_errno);
+			len += ft_strlen(tmp);
+			free(tmp);
+		}
+		j++;
+	}
+	return (len);
+}
+
+static void	replace_error_codes(const char *input, char *output, int g_errno)
+{
 	unsigned short	j;
 	unsigned short	k;
+	bool			inside_quote;
+	char			*tmp;
 
-	if (!node)
-		return ;
+	j = 0;
+	k = 0;
+	inside_quote = false;
+	while (input[j])
+	{
+		if (input[j] == '\'')
+			inside_quote = !inside_quote;
+		if (ft_strncmp(input + j, "$?", 2) == 0 && !inside_quote)
+		{
+			tmp = ft_itoa(g_errno);
+			ft_strcpy(output + k, tmp);
+			k += ft_strlen(tmp);
+			free(tmp);
+			j += 2;
+		}
+		else
+			output[k++] = input[j++];
+	}
+	output[k] = '\0';
+}
+
+static void	process_node_content(t_node *node, int g_errno)
+{
+	unsigned short	len;
+	char			*output;
+	unsigned short	i;
+
 	i = 0;
 	while (node->content[i])
 	{
 		if (ft_strnstr(node->content[i], "$?", ft_strlen(node->content[i])))
 		{
-			len = ft_strlen(node->content[i]);
-			j = 0;
-			inside_quote = false;
-			while (node->content[i][j])
-			{
-				if (node->content[i][j] == '\'')
-					inside_quote = !inside_quote;
-				if (ft_strncmp(node->content[i] + j, "$?", 2) == 0
-					&& !inside_quote)
-				{
-					len -= 2;
-					tmp = ft_itoa(g_errno);
-					len += ft_strlen(tmp);
-					free(tmp);
-				}
-				j++;
-			}
+			len = calculate_new_length(node->content[i], g_errno);
 			output = (char *)malloc(sizeof(char) * (len + 1));
 			if (!output)
 				exit(EXIT_FAILURE);
-			j = 0;
-			k = 0;
-			inside_quote = false;
-			while (node->content[i][j])
-			{
-				if (node->content[i][j] == '\'')
-					inside_quote = !inside_quote;
-				if (ft_strncmp(node->content[i] + j, "$?", 2) == 0
-					&& !inside_quote)
-				{
-					tmp = ft_itoa(g_errno);
-					ft_strcpy(output + k, tmp);
-					k += ft_strlen(tmp);
-					free(tmp);
-					j += 2;
-				}
-				else
-					output[k++] = node->content[i][j++];
-			}
-			output[k] = '\0';
+			replace_error_codes(node->content[i], output, g_errno);
 			free(node->content[i]);
 			node->content[i] = output;
 		}
 		i++;
 	}
+}
+
+void	ft_expand_error_code(t_node *node)
+{
+	if (!node)
+		return ;
+	process_node_content(node, g_errno);
 }
 
 int	ft_mtx_strlen(char **mtx)

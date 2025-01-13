@@ -3,14 +3,79 @@
 /*                                                        :::      ::::::::   */
 /*   ft_syntax_tree.c                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
+/*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/04 12:47:00 by anikoyan          #+#    #+#             */
-/*   Updated: 2025/01/13 06:55:43 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/01/14 01:41:20 by gsimonia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../includes/minishell.h"
+
+static int	starts_with(const char *str, char c)
+{
+	return (ft_strncmp(str, &c, 1) == 0);
+}
+
+static int	is_redirection(const char *content)
+{
+	return (starts_with(content, '<') || starts_with(content, '>'));
+}
+
+static void	handle_pipe_operator(t_node *current, t_node *node)
+{
+	if (!current->right)
+		current->right = node;
+	else
+	{
+		node->left = current->right;
+		current->right = node;
+	}
+}
+
+static void	handle_same_operator(t_node *current, t_node *node)
+{
+	node->left = current->left;
+	node->right = current->right;
+	current->left = node;
+}
+
+static void	handle_input_with_output_root(t_node *current, t_node *node)
+{
+	node->left = current->left;
+	node->right = current->right;
+	current->left = node;
+	current->right = NULL;
+}
+
+static void	handle_default_redirection(t_tree *tree,
+		t_node *node, t_node *current)
+{
+	node->left = current;
+	tree->root = node;
+}
+
+static void	handle_redirection_operator(t_tree *tree,
+		t_node *node, t_node *current)
+{
+	if (ft_strcmp(current->content[0], "|") == 0)
+	{
+		handle_pipe_operator(current, node);
+	}
+	else if (ft_strcmp(current->content[0], node->content[0]) == 0)
+	{
+		handle_same_operator(current, node);
+	}
+	else if (starts_with(node->content[0], '<')
+		&& starts_with(tree->root->content[0], '>'))
+	{
+		handle_input_with_output_root(current, node);
+	}
+	else
+	{
+		handle_default_redirection(tree, node, current);
+	}
+}
 
 static void	add_operator_node(t_tree *tree, t_node *node)
 {
@@ -22,38 +87,9 @@ static void	add_operator_node(t_tree *tree, t_node *node)
 		tree->root = node;
 		return ;
 	}
-	if (ft_strncmp(node->content[0], "<", 1) == 0
-		|| ft_strncmp(node->content[0], ">", 1) == 0)
+	if (is_redirection(node->content[0]))
 	{
-		if (ft_strcmp(current->content[0], "|") == 0)
-		{
-			if (!current->right)
-				current->right = node;
-			else
-			{
-				node->left = current->right;
-				current->right = node;
-			}
-		}
-		else if (ft_strcmp(current->content[0], node->content[0]) == 0)
-		{
-			node->left = current->left;
-			node->right = current->right;
-			current->left = node;
-		}
-		else if (ft_strncmp(node->content[0], "<", 1) == 0
-			&& ft_strncmp(tree->root->content[0], ">", 1) == 0)
-		{
-			node->left = current->left;
-			node->right = current->right;
-			current->left = node;
-			current->right = NULL;
-		}
-		else
-		{
-			node->left = current;
-			tree->root = node;
-		}
+		handle_redirection_operator(tree, node, current);
 	}
 	else
 	{
