@@ -6,7 +6,7 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/04 12:47:00 by anikoyan          #+#    #+#             */
-/*   Updated: 2025/01/13 06:22:17 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/01/13 06:31:11 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@ static void add_operator_node(t_tree *tree, t_node *node)
 		tree->root = node;
 		return;
 	}
-	if (ft_strcmp(node->content[0], "<") == 0 || ft_strcmp(node->content[0], ">") == 0)
+	if (ft_strncmp(node->content[0], "<", 1) == 0 || ft_strncmp(node->content[0], ">", 1) == 0)
 	{
 		if (ft_strcmp(current->content[0], "|") == 0)
 		{
@@ -41,8 +41,8 @@ static void add_operator_node(t_tree *tree, t_node *node)
 			node->right = current->right;
 			current->left = node;
 		}
-		else if (ft_strcmp(node->content[0], "<") == 0
-			&& ft_strcmp(tree->root->content[0], ">") == 0)
+		else if (ft_strncmp(node->content[0], "<", 1) == 0
+			&& ft_strncmp(tree->root->content[0], ">", 1) == 0)
 		{
 			node->left = current->left;
 			node->right = current->right;
