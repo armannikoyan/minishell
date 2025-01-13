@@ -6,7 +6,7 @@
 /*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/22 19:38:41 by anikoyan          #+#    #+#             */
-/*   Updated: 2025/01/13 06:49:29 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/01/14 00:48:26 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,8 +89,6 @@ bool	ft_has_syntax_error(t_list **lst)
 	t_list	*tmp;
 	t_token	*token;
 
-	if (has_single_token_error(lst) || has_unmatching_parentheses(*lst))
-		return (true);
 	tmp = *lst;
 	while (tmp)
 	{

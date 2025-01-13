@@ -6,11 +6,33 @@
 /*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/15 17:07:38 by gsimonia          #+#    #+#             */
-/*   Updated: 2025/01/11 16:38:24 by gsimonia         ###   ########.fr       */
+/*   Updated: 2025/01/13 19:34:16 by gsimonia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../includes/minishell.h"
+
+static int	is_valid_env_var_key_unset(const char *str)
+{
+	int	i;
+
+	if (!str || !(*str) || (*str == '='))
+		return (0);
+	i = 0;
+	while (str[i] && str[i] != '=')
+	{
+		if (!(str[i] == '_' || (str[i] >= 'a' && str[i] <= 'z')
+				|| (str[i] >= 'A' && str[i] <= 'Z')
+				|| (i > 0 && str[i] >= '0' && str[i] <= '9')))
+			return (0);
+		i++;
+	}
+	if (str[i] == '=')
+		return (0);
+	return (1);
+}
+
+
 
 static int	get_env_var_index(char **envp, const char *key)
 {
@@ -50,9 +72,9 @@ int	ft_unset(int argc, char **argv, char **envp)
 		return (EXIT_SUCCESS);
 	while (i < argc)
 	{
-		if (!is_valid_env_var_key(argv[i]))
+		if (!is_valid_env_var_key_unset(argv[i]))
 		{
-			ft_report_error("unset", "not a valid identifier", 1);
+			ft_report_error_arg("unset: `", "': not a valid identifier", 1, argv[i]);
 			exit_status = EXIT_FAILURE;
 		}
 		else

@@ -6,7 +6,7 @@
 /*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 16:22:13 by gsimonia          #+#    #+#             */
-/*   Updated: 2025/01/09 09:22:41 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/01/14 01:03:00 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,16 +25,8 @@ void	ft_assign_argument_type(t_list **tmp)
 
 void	ft_assign_command_type(t_token *token, t_list **tmp)
 {
-	struct stat	statbuf;
-
-	if (stat(token->content, &statbuf) == 0 && !S_ISDIR(statbuf.st_mode)
-		&& (statbuf.st_mode & (S_IXUSR | S_IXGRP | S_IXOTH)))
-	{
-		token->type = 'X';
-		ft_assign_argument_type(tmp);
-	}
-	else
-		token->type = 'E';
+	token->type = 'X';
+	ft_assign_argument_type(tmp);
 }
 
 void	ft_assign_operator_type(t_list **tmp, t_token *token)

@@ -6,7 +6,7 @@
 /*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/15 17:06:01 by gsimonia          #+#    #+#             */
-/*   Updated: 2025/01/12 07:39:15 by gsimonia         ###   ########.fr       */
+/*   Updated: 2025/01/13 19:35:02 by gsimonia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,11 +46,11 @@ int	set_new_var(char **new_envp, char *key, char *value, int index)
 
 	if (!key || !value)
 	{
-		return (ft_report_error("export", "key or value is NULL", 1));
+		return (ft_report_error("export: ", "key or value is NULL", 1));
 	}
 	new_var = malloc(ft_strlen(key) + ft_strlen(value) + 2);
 	if (!new_var)
-		return (ft_report_error("export", "memory allocation failed", 1));
+		return (ft_report_error("export: ", "memory allocation failed", 1));
 	ft_strcpy(new_var, key);
 	ft_strcat(new_var, "=");
 	ft_strcat(new_var, value);
@@ -93,7 +93,7 @@ int	handle_export_argument(char *arg, char ***envp)
 
 	arg_copy = ft_strdup(arg);
 	if (!arg_copy)
-		return (ft_report_error("export", "memory allocation failed", 1));
+		return (ft_report_error("export: ", "memory allocation failed", 1));
 	key = ft_strtok(arg_copy, "=", &save_ptr);
 	value = ft_strtok(NULL, "=", &save_ptr);
 	if (set_env_var(envp, key, value) != EXIT_SUCCESS)

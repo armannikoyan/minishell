@@ -6,7 +6,7 @@
 /*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/15 17:05:49 by gsimonia          #+#    #+#             */
-/*   Updated: 2025/01/12 07:36:37 by gsimonia         ###   ########.fr       */
+/*   Updated: 2025/01/13 20:03:41 by gsimonia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,36 +44,30 @@ static long long	convert_to_exit_code(const char *str)
 	return (exit_code % 256);
 }
 
-static int	kill_parent_process(int exit_code)
+static int kill_parent_process(int exit_code)
 {
-	exit(exit_code);
+    exit(exit_code);
 }
 
-int	ft_exit(int argc, char **argv)
+int ft_exit(int argc, char **argv)
 {
-	long long	exit_code;
-
+	// write (2, "exit\n", 5);
 	if (argc > 2)
 	{
 		if (is_valid_number(argv[1]))
-			exit_code = 1;
+			ft_report_error("exit: ", "too many arguments", 1);
 		else
-			exit_code = 255;
-		ft_report_error("exit:", " too many arguments", exit_code);
+			ft_report_error_arg("exit: ", " too many arguments", 255, argv[1]);
 	}
 	else if (argc == 2)
 	{
 		if (!is_valid_number(argv[1]))
-		{
 			ft_report_error_arg("exit: ",
 				": numeric argument required", 255, argv[1]);
-			exit_code = 255;
-		}
 		else
-			exit_code = convert_to_exit_code(argv[1]);
+			g_errno = convert_to_exit_code(argv[1]);
 	}
 	else
-		exit_code = 0;
-	g_errno = exit_code;
-	return (kill_parent_process(exit_code));
+		g_errno = 0;
+	return (kill_parent_process(g_errno));
 }

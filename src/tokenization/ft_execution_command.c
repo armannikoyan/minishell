@@ -6,7 +6,7 @@
 /*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 16:22:41 by gsimonia          #+#    #+#             */
-/*   Updated: 2025/01/13 06:59:31 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/01/14 00:50:15 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -125,8 +125,11 @@ void	execute_command_in_child(t_node *node, char **envp)
 		ft_env(ft_mtx_strlen(node->content), node->content, envp);
 	else if (ft_strcmp(node->content[0], "pwd") == 0)
 		ft_pwd(ft_mtx_strlen(node->content), node->content);
-	else if (execve(node->content[0], node->content, envp) == -1)
-		ft_report_error(node->content[0], ": command not found", 127);
+	else
+	{
+		if (execve(node->content[0], node->content, envp) == -1)
+			ft_report_error(node->content[0], ": command not found", 127);
+	}
 	exit(g_errno);
 }
 
