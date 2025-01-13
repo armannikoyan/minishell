@@ -6,7 +6,7 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/09 14:11:07 by anikoyan          #+#    #+#             */
-/*   Updated: 2025/01/13 05:34:01 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/01/13 06:53:41 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,79 +50,74 @@ static unsigned short	calculate_output_length(char *input)
 	return (len);
 }
 
-static void	process_non_space_token(char *input, char *output, unsigned short *i, unsigned short *j)
+static void	process_non_space_token(char *input, char *output,
+		unsigned short *i, unsigned short *j)
 {
-	if (*j > 0 && output[*j - 1] != ' ' && output[*j - 1] != '(' && input[*i] == ')')
+	if (*j > 0 && output[*j - 1] != ' ' && output[*j - 1] != '('
+		&& input[*i] == ')')
 		output[(*j)++] = ' ';
-	if (ft_isoperator(&input[*i]) && *j > 0 && output[*j - 1] != ' ' && output[*j - 1] != '(')
+	if (ft_isoperator(&input[*i]) && *j > 0 && output[*j - 1] != ' '
+		&& output[*j - 1] != '(')
 		output[(*j)++] = ' ';
 	output[(*j)++] = input[(*i)++];
-	if (output[*j - 1] == '(' && input[*i] && !ft_isspace(input[*i]) && input[*i] != ')')
+	if (output[*j - 1] == '(' && input[*i] && !ft_isspace(input[*i])
+		&& input[*i] != ')')
 		output[(*j)++] = ' ';
 }
 
-static void process_input_string(char *input, char *output)
+static void	process_input_string(char *input, char *output)
 {
-	unsigned short i;
-	unsigned short j;
+	unsigned short	i;
+	unsigned short	j;
 
 	j = 0;
 	i = 0;
-	while (ft_isspace(input[i]))  // Skip initial spaces
+	while (ft_isspace(input[i]))
 		i++;
 	while (input[i])
 	{
-		// Process tokens that are not operators or spaces
 		while (!ft_isspace(input[i]) && ft_strncmp(&input[i], "&", 1)
-				&& !ft_isoperator(&input[i]) && input[i] != '\''
-				&& input[i] && input[i] != '\"')
+			&& !ft_isoperator(&input[i]) && input[i] != '\''
+			&& input[i] && input[i] != '\"')
 			process_non_space_token(input, output, &i, &j);
-
-		// Handle space before or after operators (like pipe)
 		if (input[i] && ft_isspace(input[i]))
 		{
-			if (output[j - 1] != ' ')  // Prevent consecutive spaces
+			if (output[j - 1] != ' ')
 				output[j++] = input[i];
 			while (input[i] && ft_isspace(input[i]))
 				i++;
 		}
-
-		// Special handling for pipe operator (|), redirections (<, >)
 		if (input[i] == '|')
 		{
 			if (j > 0 && output[j - 1] != ' ')
-				output[j++] = ' ';  // Ensure space before pipe
-			output[j++] = '|';  // Add pipe itself
+				output[j++] = ' ';
+			output[j++] = '|';
 			if (input[i + 1] && !ft_isspace(input[i + 1]))
-				output[j++] = ' ';  // Ensure space after pipe
+				output[j++] = ' ';
 			i++;
 		}
-		else if ((input[i] == '<' && input[i + 1] == '<') || (input[i] == '>' && input[i + 1] == '>'))
+		else if ((input[i] == '<' && input[i + 1] == '<')
+			|| (input[i] == '>' && input[i + 1] == '>'))
 		{
-			// Handle << and >> operators as single tokens
 			if (j > 0 && output[j - 1] != ' ')
-				output[j++] = ' ';  // Ensure space before redirection
-			output[j++] = input[i];  // Add the first character of the operator
-			output[j++] = input[i + 1];  // Add the second character of the operator
-			i += 2;  // Skip the next character
-			// Ensure space after redirection operator if next token is not a space
+				output[j++] = ' ';
+			output[j++] = input[i];
+			output[j++] = input[i + 1];
+			i += 2;
 			if (input[i] && !ft_isspace(input[i]))
 				output[j++] = ' ';
 		}
 		else if (input[i] == '<' || input[i] == '>')
 		{
-			// Handle single < or > as redirection
 			if (j > 0 && output[j - 1] != ' ')
-				output[j++] = ' ';  // Ensure space before redirection
-			output[j++] = input[i];  // Add redirection operator itself
+				output[j++] = ' ';
+			output[j++] = input[i];
 			i++;
-			// Ensure space after redirection operator if next token is not a space
 			if (input[i] && !ft_isspace(input[i]))
 				output[j++] = ' ';
 		}
 		else
 		{
-			// Copy the token to output as is
 			ft_copy_quotes(output, input, &j, &i);
 			handle_operator_copy(input, output, &i, &j);
 		}

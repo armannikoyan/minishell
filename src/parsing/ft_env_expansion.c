@@ -6,7 +6,7 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/25 14:49:16 by anikoyan          #+#    #+#             */
-/*   Updated: 2025/01/13 00:38:57 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/01/13 07:03:34 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,11 +22,11 @@ static unsigned short	ft_get_env_name_len(char *str)
 	return (i);
 }
 
-char    *ft_get_env(char *str, char **envp)
+char	*ft_get_env(char *str, char **envp)
 {
-	char            	*env;
-	unsigned short  env_len;
-	unsigned short  j;
+	char			*env;
+	unsigned short	env_len;
+	unsigned short	j;
 
 	env_len = ft_get_env_name_len(str);
 	env = (char *)malloc(sizeof(char) * (env_len + 2));
@@ -63,14 +63,16 @@ char	*ft_env_expansion(char *input, char **envp)
 	opened_quote = false;
 	while (input[i])
 	{
-		while (input[i] && (input[i] != '$' || (input[i] == '$' && opened_quote)))
+		while (input[i] && (input[i] != '$' || (input[i] == '$'
+					&& opened_quote)))
 		{
 			if (input[i] == '\'')
 				opened_quote = !opened_quote;
 			len++;
 			i++;
 		}
-		if (input[i] && ((input[i + 1] && !ft_isalnum(input[i + 1])) || !input[i + 1]))
+		if (input[i] && ((input[i + 1] && !ft_isalnum(input[i + 1]))
+				|| !input[i + 1]))
 		{
 			i++;
 			len++;
@@ -95,13 +97,15 @@ char	*ft_env_expansion(char *input, char **envp)
 	j = 0;
 	while (input[i])
 	{
-		while (input[i] && (input[i] != '$' || (input[i] == '$' && opened_quote)))
+		while (input[i] && (input[i] != '$' || (input[i] == '$'
+					&& opened_quote)))
 		{
 			if (input[i] == '\'')
 				opened_quote = !opened_quote;
 			output[j++] = input[i++];
 		}
-		if (input[i] && ((input[i + 1] && !ft_isalnum(input[i + 1])) || !input[i + 1]))
+		if (input[i] && ((input[i + 1] && !ft_isalnum(input[i + 1]))
+				|| !input[i + 1]))
 		{
 			output[j] = input[i];
 			i++;

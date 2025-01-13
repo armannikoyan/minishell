@@ -6,7 +6,7 @@
 /*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/22 19:38:41 by anikoyan          #+#    #+#             */
-/*   Updated: 2025/01/13 00:46:11 by gsimonia         ###   ########.fr       */
+/*   Updated: 2025/01/13 06:49:29 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,11 +48,11 @@ bool	has_operator_followed_by_operator(t_token *token, t_list *next)
 
 bool	has_unmatching_parentheses(t_list *lst)
 {
-	t_token	*token;
+	t_token			*token;
 	unsigned short	i;
-	int	parentheses_count;
-	char	quote;
-	bool	in_quote;
+	int				parentheses_count;
+	char			quote;
+	bool			in_quote;
 
 	parentheses_count = 0;
 	in_quote = false;
@@ -77,10 +77,10 @@ bool	has_unmatching_parentheses(t_list *lst)
 	}
 	if (parentheses_count > 0)
 		return (ft_report_error("parse error near: ",
-					"(", 1));
+				"(", 1));
 	else if (parentheses_count < 0)
 		return (ft_report_error("parse error near: ",
-					")", 1));
+				")", 1));
 	return (false);
 }
 

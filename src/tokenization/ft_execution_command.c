@@ -6,7 +6,7 @@
 /*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 16:22:41 by gsimonia          #+#    #+#             */
-/*   Updated: 2025/01/13 03:01:17 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/01/13 06:59:31 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,7 +65,8 @@ void	ft_expand_error_code(t_node *node)
 			{
 				if (node->content[i][j] == '\'')
 					inside_quote = !inside_quote;
-				if (ft_strncmp(node->content[i] + j, "$?", 2) == 0 && !inside_quote)
+				if (ft_strncmp(node->content[i] + j, "$?", 2) == 0
+					&& !inside_quote)
 				{
 					len -= 2;
 					tmp = ft_itoa(g_errno);
@@ -84,7 +85,8 @@ void	ft_expand_error_code(t_node *node)
 			{
 				if (node->content[i][j] == '\'')
 					inside_quote = !inside_quote;
-				if (ft_strncmp(node->content[i] + j, "$?", 2) == 0 && !inside_quote)
+				if (ft_strncmp(node->content[i] + j, "$?", 2) == 0
+					&& !inside_quote)
 				{
 					tmp = ft_itoa(g_errno);
 					ft_strcpy(output + k, tmp);

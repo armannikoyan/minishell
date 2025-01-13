@@ -6,7 +6,7 @@
 /*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 16:22:38 by gsimonia          #+#    #+#             */
-/*   Updated: 2025/01/13 00:42:06 by gsimonia         ###   ########.fr       */
+/*   Updated: 2025/01/13 06:58:51 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@ extern int	g_errno;
 
 void	handle_open_error(void)
 {
-	ft_printf("minishell: ");	
+	ft_printf("minishell: ");
 	perror("open failed");
 	g_errno = 1;
 }
