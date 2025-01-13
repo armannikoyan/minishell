@@ -6,7 +6,7 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/09 14:11:07 by anikoyan          #+#    #+#             */
-/*   Updated: 2025/01/13 06:53:41 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/01/13 07:32:19 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,28 @@ static void	process_token(char *input, unsigned short *i, unsigned short *len)
 		(*len)++;
 	if (input[*i] == ')' && input[*i - 1] && !ft_isspace(input[*i - 1]))
 		(*len)++;
-	(*len)++;
+	if (input[*i] == '|' && input[*i + 1] == '|')
+	{
+		(*len)++;
+		(*i)++;
+	}
+	else if ((input[*i] == '>' && input[*i + 1] == '>')
+		|| (input[*i] == '<' && input[*i + 1] == '<'))
+	{
+		(*len)++;
+		(*i)++;
+	}
+	else if (input[*i] == '&')
+	{
+		(*len)++;
+		while (input[*i + 1] == '&' || input[*i + 1] == '&')
+		{
+			(*i)++;
+			(*len)++;
+		}
+	}
+	else
+		(*len)++;
 	(*i)++;
 }
 
@@ -83,21 +104,22 @@ static void	process_input_string(char *input, char *output)
 		if (input[i] && ft_isspace(input[i]))
 		{
 			if (output[j - 1] != ' ')
-				output[j++] = input[i];
+				output[j++] = ' ';
 			while (input[i] && ft_isspace(input[i]))
 				i++;
 		}
-		if (input[i] == '|')
+		if (input[i] == '|' && input[i + 1] == '|')
 		{
 			if (j > 0 && output[j - 1] != ' ')
 				output[j++] = ' ';
 			output[j++] = '|';
-			if (input[i + 1] && !ft_isspace(input[i + 1]))
+			output[j++] = '|';
+			if (input[i + 2] && !ft_isspace(input[i + 2]))
 				output[j++] = ' ';
-			i++;
+			i += 2;
 		}
-		else if ((input[i] == '<' && input[i + 1] == '<')
-			|| (input[i] == '>' && input[i + 1] == '>'))
+		else if ((input[i] == '>' && input[i + 1] == '>')
+			|| (input[i] == '<' && input[i + 1] == '<'))
 		{
 			if (j > 0 && output[j - 1] != ' ')
 				output[j++] = ' ';
@@ -107,14 +129,19 @@ static void	process_input_string(char *input, char *output)
 			if (input[i] && !ft_isspace(input[i]))
 				output[j++] = ' ';
 		}
-		else if (input[i] == '<' || input[i] == '>')
+		else if (input[i] == '&')
 		{
 			if (j > 0 && output[j - 1] != ' ')
 				output[j++] = ' ';
-			output[j++] = input[i];
-			i++;
-			if (input[i] && !ft_isspace(input[i]))
+			output[j++] = '&';
+			if (input[i + 1] == '&')
+			{
+				output[j++] = '&';
+				i++;
+			}
+			if (input[i + 1] && !ft_isspace(input[i + 1]))
 				output[j++] = ' ';
+			i++;
 		}
 		else
 		{
@@ -131,9 +158,12 @@ char	*ft_space_correction(char *input)
 	unsigned short	len;
 
 	len = calculate_output_length(input);
+	ft_printf("calc len: %d\n", len);
 	output = (char *)malloc(sizeof(char) * (len + 1));
 	if (!output)
 		return (NULL);
 	process_input_string(input, output);
+	ft_printf("%s\n", output);
+	ft_printf("len: %d\n", ft_strlen(output));
 	return (output);
 }
