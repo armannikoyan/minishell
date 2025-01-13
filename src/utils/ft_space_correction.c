@@ -6,7 +6,7 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/09 14:11:07 by anikoyan          #+#    #+#             */
-/*   Updated: 2025/01/13 07:32:19 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/01/13 07:35:12 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -158,12 +158,9 @@ char	*ft_space_correction(char *input)
 	unsigned short	len;
 
 	len = calculate_output_length(input);
-	ft_printf("calc len: %d\n", len);
 	output = (char *)malloc(sizeof(char) * (len + 1));
 	if (!output)
 		return (NULL);
 	process_input_string(input, output);
-	ft_printf("%s\n", output);
-	ft_printf("len: %d\n", ft_strlen(output));
 	return (output);
 }
