@@ -6,7 +6,7 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/22 20:33:00 by anikoyan          #+#    #+#             */
-/*   Updated: 2025/01/07 22:35:16 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/01/14 00:15:11 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -113,8 +113,7 @@ t_list	**ft_tokenization(char *input)
 		ft_lstadd_back(lst, tmp);
 	}
 	ft_assign_token_type(&lst);
-	if (!ft_process_path_patterns(lst))
-		ft_lstclear(lst, ft_tokendelone);
+	ft_process_path_patterns(lst);
 	ft_assign_subshell_levels(lst);
 	return (lst);
 }
