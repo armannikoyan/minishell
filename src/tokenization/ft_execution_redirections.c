@@ -6,7 +6,7 @@
 /*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 16:22:30 by gsimonia          #+#    #+#             */
-/*   Updated: 2025/01/13 06:58:26 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/01/14 16:30:04 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,8 +24,8 @@ static int	ft_open_file_for_input_redirection(const char *filepath)
 	if (fd == -1)
 	{
 		error_msg = (char *)malloc(sizeof(char)
-				* (ft_strlen("minishell: ") + ft_strlen(filepath) + 1));
-		ft_strcpy(error_msg, "minishell: ");
+				* (ft_strlen("\001\x1b[31mminishell:\033[0m\002: ") + ft_strlen(filepath) + 1));
+		ft_strcpy(error_msg, "\001\x1b[31mminishell:\033[0m\002 ");
 		i = 0;
 		while (error_msg[i])
 			i++;
@@ -41,6 +41,7 @@ void	ft_handle_input_redirection(t_node *node, char ***envp)
 {
 	int		fd;
 	pid_t	pid;
+	int		status;
 
 	if (!node || !node->left || !node->content[1])
 		return ;
@@ -55,7 +56,11 @@ void	ft_handle_input_redirection(t_node *node, char ***envp)
 	else
 	{
 		close(fd);
-		waitpid(pid, NULL, 0);
+		waitpid(pid, &status, 0);
+		if (WIFEXITED(status))
+			g_errno = WEXITSTATUS(status);
+		else
+			g_errno = 1;
 	}
 }
 
@@ -69,8 +74,8 @@ static int	ft_open_file_for_redirection(const char *filepath, int flags)
 	if (fd == -1)
 	{
 		error_msg = (char *)malloc(sizeof(char)
-				* (ft_strlen("minishell: ") + ft_strlen(filepath) + 1));
-		ft_strcpy(error_msg, "minishell: ");
+				* (ft_strlen("\001\x1b[31mminishell:\033[0m\002: ") + ft_strlen(filepath) + 1));
+		ft_strcpy(error_msg, "\001\x1b[31mminishell:\033[0m\002 ");
 		i = 0;
 		while (error_msg[i])
 			i++;
@@ -86,6 +91,7 @@ void	ft_handle_output_redirection(t_node *node, char ***envp, int flags)
 {
 	int		fd;
 	pid_t	pid;
+	int		status;
 
 	if (!node || !node->left)
 		return ;
@@ -100,12 +106,18 @@ void	ft_handle_output_redirection(t_node *node, char ***envp, int flags)
 	else
 	{
 		close(fd);
-		waitpid(pid, NULL, 0);
+		waitpid(pid, &status, 0);
+		if (WIFEXITED(status))
+			g_errno = WEXITSTATUS(status);
+		else
+			g_errno = 1;
 	}
 }
 
 void	ft_execute_input_child_process(t_node *node, char ***envp, int fd)
 {
+	if (fd == -1)
+		exit(g_errno);
 	dup2(fd, STDIN_FILENO);
 	close(fd);
 	ft_exec(&(t_tree){node->left}, envp);

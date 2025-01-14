@@ -6,7 +6,7 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/13 18:44:10 by anikoyan          #+#    #+#             */
-/*   Updated: 2025/01/12 09:21:03 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/01/14 16:18:31 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,6 +68,8 @@ void	ft_exec_command(t_node *node,
 
 void	ft_execute_child_process(t_node *node, char ***envp, int fd)
 {
+	if (fd == -1)
+		exit(g_errno);
 	dup2(fd, STDOUT_FILENO);
 	close(fd);
 	ft_exec(&(t_tree){node->left}, envp);
@@ -95,11 +97,23 @@ void	ft_exec_operator(t_node *node,
 			ft_exec_with_level(node->right, envp, current_level);
 	}
 	else if (ft_strcmp(node->content[0], "<") == 0)
+	{
 		ft_handle_input_redirection(node, envp);
+		if (g_errno != 0)
+			return ;
+	}
 	else if (ft_strcmp(node->content[0], ">") == 0)
+	{
 		ft_handle_output_redirection(node, envp, O_TRUNC);
+		if (g_errno != 0)
+			return ;
+	}
 	else if (ft_strcmp(node->content[0], ">>") == 0)
+	{
 		ft_handle_output_redirection(node, envp, O_APPEND);
+		if (g_errno != 0)
+			return ;
+	}
 	else if (ft_strcmp(node->content[0], "<<") == 0)
 		ft_handle_heredoc(node, envp);
 }

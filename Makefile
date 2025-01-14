@@ -1,6 +1,6 @@
 CFLAGS = -Wall -Wextra -Werror -I$(LIBFT_DIR) -I/opt/homebrew/opt/readline/include
 LDFLAGS = -L/opt/homebrew/opt/readline/lib
-LIBS = -lreadline -lncurses
+LIBS = -lreadline
 
 NAME = minishell
 SRC_DIR = src
