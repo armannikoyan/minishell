@@ -6,7 +6,7 @@
 /*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/25 14:49:16 by anikoyan          #+#    #+#             */
-/*   Updated: 2025/01/14 19:15:25 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/01/14 20:15:42 by gsimonia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -146,12 +146,12 @@ char	*ft_finalize_output(char *output)
 	return (output);
 }
 
-void process_input(char *input, char **envp, char *output, unsigned short *i)
+void	process_input(char *input, char **envp, char *output, unsigned short *i)
 {
-	unsigned short j;
-	char *tmp;
-	bool single_quote;
-	bool double_quote;
+	unsigned short	j;
+	char			*tmp;
+	bool			single_quote;
+	bool			double_quote;
 
 	j = 0;
 	single_quote = false;
@@ -181,7 +181,8 @@ void process_input(char *input, char **envp, char *output, unsigned short *i)
 			else
 			{
 				output[j++] = '$';
-				if (input[*i]) output[j++] = input[(*i)++];
+				if (input[*i])
+					output[j++] = input[(*i)++];
 			}
 		}
 		else
@@ -190,11 +191,11 @@ void process_input(char *input, char **envp, char *output, unsigned short *i)
 	output[j] = '\0';
 }
 
-char *ft_env_expansion(char *input, char **envp)
+char	*ft_env_expansion(char *input, char **envp)
 {
-	char *output;
-	unsigned short i;
-	unsigned short len;
+	char			*output;
+	unsigned short	i;
+	unsigned short	len;
 
 	len = calculate_env_length(input, envp);
 	output = (char *)malloc(sizeof(char) * (len + 1));
@@ -204,4 +205,3 @@ char *ft_env_expansion(char *input, char **envp)
 	process_input(input, envp, output, &i);
 	return (ft_finalize_output(output));
 }
-

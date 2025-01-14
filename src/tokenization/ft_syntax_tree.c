@@ -6,7 +6,7 @@
 /*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/04 12:47:00 by anikoyan          #+#    #+#             */
-/*   Updated: 2025/01/14 17:48:43 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/01/14 20:11:46 by gsimonia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,10 +56,10 @@ static void	handle_redirection_operator(t_tree *tree,
 		handle_pipe_operator(current, node);
 	}
 	else if (ft_strcmp(current->content[0], node->content[0]) == 0
-			|| (starts_with(node->content[0], '<')
-				&& starts_with(tree->root->content[0], '>'))
-			|| (starts_with(node->content[0], '>')
-				&& starts_with(tree->root->content[0], '<')))
+		|| (starts_with(node->content[0], '<')
+			&& starts_with(tree->root->content[0], '>'))
+		|| (starts_with(node->content[0], '>')
+			&& starts_with(tree->root->content[0], '<')))
 		handle_no_root_change(current, node);
 	else
 	{

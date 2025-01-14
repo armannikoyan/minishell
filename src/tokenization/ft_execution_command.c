@@ -6,7 +6,7 @@
 /*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 16:22:41 by gsimonia          #+#    #+#             */
-/*   Updated: 2025/01/14 14:37:19 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/01/14 20:12:58 by gsimonia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -141,19 +141,20 @@ void	ft_check_x_for_errors(t_node *node)
 	int			status;
 
 	status = stat(node->content[0], &statbuf);
-
 	if (status == 0)
 	{
 		if (S_ISDIR(statbuf.st_mode))
 		{
-			if (ft_strncmp(node->content[0], "./", 2) == 0 || ft_strncmp(node->content[0], "/", 1) == 0)
+			if (ft_strncmp(node->content[0], "./", 2) == 0
+				|| ft_strncmp(node->content[0], "/", 1) == 0)
 				ft_report_error(node->content[0], ": is a directory", 126);
 			else
 				ft_report_error(node->content[0], ": command not found", 127);
 		}
 		else if (!(statbuf.st_mode & S_IXUSR))
 		{
-			if (ft_strncmp(node->content[0], "./", 2) == 0 || ft_strncmp(node->content[0], "/", 1) == 0)
+			if (ft_strncmp(node->content[0], "./", 2) == 0
+				|| ft_strncmp(node->content[0], "/", 1) == 0)
 				ft_report_error(node->content[0], ": Permission denied", 126);
 			else
 				ft_report_error(node->content[0], ": command not found", 127);
@@ -161,7 +162,8 @@ void	ft_check_x_for_errors(t_node *node)
 	}
 	else
 	{
-		if (ft_strncmp(node->content[0], "./", 2) == 0 || ft_strncmp(node->content[0], "/", 1) == 0)
+		if (ft_strncmp(node->content[0], "./", 2) == 0
+			|| ft_strncmp(node->content[0], "/", 1) == 0)
 			ft_report_error(node->content[0], ": No such file or directory", 127);
 		else
 			ft_report_error(node->content[0], ": command not found", 127);
