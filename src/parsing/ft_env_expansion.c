@@ -6,7 +6,7 @@
 /*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/25 14:49:16 by anikoyan          #+#    #+#             */
-/*   Updated: 2025/01/14 18:12:09 by gsimonia         ###   ########.fr       */
+/*   Updated: 2025/01/14 19:15:25 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -146,45 +146,62 @@ char	*ft_finalize_output(char *output)
 	return (output);
 }
 
-void	process_input(char *input, char **envp, char *output, unsigned short *i)
+void process_input(char *input, char **envp, char *output, unsigned short *i)
 {
-	unsigned short	j;
-	char			*tmp;
+	unsigned short j;
+	char *tmp;
+	bool single_quote;
+	bool double_quote;
 
 	j = 0;
+	single_quote = false;
+	double_quote = false;
 	while (input[*i])
 	{
-		ft_process_quotes(input, i, output, &j);
-		if (input[*i] && ((input[*i + 1]
-					&& !ft_isalnum(input[*i + 1])) || !input[*i + 1]))
-			output = ft_handle_dollar_sign(input, output, i, &j);
-		else if (input[*i])
+		if (input[*i] == '\'' && !double_quote)
+		{
+			single_quote = !single_quote;
+			output[j++] = input[(*i)++];
+		}
+		else if (input[*i] == '"' && !single_quote)
+		{
+			double_quote = !double_quote;
+			output[j++] = input[(*i)++];
+		}
+		else if (input[*i] == '$' && !single_quote)
 		{
 			(*i)++;
-			if (input[*i] && input[*i] != '?')
+			if (input[*i] && ft_isalnum(input[*i]))
 			{
 				tmp = ft_get_env(input + *i, envp);
 				ft_strcpy(output + j, tmp);
 				j += ft_strlen(tmp);
 				*i += ft_get_env_name_len(input + *i);
 			}
-			else if (input[*i])
-				output[j++] = input[(*i)++];
+			else
+			{
+				output[j++] = '$';
+				if (input[*i]) output[j++] = input[(*i)++];
+			}
 		}
+		else
+			output[j++] = input[(*i)++];
 	}
 	output[j] = '\0';
 }
 
-char	*ft_env_expansion(char *input, char **envp)
+char *ft_env_expansion(char *input, char **envp)
 {
-	char			*output;
-	unsigned short	i;
+	char *output;
+	unsigned short i;
+	unsigned short len;
 
-	i = calculate_env_length(input, envp);
-	output = (char *)malloc(sizeof(char) * (i + 1));
+	len = calculate_env_length(input, envp);
+	output = (char *)malloc(sizeof(char) * (len + 1));
 	if (!output)
 		return (NULL);
 	i = 0;
 	process_input(input, envp, output, &i);
 	return (ft_finalize_output(output));
 }
+

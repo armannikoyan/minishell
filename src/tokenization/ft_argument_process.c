@@ -6,7 +6,7 @@
 /*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 16:22:55 by gsimonia          #+#    #+#             */
-/*   Updated: 2025/01/09 16:22:56 by gsimonia         ###   ########.fr       */
+/*   Updated: 2025/01/14 19:39:08 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,7 +53,7 @@ bool	ft_list_files_in_directory_with_pattern(const char *path, t_list *lst,
 		entry = readdir(dir);
 	}
 	if (!mf)
-		return (ft_handle_no_matches_found(lst, dir));
+		return (ft_handle_no_matches_found(dir));
 	return (ft_close_directory(dir));
 }
 

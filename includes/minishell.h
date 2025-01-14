@@ -6,7 +6,7 @@
 /*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/18 17:00:14 by anikoyan          #+#    #+#             */
-/*   Updated: 2025/01/14 12:46:21 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/01/14 19:38:36 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -121,7 +121,7 @@ pid_t			ft_fork_process(void);
 
 unsigned short	ft_path_len(char *str);
 
-bool			ft_handle_no_matches_found(t_list *lst, DIR *dir);
+bool			ft_handle_no_matches_found(DIR *dir);
 bool			ft_skip_entry(struct dirent *entry, const char *prefix);
 bool			ft_is_pattern_match(t_token *token);
 bool			ft_identify_command(t_token **token, char **path);

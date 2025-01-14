@@ -6,7 +6,7 @@
 /*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 16:22:48 by gsimonia          #+#    #+#             */
-/*   Updated: 2025/01/09 16:22:49 by gsimonia         ###   ########.fr       */
+/*   Updated: 2025/01/14 19:38:24 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,10 +50,8 @@ bool	ft_is_matching_pattern(const char *entry_name,
 	return (false);
 }
 
-bool	ft_handle_no_matches_found(t_list *lst, DIR *dir)
+bool	ft_handle_no_matches_found(DIR *dir)
 {
-	ft_report_error("no matches found: ",
-		((t_token *)lst->content)->content, 1);
 	ft_close_directory(dir);
 	return (false);
 }
