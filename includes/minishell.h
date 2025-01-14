@@ -6,7 +6,7 @@
 /*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/18 17:00:14 by anikoyan          #+#    #+#             */
-/*   Updated: 2025/01/13 00:22:24 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/01/14 12:46:21 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,7 @@
 # include <dirent.h>
 # include <fcntl.h>
 # include <string.h>
+# include <errno.h>
 
 # include "../libs/libft/libft.h"
 

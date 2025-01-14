@@ -6,7 +6,7 @@
 /*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/04 12:47:00 by anikoyan          #+#    #+#             */
-/*   Updated: 2025/01/14 01:41:20 by gsimonia         ###   ########.fr       */
+/*   Updated: 2025/01/14 12:43:58 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -132,8 +132,6 @@ t_tree	*ft_tree_build(t_list **lst)
 	t_list	*tmp;
 	t_node	*new_node;
 
-	if (!lst || !*lst)
-		return (NULL);
 	tree = ft_tree_ctor();
 	if (!tree)
 		exit(EXIT_FAILURE);
