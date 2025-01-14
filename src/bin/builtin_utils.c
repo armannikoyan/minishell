@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   builtin_utils.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
+/*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/22 23:35:11 by anikoyan          #+#    #+#             */
-/*   Updated: 2025/01/06 18:24:02 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/01/14 14:21:37 by gsimonia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,33 +62,4 @@ char	*ft_strtok(char *str, const char *delimiters, char **save_ptr)
 		(*save_ptr)++;
 	}
 	return (token);
-}
-
-long long	ft_long_atoi(const char *str)
-{
-	long long	i;
-	long long	j;
-	long long	min;
-
-	i = 0;
-	j = 0;
-	min = 1;
-	while (str[i] == ' ' || str[i] == '\t' || str[i] == '\r'
-		|| str[i] == '\v' || str[i] == '\f' || str[i] == '\n')
-		i++;
-	if (str[i] == '-' || str[i] == '+')
-	{
-		if (str[i] == '-')
-			min = -1;
-		i++;
-	}
-	if (str[i] == '\0')
-		return (0);
-	while (str[i] >= '0' && str[i] <= '9')
-	{
-		j *= 10;
-		j += (str[i] - '0');
-		i++;
-	}
-	return (j * min);
 }

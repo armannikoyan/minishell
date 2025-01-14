@@ -6,7 +6,7 @@
 /*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/09 14:11:07 by anikoyan          #+#    #+#             */
-/*   Updated: 2025/01/14 02:30:38 by gsimonia         ###   ########.fr       */
+/*   Updated: 2025/01/14 14:31:48 by gsimonia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,6 +82,85 @@ static void	process_non_space_token(char *input, char *output,
 		output[(*j)++] = ' ';
 }
 
+static void	skip_initial_spaces(char *input, unsigned short *i)
+{
+	while (ft_isspace(input[*i]))
+		(*i)++;
+}
+
+static void	handle_double_pipe(char *output,
+		unsigned short *j, unsigned short *i)
+{
+	if (*j > 0 && output[*j - 1] != ' ')
+		output[(*j)++] = ' ';
+	output[(*j)++] = '|';
+	output[(*j)++] = '|';
+	if (*(i + 2) && !ft_isspace(*(i + 2)))
+		output[(*j)++] = ' ';
+	*i += 2;
+}
+
+static void	handle_double_redir(char *input, char *output,
+		unsigned short *i, unsigned short *j)
+{
+	if (*j > 0 && output[*j - 1] != ' ')
+		output[(*j)++] = ' ';
+	output[(*j)++] = input[*i];
+	output[(*j)++] = input[*i + 1];
+	*i += 2;
+	if (input[*i] && !ft_isspace(input[*i]))
+		output[(*j)++] = ' ';
+}
+
+static void	handle_ampersand(char *input, char *output,
+		unsigned short *i, unsigned short *j)
+{
+	if (*j > 0 && output[*j - 1] != ' ')
+		output[(*j)++] = ' ';
+	output[(*j)++] = '&';
+	if (input[*i + 1] == '&')
+	{
+		output[(*j)++] = '&';
+		(*i)++;
+	}
+	if (input[*i + 1] && !ft_isspace(input[*i + 1]))
+		output[(*j)++] = ' ';
+	(*i)++;
+}
+
+static void	handle_whitespace(char *input, char *output,
+		unsigned short *i, unsigned short *j)
+{
+	if (output[*j - 1] != ' ')
+		output[(*j)++] = ' ';
+	while (input[*i] && ft_isspace(input[*i]))
+		(*i)++;
+}
+
+static bool	is_regular_char(char *input, unsigned short i)
+{
+	return (!ft_isspace(input[i]) && ft_strncmp(&input[i], "&", 1)
+		&& !ft_isoperator(&input[i]) && input[i] != '\''
+		&& input[i] && input[i] != '\"');
+}
+
+static void	process_special_operators(char *input, char *output,
+		unsigned short *i, unsigned short *j)
+{
+	if (input[*i] == '|' && input[*i + 1] == '|')
+		handle_double_pipe(output, j, i);
+	else if ((input[*i] == '>' && input[*i + 1] == '>')
+		|| (input[*i] == '<' && input[*i + 1] == '<'))
+		handle_double_redir(input, output, i, j);
+	else if (input[*i] == '&')
+		handle_ampersand(input, output, i, j);
+	else
+	{
+		ft_copy_quotes(output, input, j, i);
+		handle_operator_copy(input, output, i, j);
+	}
+}
+
 static void	process_input_string(char *input, char *output)
 {
 	unsigned short	i;
@@ -89,61 +168,15 @@ static void	process_input_string(char *input, char *output)
 
 	j = 0;
 	i = 0;
-	while (ft_isspace(input[i]))
-		i++;
+	skip_initial_spaces(input, &i);
 	while (input[i])
 	{
-		while (!ft_isspace(input[i]) && ft_strncmp(&input[i], "&", 1)
-			&& !ft_isoperator(&input[i]) && input[i] != '\''
-			&& input[i] && input[i] != '\"')
+		while (is_regular_char(input, i))
 			process_non_space_token(input, output, &i, &j);
 		if (input[i] && ft_isspace(input[i]))
-		{
-			if (output[j - 1] != ' ')
-				output[j++] = ' ';
-			while (input[i] && ft_isspace(input[i]))
-				i++;
-		}
-		if (input[i] == '|' && input[i + 1] == '|')
-		{
-			if (j > 0 && output[j - 1] != ' ')
-				output[j++] = ' ';
-			output[j++] = '|';
-			output[j++] = '|';
-			if (input[i + 2] && !ft_isspace(input[i + 2]))
-				output[j++] = ' ';
-			i += 2;
-		}
-		else if ((input[i] == '>' && input[i + 1] == '>')
-			|| (input[i] == '<' && input[i + 1] == '<'))
-		{
-			if (j > 0 && output[j - 1] != ' ')
-				output[j++] = ' ';
-			output[j++] = input[i];
-			output[j++] = input[i + 1];
-			i += 2;
-			if (input[i] && !ft_isspace(input[i]))
-				output[j++] = ' ';
-		}
-		else if (input[i] == '&')
-		{
-			if (j > 0 && output[j - 1] != ' ')
-				output[j++] = ' ';
-			output[j++] = '&';
-			if (input[i + 1] == '&')
-			{
-				output[j++] = '&';
-				i++;
-			}
-			if (input[i + 1] && !ft_isspace(input[i + 1]))
-				output[j++] = ' ';
-			i++;
-		}
-		else
-		{
-			ft_copy_quotes(output, input, &j, &i);
-			handle_operator_copy(input, output, &i, &j);
-		}
+			handle_whitespace(input, output, &i, &j);
+		else if (input[i])
+			process_special_operators(input, output, &i, &j);
 	}
 	output[j] = '\0';
 }
