@@ -6,7 +6,7 @@
 /*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 16:22:41 by gsimonia          #+#    #+#             */
-/*   Updated: 2025/01/14 20:12:58 by gsimonia         ###   ########.fr       */
+/*   Updated: 2025/01/14 20:22:12 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -175,7 +175,7 @@ void	execute_command_in_child(t_node *node, char **envp)
 	signal(SIGINT, ft_child_signal_handler);
 	signal(SIGQUIT, SIG_IGN);
 	if (ft_strcmp(node->content[0], "echo") == 0)
-		ft_echo(ft_mtx_strlen(node->content), node->content);
+		g_errno = ft_echo(ft_mtx_strlen(node->content), node->content);
 	else if (ft_strcmp(node->content[0], "env") == 0)
 		ft_env(ft_mtx_strlen(node->content), node->content, envp);
 	else if (ft_strcmp(node->content[0], "pwd") == 0)
