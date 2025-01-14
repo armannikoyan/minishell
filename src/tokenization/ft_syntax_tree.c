@@ -6,7 +6,7 @@
 /*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/04 12:47:00 by anikoyan          #+#    #+#             */
-/*   Updated: 2025/01/14 17:00:01 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/01/14 17:48:43 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,14 +33,7 @@ static void	handle_pipe_operator(t_node *current, t_node *node)
 	}
 }
 
-static void	handle_same_operator(t_node *current, t_node *node)
-{
-	node->left = current->left;
-	node->right = current->right;
-	current->left = node;
-}
-
-static void	handle_input_with_output_root(t_node *current, t_node *node)
+static void	handle_no_root_change(t_node *current, t_node *node)
 {
 	node->left = current->left;
 	node->right = current->right;
@@ -62,15 +55,12 @@ static void	handle_redirection_operator(t_tree *tree,
 	{
 		handle_pipe_operator(current, node);
 	}
-	else if (ft_strcmp(current->content[0], node->content[0]) == 0)
-	{
-		handle_same_operator(current, node);
-	}
-	else if (starts_with(node->content[0], '<')
-		&& starts_with(tree->root->content[0], '>'))
-	{
-		handle_input_with_output_root(current, node);
-	}
+	else if (ft_strcmp(current->content[0], node->content[0]) == 0
+			|| (starts_with(node->content[0], '<')
+				&& starts_with(tree->root->content[0], '>'))
+			|| (starts_with(node->content[0], '>')
+				&& starts_with(tree->root->content[0], '<')))
+		handle_no_root_change(current, node);
 	else
 	{
 		handle_default_redirection(tree, node, current);
