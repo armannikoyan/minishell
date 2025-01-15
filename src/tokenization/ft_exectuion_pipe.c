@@ -6,7 +6,7 @@
 /*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 16:22:44 by gsimonia          #+#    #+#             */
-/*   Updated: 2025/01/14 01:24:37 by gsimonia         ###   ########.fr       */
+/*   Updated: 2025/01/15 20:39:22 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,12 +41,16 @@ static void	ft_execute_left_child(t_node *left, char ***envp, int *fd)
 {
 	close(fd[0]);
 	ft_execute_pipe_child(left, envp, fd[1], STDOUT_FILENO);
+	close(fd[1]);
+	exit(EXIT_SUCCESS);
 }
 
 static void	ft_execute_right_child(t_node *right, char ***envp, int *fd)
 {
 	close(fd[1]);
 	ft_execute_pipe_child(right, envp, fd[0], STDIN_FILENO);
+	close(fd[0]);
+	exit(EXIT_SUCCESS);
 }
 
 static int	ft_validate_pipe_input(t_node *node)

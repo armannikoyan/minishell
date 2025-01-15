@@ -6,7 +6,7 @@
 /*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 16:22:22 by gsimonia          #+#    #+#             */
-/*   Updated: 2025/01/09 16:22:23 by gsimonia         ###   ########.fr       */
+/*   Updated: 2025/01/15 20:14:50 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,10 @@ static t_node	*ft_node_ctor(char **content,
 
 	new = (t_node *)malloc(sizeof(t_node));
 	if (!new)
+	{
+		ft_free_2d_array((void ***)(&content));
 		return (NULL);
+	}
 	new->content = content;
 	new->type = type;
 	new->subshell_level = subshell_level;

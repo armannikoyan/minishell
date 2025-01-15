@@ -6,7 +6,7 @@
 /*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 16:22:34 by gsimonia          #+#    #+#             */
-/*   Updated: 2025/01/13 06:38:51 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/01/15 22:33:07 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,10 +42,8 @@ void	setup_heredoc(t_node *node, const char *temp_file)
 	else
 	{
 		signal(SIGINT, SIG_IGN);
-		signal(SIGQUIT, SIG_IGN);
 		parent_wait_and_set_status(pid, &status);
 		signal(SIGINT, ft_signal_handler);
-		signal(SIGQUIT, ft_signal_handler);
 		if (g_errno != 0)
 			return ;
 	}

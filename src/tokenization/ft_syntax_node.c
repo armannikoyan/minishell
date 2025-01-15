@@ -6,7 +6,7 @@
 /*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 16:22:26 by gsimonia          #+#    #+#             */
-/*   Updated: 2025/01/13 00:21:57 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/01/15 20:18:07 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,21 +32,20 @@ t_tree	*ft_tree_ctor(void)
 	return (new);
 }
 
+void	free_nodes(t_node *node)
+{
+	if (!node)
+		return;
+	free_nodes(node->left);
+	free_nodes(node->right);
+	ft_node_dtor(&node);
+}
+
 void	ft_tree_dtor(t_tree **tree)
 {
-	t_node	*current;
-
 	if (!tree || !*tree)
-		return ;
-	current = (*tree)->root;
-	while (current)
-	{
-		if (current->left)
-			ft_node_dtor(&current->left);
-		if (current->right)
-			ft_node_dtor(&current->right);
-		ft_node_dtor(&current);
-	}
+		return;
+	free_nodes((*tree)->root);
 	free(*tree);
 	*tree = NULL;
 }
