@@ -6,7 +6,7 @@
 /*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/25 14:49:16 by anikoyan          #+#    #+#             */
-/*   Updated: 2025/01/15 23:12:15 by gsimonia         ###   ########.fr       */
+/*   Updated: 2025/01/15 23:14:47 by gsimonia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,6 @@
 static unsigned short	ft_get_env_name_len(char *str)
 {
 	unsigned short	i;
-
 	i = 0;
 	while (str[i] && (ft_isalnum(str[i]) || str[i] == '_'))
 		i++;
@@ -209,4 +208,10 @@ char	*ft_env_expansion(char *input, char **envp)
 	ctx.i = 0;
 	process_input(&ctx);
 	return (ft_finalize_output(&ctx.output));
+}
+
+void	free_env_context(t_env_context *ctx)
+{
+	if (ctx->output)
+		free(ctx->output);
 }
