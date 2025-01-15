@@ -6,7 +6,7 @@
 /*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/18 17:00:14 by anikoyan          #+#    #+#             */
-/*   Updated: 2025/01/14 19:38:36 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/01/15 14:25:59 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,7 +63,7 @@ void			ft_error(char *str, int m_errno);
 void			ft_tokendelone(void *lst);
 void			ft_exec(t_tree *tree, char ***envp);
 void			ft_tree_dtor(t_tree **tree);
-bool			ft_process_path_patterns(t_list **lst);
+bool			ft_process_path_patterns(t_list ***lst);
 t_tree			*ft_tree_build(t_list **lst);
 unsigned short	ft_isoperator(char *c);
 unsigned int	ft_envlen(char *input, unsigned int i);
@@ -127,7 +127,7 @@ bool			ft_is_pattern_match(t_token *token);
 bool			ft_identify_command(t_token **token, char **path);
 bool			has_single_token_error(t_list **lst);
 bool			ft_isbuiltin(t_token *token);
-bool			ft_process_pattern(t_list **lst_ref,
+bool			ft_process_pattern(t_list ***lst_ref,
 					t_list *current, t_list *prev, t_token *token);
 bool			ft_is_matching_pattern(const char *entry_name,
 					const char *prefix,

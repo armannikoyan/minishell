@@ -6,7 +6,7 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 09:34:14 by anikoyan          #+#    #+#             */
-/*   Updated: 2025/01/12 07:31:50 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/01/15 14:56:27 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,14 +14,28 @@
 
 void	ft_insert_new_node(t_list **lst, t_list *new_node)
 {
-	if (*lst)
+	t_list	*current;
+	t_list	*previous;
+
+	if (!lst || !new_node)
+		return;
+	if (!*lst || ft_strcmp(((t_token *)new_node->content)->content, 
+			((t_token *)(*lst)->content)->content) < 0)
 	{
-		new_node->next = (*lst)->next;
-		(*lst)->next = new_node;
-		*lst = (*lst)->next;
-	}
-	else
+		new_node->next = *lst;
 		*lst = new_node;
+		return ;
+	}
+	current = *lst;
+	previous = NULL;
+	while (current && ft_strcmp(((t_token *)new_node->content)->content, 
+			((t_token *)current->content)->content) >= 0)
+	{
+		previous = current;
+		current = current->next;
+	}
+	new_node->next = current;
+	previous->next = new_node;
 }
 
 void	ft_create_and_insert_new_node(t_list **lst,
@@ -65,14 +79,14 @@ unsigned short	ft_path_len(char *str)
 	return (&str[i] - str);
 }
 
-bool	ft_process_path_patterns(t_list **lst_ref)
+bool	ft_process_path_patterns(t_list ***lst_ref)
 {
 	t_list	*current ;
 	t_list	*prev;
 	t_list	*next;
 	t_token	*token;
 
-	current = *lst_ref;
+	current = **lst_ref;
 	prev = NULL;
 	while (current)
 	{

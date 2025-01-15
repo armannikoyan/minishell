@@ -6,7 +6,7 @@
 /*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 16:22:55 by gsimonia          #+#    #+#             */
-/*   Updated: 2025/01/15 13:46:50 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/01/15 14:49:06 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,7 +93,7 @@ void	ft_extract_pattern(const char *pattern, char **prefix, char **postfix)
 	}
 }
 
-bool	ft_process_pattern(t_list **lst_ref,
+bool	ft_process_pattern(t_list ***lst_ref,
 		t_list *current, t_list *prev, t_token *token)
 {
 	char	*dir_name;
@@ -104,27 +104,31 @@ bool	ft_process_pattern(t_list **lst_ref,
 	postfix = NULL;
 	ft_extract_pattern(token->content, &prefix, &postfix);
 	dir_name = ft_get_dir_name(token->content);
+
+	// Expand the pattern in-place in the current node
 	if (ft_list_files_in_directory_with_pattern(dir_name,
 			current, prefix, postfix))
 	{
 		ft_free_resources(dir_name, prefix, postfix);
+
+		// If prev exists, update its next pointer
 		if (prev)
 		{
 			prev->next = current->next;
-			prev = prev->next;
 		}
 		else
 		{
-			*lst_ref = current->next;
-			prev = *lst_ref;
+			// Update the head of the list if current is the first node
+			**lst_ref = current->next;
 		}
+
+		// Remove the current node
 		ft_tokendelone(current);
-		if (prev && prev->next)
-			current = prev->next;
-		else if (prev)
-			current = prev;
+
 		return (true);
 	}
+
 	ft_free_resources(dir_name, prefix, postfix);
 	return (false);
 }
+
