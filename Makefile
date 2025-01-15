@@ -22,7 +22,8 @@ SRCS = main.c ft_utils.c \
        ft_tok_utils.c ft_tok_utils2.c ft_argument_quote.c ft_argument_process.c \
        ft_argument_utils.c  ft_syntax_tree_parse.c ft_syntax_node.c \
        ft_exectuion_pipe.c ft_execution_command.c ft_execution_errors.c \
-       ft_execution_heredoc.c ft_execution_redirections.c) \
+       ft_execution_heredoc.c ft_execution_redirections.c ft_syntax_node_2.c \
+       ft_syntax_tree_2.c) \
        $(addprefix bin/, \
        builtin_utils.c builtin_write.c cd.c echo.c env.c exit.c export.c export_var.c \
        pwd.c unset.c) \

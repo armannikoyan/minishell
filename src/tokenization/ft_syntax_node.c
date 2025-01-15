@@ -6,7 +6,7 @@
 /*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 16:22:26 by gsimonia          #+#    #+#             */
-/*   Updated: 2025/01/15 20:18:07 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/01/15 23:28:13 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,7 +35,7 @@ t_tree	*ft_tree_ctor(void)
 void	free_nodes(t_node *node)
 {
 	if (!node)
-		return;
+		return ;
 	free_nodes(node->left);
 	free_nodes(node->right);
 	ft_node_dtor(&node);
@@ -44,7 +44,7 @@ void	free_nodes(t_node *node)
 void	ft_tree_dtor(t_tree **tree)
 {
 	if (!tree || !*tree)
-		return;
+		return ;
 	free_nodes((*tree)->root);
 	free(*tree);
 	*tree = NULL;
@@ -70,25 +70,6 @@ void	parse_x_node(t_list **lst, char ***content, char *type_of_node)
 		tmp = tmp->next;
 	while (tmp && (t_token *)tmp->content
 		&& ((t_token *)tmp->content)->type == 'A')
-	{
-		(*content)[i++] = ((t_token *)tmp->content)->content;
-		tmp = tmp->next;
-	}
-	(*content)[i] = NULL;
-}
-
-void	parse_o_node(t_list **lst, char ***content, char *type_of_node)
-{
-	t_list			*tmp;
-	unsigned short	i;
-
-	*type_of_node = 'O';
-	tmp = *lst;
-	i = 0;
-	(*content)[i++] = ((t_token *)tmp->content)->content;
-	tmp = tmp->next;
-	if (tmp && (t_token *)tmp->content
-		&& ((t_token *)tmp->content)->type == 'F')
 	{
 		(*content)[i++] = ((t_token *)tmp->content)->content;
 		tmp = tmp->next;

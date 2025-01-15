@@ -6,7 +6,7 @@
 /*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/18 17:00:14 by anikoyan          #+#    #+#             */
-/*   Updated: 2025/01/15 22:49:26 by gsimonia         ###   ########.fr       */
+/*   Updated: 2025/01/15 23:34:52 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,13 +57,13 @@ typedef struct s_syntax_tree
 
 typedef struct s_env_context
 {
-    char            *input;
-    char            **envp;
-    char            *output;
-    unsigned short  i;
-    unsigned short  j;
-    bool            single_quote;
-    bool            double_quote;
+	char            *input;
+	char            **envp;
+	char            *output;
+	unsigned short  i;
+	unsigned short  j;
+	bool            single_quote;
+	bool            double_quote;
 }   t_env_context;
 
 void			ft_signal_handler(int sig);
@@ -205,5 +205,17 @@ void			parent_wait_and_set_status(pid_t pid, int *status);
 void			execute_heredoc_child(t_node *node, char ***envp, int fd);
 void			ft_execute_input_child_process(t_node *node,
 					char ***envp, int fd);
+void	handle_redirection_operator(t_tree *tree,
+		t_node *node, t_node *current);
+void	add_operator_node(t_tree *tree, t_node *node);
+void	add_non_operator_node(t_tree *tree, t_node *node);
+void	add_to_tree(t_tree *tree, t_node *node);
+t_tree	*ft_tree_build(t_list **lst);
+int	starts_with(const char *str, char c);
+int	is_redirection(const char *content);
+void	handle_pipe_operator(t_node *current, t_node *node);
+void	handle_no_root_change(t_node *current, t_node *node);
+void	handle_default_redirection(t_tree *tree,
+		t_node *node, t_node *current);
 
 #endif
