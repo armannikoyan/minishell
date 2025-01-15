@@ -6,7 +6,7 @@
 /*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/18 16:57:05 by anikoyan          #+#    #+#             */
-/*   Updated: 2025/01/15 22:31:59 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/01/15 23:24:36 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,6 +60,8 @@ static void	handle_input(char *input, char ***envp, t_list **lst, t_tree **tree)
 		return ;
 	}
 	*tree = ft_tree_build(lst);
+	ft_lstclear(lst, ft_tokendelone);
+	free(lst);
 	ft_exec(*tree, envp);
 }
 
