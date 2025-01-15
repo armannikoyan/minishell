@@ -6,24 +6,13 @@
 /*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/13 18:44:10 by anikoyan          #+#    #+#             */
-/*   Updated: 2025/01/15 18:03:00 by gsimonia         ###   ########.fr       */
+/*   Updated: 2025/01/15 23:32:29 by gsimonia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../includes/minishell.h"
 
 extern int	g_errno;
-
-void	ft_exec_with_level(t_node *node,
-		char ***envp, unsigned short *current_level)
-{
-	if (!node)
-		return ;
-	if (node->type == 'O')
-		ft_exec_operator(node, envp, current_level);
-	else
-		ft_exec_command(node, envp, current_level);
-}
 
 void	execute_subshell(t_node *node,
 		char ***envp, unsigned short *current_level)

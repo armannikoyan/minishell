@@ -6,7 +6,7 @@
 /*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/18 17:00:14 by anikoyan          #+#    #+#             */
-/*   Updated: 2025/01/15 23:34:52 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/01/15 23:54:18 by gsimonia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,14 +57,14 @@ typedef struct s_syntax_tree
 
 typedef struct s_env_context
 {
-	char            *input;
-	char            **envp;
-	char            *output;
-	unsigned short  i;
-	unsigned short  j;
-	bool            single_quote;
-	bool            double_quote;
-}   t_env_context;
+	char			*input;
+	char			**envp;
+	char			*output;
+	unsigned short	i;
+	unsigned short	j;
+	bool			single_quote;
+	bool			double_quote;
+}	t_env_context;
 
 void			ft_signal_handler(int sig);
 void			ft_parent_child_signal_handler(int sig);
@@ -205,17 +205,58 @@ void			parent_wait_and_set_status(pid_t pid, int *status);
 void			execute_heredoc_child(t_node *node, char ***envp, int fd);
 void			ft_execute_input_child_process(t_node *node,
 					char ***envp, int fd);
-void	handle_redirection_operator(t_tree *tree,
-		t_node *node, t_node *current);
-void	add_operator_node(t_tree *tree, t_node *node);
-void	add_non_operator_node(t_tree *tree, t_node *node);
-void	add_to_tree(t_tree *tree, t_node *node);
-t_tree	*ft_tree_build(t_list **lst);
-int	starts_with(const char *str, char c);
-int	is_redirection(const char *content);
-void	handle_pipe_operator(t_node *current, t_node *node);
-void	handle_no_root_change(t_node *current, t_node *node);
-void	handle_default_redirection(t_tree *tree,
-		t_node *node, t_node *current);
+void			handle_redirection_operator(t_tree *tree,
+					t_node *node, t_node *current);
+void			add_operator_node(t_tree *tree, t_node *node);
+void			add_non_operator_node(t_tree *tree, t_node *node);
+void			add_to_tree(t_tree *tree, t_node *node);
+t_tree			*ft_tree_build(t_list **lst);
+int				starts_with(const char *str, char c);
+int				is_redirection(const char *content);
+void			handle_pipe_operator(t_node *current, t_node *node);
+void			handle_no_root_change(t_node *current, t_node *node);
+void			handle_default_redirection(t_tree *tree,
+					t_node *node, t_node *current);
+bool			has_consecutive_operators(t_token *token, t_list *next);
+unsigned short	calculate_env_length(t_env_context *ctx);
+void			handle_quotes_in_output(t_env_context *ctx);
+unsigned short	ft_get_env_name_len(char *str);
+unsigned short	handle_quotes(t_env_context *ctx);
+unsigned short	handle_dollar(t_env_context *ctx);
+unsigned short	calculate_env_length_helper(t_env_context *ctx);
+void			handle_dollar_in_output(t_env_context *ctx);
+unsigned short	calculate_env_length(t_env_context *ctx);
+void			handle_quotes_in_output(t_env_context *ctx);
+void			handle_dollar_in_output(t_env_context *ctx);
+void			process_input_helper(t_env_context *ctx);
+char			*ft_get_env(char *str, char **envp);
+void			process_input_helper(t_env_context *ctx);
+void			process_input(t_env_context *ctx);
+char			*ft_finalize_output(char **output);
+char			*ft_env_expansion(char *input, char **envp);
+void			handle_fork_and_execute(t_node *node, char **envp);
+void			increment_counters(unsigned short *len, unsigned short *i);
+int				ft_check_access_permissions(const char *filepath,
+					int check_write);
+int				ft_check_file_permissions(const char *filepath,
+					int check_write);
+void			ft_handle_process_status(int status1, int status2);
+void			ft_wait_processes(pid_t pid1,
+					pid_t pid2, int *status1, int *status2);
+void			ft_close_pipe(int *fd);
+void			ft_execute_left_child(t_node *left, char ***envp, int *fd);
+void			ft_execute_right_child(t_node *right, char ***envp, int *fd);
+void			process_token(char *input,
+					unsigned short *i, unsigned short *len);
+unsigned short	calculate_output_length(char *input);
+void			process_non_space_token(char *input, char *output,
+					unsigned short *i, unsigned short *j);
+void			skip_initial_spaces(char *input, unsigned short *i);
+void			handle_double_pipe(char *output,
+					unsigned short *j, unsigned short *i);
+void			handle_ampersand(char *input, char *output,
+					unsigned short *i, unsigned short *j);
+void			handle_double_redir(char *input, char *output,
+					unsigned short *i, unsigned short *j);
 
 #endif

@@ -6,52 +6,13 @@
 /*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 16:22:44 by gsimonia          #+#    #+#             */
-/*   Updated: 2025/01/15 20:39:22 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/01/15 23:46:14 by gsimonia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../includes/minishell.h"
 
 extern int	g_errno;
-
-static void	ft_handle_process_status(int status1, int status2)
-{
-	if (WIFEXITED(status2))
-		g_errno = WEXITSTATUS(status2);
-	else if (WIFEXITED(status1))
-		g_errno = WEXITSTATUS(status1);
-	else
-		g_errno = 0;
-}
-
-static void	ft_wait_processes(pid_t pid1,
-		pid_t pid2, int *status1, int *status2)
-{
-	waitpid(pid1, status1, 0);
-	waitpid(pid2, status2, 0);
-}
-
-static void	ft_close_pipe(int *fd)
-{
-	close(fd[0]);
-	close(fd[1]);
-}
-
-static void	ft_execute_left_child(t_node *left, char ***envp, int *fd)
-{
-	close(fd[0]);
-	ft_execute_pipe_child(left, envp, fd[1], STDOUT_FILENO);
-	close(fd[1]);
-	exit(EXIT_SUCCESS);
-}
-
-static void	ft_execute_right_child(t_node *right, char ***envp, int *fd)
-{
-	close(fd[1]);
-	ft_execute_pipe_child(right, envp, fd[0], STDIN_FILENO);
-	close(fd[0]);
-	exit(EXIT_SUCCESS);
-}
 
 static int	ft_validate_pipe_input(t_node *node)
 {

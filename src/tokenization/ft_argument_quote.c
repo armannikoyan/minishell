@@ -6,17 +6,11 @@
 /*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 16:22:52 by gsimonia          #+#    #+#             */
-/*   Updated: 2025/01/14 01:58:46 by gsimonia         ###   ########.fr       */
+/*   Updated: 2025/01/15 23:34:38 by gsimonia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../includes/minishell.h"
-
-static void	increment_counters(unsigned short *len, unsigned short *i)
-{
-	(*len)++;
-	(*i)++;
-}
 
 static unsigned short	get_content_length_without_quotes(const char *content)
 {
