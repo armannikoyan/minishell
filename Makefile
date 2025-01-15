@@ -1,5 +1,5 @@
-CFLAGS = -Wall -Wextra -Werror -I$(LIBFT_DIR) ${CPPFLAGS}
-LDFLAGS = ${LDFLAGS}
+CFLAGS := -Wall -Wextra -Werror -I$(LIBFT_DIR) ${CPPFLAGS}
+LDFLAGS := ${LDFLAGS}
 LIBS = -lreadline
 
 NAME = minishell
