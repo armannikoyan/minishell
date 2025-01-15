@@ -1,5 +1,5 @@
-CFLAGS = -Wall -Wextra -Werror -I$(LIBFT_DIR) -I/opt/homebrew/opt/readline/include
-LDFLAGS = -L/opt/homebrew/opt/readline/lib
+CFLAGS = -Wall -Wextra -Werror -I$(LIBFT_DIR) ${CPPFLAGS}
+LDFLAGS = ${LDFLAGS}
 LIBS = -lreadline
 
 NAME = minishell
