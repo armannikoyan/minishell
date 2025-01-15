@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ft_execution.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
+/*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/13 18:44:10 by anikoyan          #+#    #+#             */
-/*   Updated: 2025/01/14 16:18:31 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/01/15 18:03:00 by gsimonia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,6 +76,30 @@ void	ft_execute_child_process(t_node *node, char ***envp, int fd)
 	exit(g_errno);
 }
 
+static void	ft_handle_redirection(t_node *node, char ***envp)
+{
+	if (ft_strcmp(node->content[0], "<") == 0)
+	{
+		ft_handle_input_redirection(node, envp);
+		if (g_errno != 0)
+			return ;
+	}
+	else if (ft_strcmp(node->content[0], ">") == 0)
+	{
+		ft_handle_output_redirection(node, envp, O_TRUNC);
+		if (g_errno != 0)
+			return ;
+	}
+	else if (ft_strcmp(node->content[0], ">>") == 0)
+	{
+		ft_handle_output_redirection(node, envp, O_APPEND);
+		if (g_errno != 0)
+			return ;
+	}
+	else if (ft_strcmp(node->content[0], "<<") == 0)
+		ft_handle_heredoc(node, envp);
+}
+
 void	ft_exec_operator(t_node *node,
 		char ***envp, unsigned short *current_level)
 {
@@ -96,24 +120,6 @@ void	ft_exec_operator(t_node *node,
 		if (g_errno != 0)
 			ft_exec_with_level(node->right, envp, current_level);
 	}
-	else if (ft_strcmp(node->content[0], "<") == 0)
-	{
-		ft_handle_input_redirection(node, envp);
-		if (g_errno != 0)
-			return ;
-	}
-	else if (ft_strcmp(node->content[0], ">") == 0)
-	{
-		ft_handle_output_redirection(node, envp, O_TRUNC);
-		if (g_errno != 0)
-			return ;
-	}
-	else if (ft_strcmp(node->content[0], ">>") == 0)
-	{
-		ft_handle_output_redirection(node, envp, O_APPEND);
-		if (g_errno != 0)
-			return ;
-	}
-	else if (ft_strcmp(node->content[0], "<<") == 0)
-		ft_handle_heredoc(node, envp);
+	else
+		ft_handle_redirection(node, envp);
 }

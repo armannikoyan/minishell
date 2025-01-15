@@ -6,7 +6,7 @@
 /*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/22 23:35:45 by anikoyan          #+#    #+#             */
-/*   Updated: 2025/01/15 02:54:06 by gsimonia         ###   ########.fr       */
+/*   Updated: 2025/01/15 17:21:43 by gsimonia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,24 +39,22 @@ void	write_string(const char *str1, const char *str2, const char *str3)
 void	print_env(char **envp)
 {
 	char	*equal_sign;
-    int		i = 0;
+	int		i;
 
 	i = 0;
-    while (envp[i])
-    {
-        equal_sign = ft_strchr(envp[i], '=');
-        if (equal_sign)
-        {
-            write_string("declare -x ", NULL, NULL);
-            write(STDOUT_FILENO, envp[i], equal_sign - envp[i]);
-            write_string("=\"", equal_sign + 1, "\"\n");
-        }
-        else
-        {
-            write_string("declare -x ", envp[i], "\n");
-        }
-        i++;
-    }
+	while (envp[i])
+	{
+		equal_sign = ft_strchr(envp[i], '=');
+		if (equal_sign)
+		{
+			write_string("declare -x ", NULL, NULL);
+			write(STDOUT_FILENO, envp[i], equal_sign - envp[i]);
+			write_string("=\"", equal_sign + 1, "\"\n");
+		}
+		else
+			write_string("declare -x ", envp[i], "\n");
+		i++;
+	}
 }
 
 void	print_sorted_env(char **envp)

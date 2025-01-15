@@ -6,7 +6,7 @@
 /*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/15 17:07:38 by gsimonia          #+#    #+#             */
-/*   Updated: 2025/01/14 04:47:47 by gsimonia         ###   ########.fr       */
+/*   Updated: 2025/01/15 17:22:37 by gsimonia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,8 +51,8 @@ static void	remove_env_var(char **envp, int idx)
 {
 	if (!envp || idx < 0)
 		return ;
-	// if (envp[idx][0] == '_' && (envp[idx][1] == '\0' || envp[idx][1] == '='))
-	// 	return ;
+	if (envp[idx][0] == '_' && (envp[idx][1] == '\0' || envp[idx][1] == '='))
+		return ;
 	while (envp[idx])
 	{
 		envp[idx] = envp[idx + 1];

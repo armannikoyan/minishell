@@ -6,7 +6,7 @@
 /*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/18 17:00:14 by anikoyan          #+#    #+#             */
-/*   Updated: 2025/01/15 14:25:59 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/01/15 17:29:22 by gsimonia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -97,6 +97,10 @@ int				set_new_var(char **new_envp,
 					char *key, char *value, int index);
 int				set_env_var(char ***envp,
 					const char *key, const char *value);
+int				handle_sign_and_skip_whitespace(const char *str, int *sign);
+int				is_valid_number(const char *str);
+int				check_for_overflow(const char *str,
+					long long *result, int sign);
 
 long long		ft_long_atoi(const char *str);
 

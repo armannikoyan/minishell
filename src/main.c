@@ -6,7 +6,7 @@
 /*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/18 16:57:05 by anikoyan          #+#    #+#             */
-/*   Updated: 2025/01/14 19:06:32 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/01/15 18:05:58 by gsimonia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -122,7 +122,7 @@ int	main(int argc, char **argv, char **envp)
 	(void)argc;
 	(void)argv;
 	signal(SIGINT, ft_signal_handler);
-	signal(SIGQUIT, SIG_IGN); // ISSUE: change needed
+	signal(SIGQUIT, SIG_IGN);
 	envp_cpy = ft_copy_envp(envp);
 	run_shell_loop(&envp_cpy);
 }

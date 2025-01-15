@@ -6,7 +6,7 @@
 /*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/22 19:38:41 by anikoyan          #+#    #+#             */
-/*   Updated: 2025/01/15 15:03:38 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/01/15 18:05:05 by gsimonia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,9 +69,11 @@ bool	ft_only_operator(t_token *token, t_list *tmp, t_list *prev)
 {
 	if (token->type == 'O')
 	{
-		if ((token->content[0] == '<' || token->content[0] == '>') && !tmp->next)
+		if ((token->content[0] == '<'
+				|| token->content[0] == '>') && !tmp->next)
 			return (ft_report_error("parse error near: ", "newline", 258));
-		if (token->content[0] != '<' && token->content[0] != '>' && (!tmp->next || !prev))
+		if (token->content[0] != '<'
+			&& token->content[0] != '>' && (!tmp->next || !prev))
 			return (ft_report_error("parse error near: ", token->content, 258));
 	}
 	return (false);
@@ -79,9 +81,6 @@ bool	ft_only_operator(t_token *token, t_list *tmp, t_list *prev)
 
 bool	ft_has_syntax_error(t_list **lst)
 {
-	// Test 1: echo hi > /
-	// Test 2: > file
-	// Test 3: & shouldnt be considered as operator
 	t_list	*tmp;
 	t_token	*token;
 	t_list	*prev;

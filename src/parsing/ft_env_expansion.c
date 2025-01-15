@@ -6,13 +6,13 @@
 /*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/25 14:49:16 by anikoyan          #+#    #+#             */
-/*   Updated: 2025/01/15 16:08:05 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/01/15 17:40:57 by gsimonia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../includes/minishell.h"
 
-static unsigned short ft_get_env_name_len(char *str)
+static unsigned short	ft_get_env_name_len(char *str)
 {
 	unsigned short	i;
 
@@ -49,13 +49,13 @@ char	*ft_get_env(char *str, char **envp)
 	return ("");
 }
 
-
-static unsigned short calculate_env_length(char *input, char **envp)
+static unsigned short	calculate_env_length(char *input, char **envp)
 {
 	unsigned short	len;
 	unsigned short	i;
 	bool			single_quote;
 	bool			double_quote;
+	char			*env_value;
 
 	len = 0;
 	i = 0;
@@ -72,7 +72,7 @@ static unsigned short calculate_env_length(char *input, char **envp)
 			i++;
 			if (input[i] && ft_isalnum(input[i]))
 			{
-				char *env_value = ft_get_env(input + i, envp);
+				env_value = ft_get_env(input + i, envp);
 				len += ft_strlen(env_value);
 				i += ft_get_env_name_len(input + i) - 1;
 			}
@@ -125,60 +125,65 @@ char	*ft_finalize_output(char **output)
 	return (*output);
 }
 
-void process_input(char *input, char **envp, char *output, unsigned short *i)
+void	process_input(char *input, char **envp, char *output, unsigned short *i)
 {
-    unsigned short j = 0;
-    bool single_quote = false;
-    bool double_quote = false;
-    
-    while (input[*i])
-    {
-        if (input[*i] == '\'' && !double_quote)
-        {
-            single_quote = !single_quote;
-            output[j++] = input[(*i)++];
-        }
-        else if (input[*i] == '"' && !single_quote)
-        {
-            double_quote = !double_quote;
-            output[j++] = input[(*i)++];
-        }
-        else if (input[*i] == '$' && !single_quote)
-        {
-            (*i)++;
-            if (input[*i] && ft_isalnum(input[*i]))
-            {
-                char *env_value = ft_get_env(input + *i, envp);
-                ft_strlcpy(output + j, env_value, ft_strlen(env_value) + 1);
-                j += ft_strlen(env_value);
-                *i += ft_get_env_name_len(input + *i);
-            }
-            else
-            {
-                output[j++] = '$';
-                if (input[*i])
-                    output[j++] = input[(*i)++];
-            }
-        }
-        else
-            output[j++] = input[(*i)++];
-    }
-    output[j] = '\0';
+	unsigned short	j;
+	bool			single_quote;
+	bool			double_quote;
+	char			*env_value;
+
+	j = 0;
+	single_quote = false;
+	double_quote = false;
+	while (input[*i])
+	{
+		if (input[*i] == '\'' && !double_quote)
+		{
+			single_quote = !single_quote;
+			output[j++] = input[(*i)++];
+		}
+		else if (input[*i] == '"' && !single_quote)
+		{
+			double_quote = !double_quote;
+			output[j++] = input[(*i)++];
+		}
+		else if (input[*i] == '$' && !single_quote)
+		{
+			(*i)++;
+			if (input[*i] && ft_isalnum(input[*i]))
+			{
+				env_value = ft_get_env(input + *i, envp);
+				ft_strlcpy(output + j, env_value, ft_strlen(env_value) + 1);
+				j += ft_strlen(env_value);
+				*i += ft_get_env_name_len(input + *i);
+			}
+			else
+			{
+				output[j++] = '$';
+				if (input[*i])
+					output[j++] = input[(*i)++];
+			}
+		}
+		else
+			output[j++] = input[(*i)++];
+	}
+	output[j] = '\0';
 }
 
-char *ft_env_expansion(char *input, char **envp)
+char	*ft_env_expansion(char *input, char **envp)
 {
-    unsigned short	i;
-    unsigned short	len;
+	unsigned short	i;
+	unsigned short	len;
+	char			*output;
 
-    if (!input || !envp)
-        return NULL;
-    len = calculate_env_length(input, envp);
-    char *output = (char *)malloc(sizeof(char) * (len + 1));
-    if (!output)
-        return NULL;
-    i = 0;
-    process_input(input, envp, output, &i);
-    ft_finalize_output(&output);
-    return (output);
+	if (!input || !envp)
+		return (NULL);
+	len = calculate_env_length(input, envp);
+	output = (char *)malloc(sizeof(char) * (len + 1));
+	if (!output)
+		return (NULL);
+	i = 0;
+	process_input(input, envp, output, &i);
+	ft_finalize_output(&output);
+	return (output);
 }

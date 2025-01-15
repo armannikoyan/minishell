@@ -6,53 +6,13 @@
 /*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/15 17:05:49 by gsimonia          #+#    #+#             */
-/*   Updated: 2025/01/15 16:47:20 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/01/15 17:28:31 by gsimonia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../includes/minishell.h"
 
 extern int	g_errno;
-
-static int	handle_sign_and_skip_whitespace(const char *str, int *sign)
-{
-	long long	i;
-
-	i = 0;
-	*sign = 1;
-	while (str[i] == ' ' || str[i] == '\t' || str[i] == '\r'
-		|| str[i] == '\v' || str[i] == '\f' || str[i] == '\n')
-		i++;
-	if (str[i] == '-' || str[i] == '+')
-	{
-		if (str[i] == '-')
-			*sign = -1;
-		i++;
-	}
-	return (i);
-}
-
-static int	check_for_overflow(const char *str, long long *result, int sign)
-{
-	long long	i;
-
-	i = 0;
-	*result = 0;
-	while (str[i] >= '0' && str[i] <= '9')
-	{
-		if (*result > LLONG_MAX / 10)
-			return (1);
-		if (*result == LLONG_MAX / 10)
-		{
-			if ((sign == 1 && (str[i] - '0') > LLONG_MAX % 10)
-				|| (sign == -1 && (str[i] - '0') > -(LLONG_MIN % 10)))
-				return (1);
-		}
-		*result = (*result * 10) + (str[i] - '0');
-		i++;
-	}
-	return (0);
-}
 
 static long long	ft_long_atoi_check(const char *str)
 {
@@ -66,7 +26,7 @@ static long long	ft_long_atoi_check(const char *str)
 	return (0);
 }
 
-static int	is_valid_number(const char *str)
+int	is_valid_number(const char *str)
 {
 	int	i;
 
@@ -129,8 +89,7 @@ static long long	convert_to_exit_code(const char *str)
 
 int	ft_exit(int argc, char **argv)
 {
-	// Print exit message
-	// write(2, "exit\n", 5);
+	write(1, "exit\n", 5);
 	if (argc > 1 && !is_valid_number(argv[1]))
 	{
 		ft_report_error_arg("exit: ",

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ft_argument_manipulation.c                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
+/*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 09:34:14 by anikoyan          #+#    #+#             */
-/*   Updated: 2025/01/15 14:56:27 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/01/15 17:34:56 by gsimonia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,8 +18,8 @@ void	ft_insert_new_node(t_list **lst, t_list *new_node)
 	t_list	*previous;
 
 	if (!lst || !new_node)
-		return;
-	if (!*lst || ft_strcmp(((t_token *)new_node->content)->content, 
+		return ;
+	if (!*lst || ft_strcmp(((t_token *)new_node->content)->content,
 			((t_token *)(*lst)->content)->content) < 0)
 	{
 		new_node->next = *lst;
@@ -28,7 +28,7 @@ void	ft_insert_new_node(t_list **lst, t_list *new_node)
 	}
 	current = *lst;
 	previous = NULL;
-	while (current && ft_strcmp(((t_token *)new_node->content)->content, 
+	while (current && ft_strcmp(((t_token *)new_node->content)->content,
 			((t_token *)current->content)->content) >= 0)
 	{
 		previous = current;

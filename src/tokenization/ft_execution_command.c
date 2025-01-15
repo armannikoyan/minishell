@@ -6,7 +6,7 @@
 /*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 16:22:41 by gsimonia          #+#    #+#             */
-/*   Updated: 2025/01/15 15:19:19 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/01/15 17:40:13 by gsimonia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -135,6 +135,14 @@ int	ft_mtx_strlen(char **mtx)
 	return (i);
 }
 
+static void	ft_handle_no_file_or_command_error(const char *content)
+{
+	if (ft_strncmp(content, "./", 2) == 0 || ft_strncmp(content, "/", 1) == 0)
+		ft_report_error(content, ": No such file or directory", 127);
+	else
+		ft_report_error(content, ": command not found", 127);
+}
+
 void	ft_check_x_for_errors(t_node *node)
 {
 	struct stat	statbuf;
@@ -161,13 +169,7 @@ void	ft_check_x_for_errors(t_node *node)
 		}
 	}
 	else
-	{
-		if (ft_strncmp(node->content[0], "./", 2) == 0
-			|| ft_strncmp(node->content[0], "/", 1) == 0)
-			ft_report_error(node->content[0], ": No such file or directory", 127);
-		else
-			ft_report_error(node->content[0], ": command not found", 127);
-	}
+		ft_handle_no_file_or_command_error(node->content[0]);
 }
 
 void	execute_command_in_child(t_node *node, char **envp)
