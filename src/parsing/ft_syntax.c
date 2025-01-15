@@ -6,7 +6,7 @@
 /*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/22 19:38:41 by anikoyan          #+#    #+#             */
-/*   Updated: 2025/01/15 18:05:05 by gsimonia         ###   ########.fr       */
+/*   Updated: 2025/01/15 19:07:31 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,9 @@
 bool	has_consecutive_operators(t_token *token, t_list *next)
 {
 	if (token->type == 'O' && next
-		&& next->content && ((t_token *)next->content)->type == 'O')
+		&& next->content && ((t_token *)next->content)->type == 'O'
+		&& ((t_token *)next->content)->content[0] != '<'
+		&& ((t_token *)next->content)->content[0] != '>')
 		return (ft_report_error("parse error near: ",
 				((t_token *)next->content)->content, 258));
 	return (false);
