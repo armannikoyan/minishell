@@ -1,0 +1,144 @@
+#include "../../includes/minishell.h"
+
+typedef struct s_process_state
+{
+    unsigned short i;              // current index for input string
+    unsigned short j;              // current index for output string
+    bool single_quote;             // flag for single quote
+    bool double_quote;             // flag for double quote
+    char *input;                   // input string
+    char *output;                  // output string
+    char **envp;                   // environment variables
+} t_process_state;
+
+static unsigned short ft_get_env_name_len(char *str) {
+    unsigned short i = 0;
+    while (str[i] && (ft_isalnum(str[i]) || str[i] == '_'))
+        i++;
+    return i;
+}
+
+char *ft_get_env(char *str, char **envp) {
+    char *env;
+    unsigned short env_len;
+    unsigned short j;
+
+    env_len = ft_get_env_name_len(str);
+    env = (char *)malloc(sizeof(char) * (env_len + 2));
+    if (!env)
+        exit(EXIT_FAILURE);
+    ft_strlcpy(env, str, env_len + 1);
+    env[env_len] = '=';
+    env[env_len + 1] = '\0';
+    j = 0;
+    while (envp[j]) {
+        if (ft_strncmp(env, envp[j], env_len + 1) == 0) {
+            free(env);
+            return envp[j] + env_len + 1;
+        }
+        j++;
+    }
+    free(env);
+    return "";
+}
+
+// Handle environment variable processing
+void process_env_variable(t_process_state *state) {
+    char *env_value;
+
+    state->i++; // Skip the dollar sign '$'
+    if (state->input[state->i] && ft_isalnum(state->input[state->i])) {
+        env_value = ft_get_env(state->input + state->i, state->envp);
+        ft_strlcpy(state->output + state->j, env_value, ft_strlen(env_value) + 1);
+        state->j += ft_strlen(env_value);
+        state->i += ft_get_env_name_len(state->input + state->i);
+    } else {
+        state->output[state->j++] = '$';
+        if (state->input[state->i]) {
+            state->output[state->j++] = state->input[state->i];
+            state->i++;
+        }
+    }
+}
+
+// Process characters in the input based on the provided logic
+void process_characters(t_process_state *state) {
+    if (state->input[state->i] == '\'' && !state->double_quote) {
+        state->single_quote = !state->single_quote; // Toggle single quote flag
+        state->output[state->j++] = state->input[state->i++];
+    } else if (state->input[state->i] == '"' && !state->single_quote) {
+        state->double_quote = !state->double_quote; // Toggle double quote flag
+        state->output[state->j++] = state->input[state->i++];
+    } else if (state->input[state->i] == '$' && !state->single_quote) {
+        process_env_variable(state);
+    } else {
+        state->output[state->j++] = state->input[state->i++];
+    }
+}
+
+// Process the input and populate the output
+void process_input(t_process_state *state) {
+    while (state->input[state->i]) {
+        process_characters(state);
+    }
+    state->output[state->j] = '\0'; // Null-terminate the output string
+}
+
+// Calculate the length of the expanded string
+unsigned short calculate_env_length(t_process_state *state) {
+    unsigned short len = 0;
+    unsigned short original_i = state->i;
+
+    while (state->input[state->i]) {
+        if (state->input[state->i] == '\'' && !state->double_quote) {
+            state->single_quote = !state->single_quote; // Toggle single quote flag
+        } else if (state->input[state->i] == '"' && !state->single_quote) {
+            state->double_quote = !state->double_quote; // Toggle double quote flag
+        } else if (state->input[state->i] == '$' && !state->single_quote) {
+            state->i++;
+            if (state->input[state->i] && ft_isalnum(state->input[state->i])) {
+                len += strlen(ft_get_env(state->input + state->i, state->envp));
+                state->i += ft_get_env_name_len(state->input + state->i);
+            } else {
+                len += 2; // For '$' and the next character
+            }
+        } else {
+            len++;
+        }
+        state->i++;
+    }
+    state->i = original_i; // Reset index
+    return len;
+}
+
+// Finalize the output and free temporary memory
+char *ft_finalize_output(char **output) {
+    char *tmp = *output;
+    *output = ft_space_correction(*output);
+    free(tmp);
+    return *output;
+}
+
+// Main function for environment variable expansion
+char *ft_env_expansion(char *input, char **envp) {
+    t_process_state state;
+    unsigned short len;
+
+    if (!input || !envp)
+        return NULL;
+
+    state.input = input;
+    state.envp = envp;
+    state.i = 0;
+    state.j = 0;
+    state.single_quote = false;
+    state.double_quote = false;
+
+    len = calculate_env_length(&state);
+    state.output = (char *)malloc(sizeof(char) * (len + 1));
+    if (!state.output)
+        return NULL;
+
+    process_input(&state);
+    return ft_finalize_output(&state.output);
+}

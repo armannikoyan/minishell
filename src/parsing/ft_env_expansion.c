@@ -6,7 +6,7 @@
 /*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/25 14:49:16 by anikoyan          #+#    #+#             */
-/*   Updated: 2025/01/15 17:40:57 by gsimonia         ###   ########.fr       */
+/*   Updated: 2025/01/15 23:03:44 by gsimonia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 static unsigned short	ft_get_env_name_len(char *str)
 {
 	unsigned short	i;
-
+	
 	i = 0;
 	while (str[i] && (ft_isalnum(str[i]) || str[i] == '_'))
 		i++;
@@ -49,141 +49,106 @@ char	*ft_get_env(char *str, char **envp)
 	return ("");
 }
 
-static unsigned short	calculate_env_length(char *input, char **envp)
+static unsigned short	calculate_env_length(t_env_context *ctx)
 {
 	unsigned short	len;
-	unsigned short	i;
-	bool			single_quote;
-	bool			double_quote;
 	char			*env_value;
 
 	len = 0;
-	i = 0;
-	single_quote = false;
-	double_quote = false;
-	while (input[i])
+	ctx->i = 0;
+	ctx->single_quote = false;
+	ctx->double_quote = false;
+	while (ctx->input[ctx->i])
 	{
-		if (input[i] == '\'' && !double_quote)
-			single_quote = !single_quote;
-		else if (input[i] == '"' && !single_quote)
-			double_quote = !double_quote;
-		else if (input[i] == '$' && !single_quote)
+		if (ctx->input[ctx->i] == '\'' && !ctx->double_quote)
+			ctx->single_quote = !ctx->single_quote;
+		else if (ctx->input[ctx->i] == '"' && !ctx->single_quote)
+			ctx->double_quote = !ctx->double_quote;
+		else if (ctx->input[ctx->i] == '$' && !ctx->single_quote)
 		{
-			i++;
-			if (input[i] && ft_isalnum(input[i]))
+			ctx->i++;
+			if (ctx->input[ctx->i] && ft_isalnum(ctx->input[ctx->i]))
 			{
-				env_value = ft_get_env(input + i, envp);
+				env_value = ft_get_env(ctx->input + ctx->i, ctx->envp);
 				len += ft_strlen(env_value);
-				i += ft_get_env_name_len(input + i) - 1;
+				ctx->i += ft_get_env_name_len(ctx->input + ctx->i) - 1;
 			}
 			else
 			{
 				len++;
-				if (input[i])
+				if (ctx->input[ctx->i])
 					len++;
-				i--;
+				ctx->i--;
 			}
 		}
 		len++;
-		i++;
+		ctx->i++;
 	}
 	return (len);
 }
 
-void	ft_process_quotes(char *input,
-		unsigned short *i, char *output, unsigned short *j)
+void process_input(t_env_context *ctx)
 {
-	bool	opened_quote;
-
-	opened_quote = false;
-	while (input[*i]
-		&& (input[*i] != '$' || (input[*i] == '$' && opened_quote)))
+	ctx->j = 0;
+	ctx->single_quote = false;
+	ctx->double_quote = false;
+	while (ctx->input[ctx->i])
 	{
-		if (input[*i] == '\'')
-			opened_quote = !opened_quote;
-		output[(*j)++] = input[(*i)++];
+		if (ctx->input[ctx->i] == '\'' && !ctx->double_quote)
+		{
+			ctx->single_quote = !ctx->single_quote;
+			ctx->output[ctx->j++] = ctx->input[ctx->i++];
+		}
+		else if (ctx->input[ctx->i] == '"' && !ctx->single_quote)
+		{
+			ctx->double_quote = !ctx->double_quote;
+			ctx->output[ctx->j++] = ctx->input[ctx->i++];
+		}
+		else if (ctx->input[ctx->i] == '$' && !ctx->single_quote)
+		{
+			ctx->i++;
+			if (ctx->input[ctx->i] && ft_isalnum(ctx->input[ctx->i]))
+			{
+				char *env_value = ft_get_env(ctx->input + ctx->i, ctx->envp);
+				ft_strlcpy(ctx->output + ctx->j, env_value, ft_strlen(env_value) + 1);
+				ctx->j += ft_strlen(env_value);
+				ctx->i += ft_get_env_name_len(ctx->input + ctx->i);
+			}
+			else
+			{
+				ctx->output[ctx->j++] = '$';
+				if (ctx->input[ctx->i])
+					ctx->output[ctx->j++] = ctx->input[ctx->i++];
+			}
+		}
+		else
+			ctx->output[ctx->j++] = ctx->input[ctx->i++];
 	}
-	return ;
+	ctx->output[ctx->j] = '\0';
 }
 
-char	*ft_handle_dollar_sign(char *input,
-		char *output, unsigned short *i, unsigned short *j)
+char *ft_finalize_output(char **output)
 {
-	output[*j] = input[*i];
-	(*i)++;
-	(*j)++;
-	return (output);
-}
-
-char	*ft_finalize_output(char **output)
-{
-	char	*tmp;
-
-	tmp = *output;
+	char *tmp = *output;
 	*output = ft_space_correction(*output);
 	free(tmp);
 	return (*output);
 }
 
-void	process_input(char *input, char **envp, char *output, unsigned short *i)
+char *ft_env_expansion(char *input, char **envp)
 {
-	unsigned short	j;
-	bool			single_quote;
-	bool			double_quote;
-	char			*env_value;
-
-	j = 0;
-	single_quote = false;
-	double_quote = false;
-	while (input[*i])
-	{
-		if (input[*i] == '\'' && !double_quote)
-		{
-			single_quote = !single_quote;
-			output[j++] = input[(*i)++];
-		}
-		else if (input[*i] == '"' && !single_quote)
-		{
-			double_quote = !double_quote;
-			output[j++] = input[(*i)++];
-		}
-		else if (input[*i] == '$' && !single_quote)
-		{
-			(*i)++;
-			if (input[*i] && ft_isalnum(input[*i]))
-			{
-				env_value = ft_get_env(input + *i, envp);
-				ft_strlcpy(output + j, env_value, ft_strlen(env_value) + 1);
-				j += ft_strlen(env_value);
-				*i += ft_get_env_name_len(input + *i);
-			}
-			else
-			{
-				output[j++] = '$';
-				if (input[*i])
-					output[j++] = input[(*i)++];
-			}
-		}
-		else
-			output[j++] = input[(*i)++];
-	}
-	output[j] = '\0';
-}
-
-char	*ft_env_expansion(char *input, char **envp)
-{
-	unsigned short	i;
-	unsigned short	len;
-	char			*output;
+	t_env_context ctx;
 
 	if (!input || !envp)
-		return (NULL);
-	len = calculate_env_length(input, envp);
-	output = (char *)malloc(sizeof(char) * (len + 1));
-	if (!output)
-		return (NULL);
-	i = 0;
-	process_input(input, envp, output, &i);
-	ft_finalize_output(&output);
-	return (output);
+		return NULL;
+	ctx.input = input;
+	ctx.envp = envp;
+	unsigned short len = calculate_env_length(&ctx);
+	ctx.output = (char *)malloc(sizeof(char) * (len + 1));
+	if (!ctx.output)
+		return NULL;
+
+	ctx.i = 0;
+	process_input(&ctx);
+	return ft_finalize_output(&ctx.output);
 }

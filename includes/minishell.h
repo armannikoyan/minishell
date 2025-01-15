@@ -6,7 +6,7 @@
 /*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/18 17:00:14 by anikoyan          #+#    #+#             */
-/*   Updated: 2025/01/15 17:29:22 by gsimonia         ###   ########.fr       */
+/*   Updated: 2025/01/15 22:49:26 by gsimonia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,6 +54,17 @@ typedef struct s_syntax_tree
 {
 	t_node	*root;
 }	t_tree;
+
+typedef struct s_env_context
+{
+    char            *input;
+    char            **envp;
+    char            *output;
+    unsigned short  i;
+    unsigned short  j;
+    bool            single_quote;
+    bool            double_quote;
+}   t_env_context;
 
 void			ft_signal_handler(int sig);
 void			ft_parent_child_signal_handler(int sig);
