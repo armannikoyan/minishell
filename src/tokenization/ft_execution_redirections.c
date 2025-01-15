@@ -6,7 +6,7 @@
 /*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 16:22:30 by gsimonia          #+#    #+#             */
-/*   Updated: 2025/01/15 16:14:36 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/01/15 16:41:00 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -104,7 +104,7 @@ static int ft_open_file_for_redirection(const char *filepath, int flags)
     int fd = open(filepath, O_WRONLY | O_CREAT | flags, 0644);
     if (fd == -1) {
         // If we get here, it's likely a system-level error
-        ft_report_error(filepath, ": Cannot create file", 1);
+        ft_report_error(filepath, ": No such file or directory", 1);
         return -1;
     }
     

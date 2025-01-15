@@ -6,7 +6,7 @@
 /*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/15 17:05:49 by gsimonia          #+#    #+#             */
-/*   Updated: 2025/01/15 15:02:49 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/01/15 16:47:20 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -144,7 +144,5 @@ int	ft_exit(int argc, char **argv)
 	}
 	else if (argc == 2)
 		g_errno = convert_to_exit_code(argv[1]);
-	else
-		g_errno = 0;
 	exit(g_errno);
 }
