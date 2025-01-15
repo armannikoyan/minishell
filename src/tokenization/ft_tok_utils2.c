@@ -6,7 +6,7 @@
 /*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 16:22:13 by gsimonia          #+#    #+#             */
-/*   Updated: 2025/01/14 01:03:00 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/01/15 11:54:36 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,16 +34,16 @@ void	ft_assign_operator_type(t_list **tmp, t_token *token)
 	t_token	*next_token;
 
 	token->type = 'O';
-	if ((token->content[0] == '>' || token->content[0] == '<') && (*tmp)->next)
+	if ((token->content[0] == '>' || token->content[0] == '<') && (*tmp)->next
+		&& !ft_isoperator(((t_token *)(*tmp)->next->content)->content))
 	{
 		*tmp = (*tmp)->next;
 		next_token = (t_token *)(*tmp)->content;
-		if (next_token)
+		if (next_token && !ft_isoperator(next_token->content))
 		{
 			next_token->type = 'F';
 			while ((*tmp)->next && (t_token *)(*tmp)->next->content
-					&& !ft_isoperator(((t_token *)(*tmp)
-							->next->content)->content))
+				&& !ft_isoperator(((t_token *)(*tmp)->next->content)->content))
 			{
 				*tmp = (*tmp)->next;
 				((t_token *)(*tmp)->content)->type = 'A';

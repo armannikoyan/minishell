@@ -6,7 +6,7 @@
 /*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 16:22:55 by gsimonia          #+#    #+#             */
-/*   Updated: 2025/01/14 19:39:08 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/01/15 13:46:50 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -114,9 +114,15 @@ bool	ft_process_pattern(t_list **lst_ref,
 			prev = prev->next;
 		}
 		else
+		{
 			*lst_ref = current->next;
+			prev = *lst_ref;
+		}
 		ft_tokendelone(current);
-		current = prev->next;
+		if (prev && prev->next)
+			current = prev->next;
+		else if (prev)
+			current = prev;
 		return (true);
 	}
 	ft_free_resources(dir_name, prefix, postfix);
