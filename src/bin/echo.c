@@ -6,7 +6,7 @@
 /*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/15 17:03:48 by gsimonia          #+#    #+#             */
-/*   Updated: 2025/01/16 02:26:02 by gsimonia         ###   ########.fr       */
+/*   Updated: 2025/01/19 16:59:55 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ int	ft_echo(int argc, char **argv)
 
 	i = 1;
 	n_flag = false;
-	while (i < argc && argv[i] && argv[i][0] == '-' && argv[i][1] == 'n')
+	while (i < argc && argv[i] && argv[i][0] == '-' && ft_strchr(argv[i], 'n'))
 	{
 		n_flag = true;
 		i++;
