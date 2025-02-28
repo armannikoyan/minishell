@@ -6,7 +6,7 @@
 /*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/18 16:57:05 by anikoyan          #+#    #+#             */
-/*   Updated: 2025/01/15 23:59:13 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/02/28 14:19:40 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,6 +53,16 @@ static void	handle_input(char *input, char ***envp, t_list **lst, t_tree **tree)
 	free(input);
 	if (!lst)
 		exit(EXIT_FAILURE);
+	t_list *tmp_lst = *lst;
+	while (tmp_lst)
+	{
+		t_token *token = (t_token *)tmp_lst->content;
+		ft_printf("-------------------------------\n");
+		ft_printf("%s\n", token->content);
+		ft_printf("%c\n", token->type);
+		ft_printf("-------------------------------\n");
+		tmp_lst = tmp_lst->next;
+	}
 	if (ft_has_syntax_error(lst))
 	{
 		ft_lstclear(lst, ft_tokendelone);

@@ -6,7 +6,7 @@
 /*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/18 17:00:14 by anikoyan          #+#    #+#             */
-/*   Updated: 2025/01/15 23:54:18 by gsimonia         ###   ########.fr       */
+/*   Updated: 2025/02/28 14:59:39 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -172,7 +172,7 @@ void			append_character(char *expanded_input,
 void			ft_fill_content(t_token *token, char *input,
 					unsigned short *index, unsigned short len);
 void			ft_assign_token_type(t_list ***lst);
-void			ft_assign_operator_type(t_list **tmp, t_token *token);
+void			ft_assign_operator_type(t_list **tmp, t_token *token, bool command);
 void			ft_assign_command_type(t_token *token, t_list **tmp);
 void			ft_create_and_insert_new_node(t_list **lst,
 					const char *path, const char *entry_name);

@@ -6,11 +6,11 @@
 /*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 16:23:27 by gsimonia          #+#    #+#             */
-/*   Updated: 2025/01/09 16:23:28 by gsimonia         ###   ########.fr       */
+/*   Updated: 2025/02/26 17:25:45 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../includes/minishell.h"
+#include "../../includes/minishell.h"
 
 static char	*ft_subwdir(char *abs_wdir)
 {

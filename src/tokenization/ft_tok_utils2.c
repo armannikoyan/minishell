@@ -6,7 +6,7 @@
 /*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 16:22:13 by gsimonia          #+#    #+#             */
-/*   Updated: 2025/01/15 11:54:36 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/02/28 14:59:09 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ void	ft_assign_command_type(t_token *token, t_list **tmp)
 	ft_assign_argument_type(tmp);
 }
 
-void	ft_assign_operator_type(t_list **tmp, t_token *token)
+void	ft_assign_operator_type(t_list **tmp, t_token *token, bool command)
 {
 	t_token	*next_token;
 
@@ -43,33 +43,46 @@ void	ft_assign_operator_type(t_list **tmp, t_token *token)
 		{
 			next_token->type = 'F';
 			while ((*tmp)->next && (t_token *)(*tmp)->next->content
-				&& !ft_isoperator(((t_token *)(*tmp)->next->content)->content))
+				&& !ft_isoperator(((t_token *)(*tmp)->next->content)->content) && command)
 			{
 				*tmp = (*tmp)->next;
 				((t_token *)(*tmp)->content)->type = 'A';
 			}
 		}
 	}
+	command = false;
 }
 
 void	ft_assign_token_type(t_list ***lst)
 {
 	t_list		*tmp;
 	t_token		*token;
+	bool		command;
 
 	tmp = **lst;
+	command = false;
 	while (tmp)
 	{
 		token = (t_token *)tmp->content;
 		if (ft_isbuiltin(token))
+		{
 			ft_handle_argument(&tmp, token);
+			command = true;
+		}
 		else if (ft_identify_command(&token, ft_split(getenv("PATH"), ':')))
+		{
 			ft_assign_command_type(token, &tmp);
+			command = true;
+		}
 		else if (ft_isoperator(token->content))
-			ft_assign_operator_type(&tmp, token);
+			ft_assign_operator_type(&tmp, token, command);
 		else if (ft_strcmp(token->content, "(") == 0
 			|| ft_strcmp(token->content, ")") == 0)
+		{
 			token->type = 'S';
+			if (ft_strcmp(token->content, ")") == 0)
+				command = false;
+		}
 		else
 			ft_handle_argument(&tmp, token);
 		if (tmp)

@@ -6,7 +6,7 @@
 /*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/09 16:22:41 by gsimonia          #+#    #+#             */
-/*   Updated: 2025/01/15 23:27:54 by gsimonia         ###   ########.fr       */
+/*   Updated: 2025/02/28 15:04:19 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,6 +83,7 @@ void	execute_command_in_child(t_node *node, char **envp)
 
 void	execute_command(t_node *node, char ***envp)
 {
+	// TODO: make execution of the command first do the redirections from left to right then execution of the command itself
 	ft_expand_error_code(node);
 	ft_quote_removal(node);
 	if (ft_strcmp(node->content[0], "cd") == 0)

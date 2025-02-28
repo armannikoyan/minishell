@@ -6,7 +6,7 @@
 /*   By: gsimonia <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/15 23:27:13 by gsimonia          #+#    #+#             */
-/*   Updated: 2025/01/15 23:29:05 by gsimonia         ###   ########.fr       */
+/*   Updated: 2025/02/14 14:06:36 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,8 +36,8 @@ void	handle_fork_and_execute(t_node *node, char **envp)
 		signal(SIGQUIT, ft_signal_handler);
 		if (WIFEXITED(status))
 			g_errno = WEXITSTATUS(status);
-		else
-			g_errno = 1;
+		else if (WIFSIGNALED(status))
+			g_errno = 128 + WTERMSIG(status);
 	}
 }
 
