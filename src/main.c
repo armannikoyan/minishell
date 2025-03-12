@@ -6,14 +6,13 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/04 18:50:38 by anikoyan          #+#    #+#             */
-/*   Updated: 2025/03/12 20:18:37 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/03/12 20:40:21 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/minishell.h"
 
 extern void	rl_clear_history(void);
-extern void	rl_replace_line(const char *text, int clear_undo);
 
 int	main(int argc __attribute__((unused)),
 		char **argv __attribute__((unused)), char **envp)
