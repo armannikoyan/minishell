@@ -1,5 +1,4 @@
-CFLAGS := -Wall -Wextra -Werror -I$(LIBFT_DIR) ${CPPFLAGS}
-LDFLAGS := ${LDFLAGS}
+CFLAGS := -Wall -Wextra -Werror -I$(LIBFT_DIR) -Iincludes
 LIB = -lreadline
 
 NAME = minishell
@@ -13,7 +12,10 @@ LIBFT = $(LIBFT_DIR)/libft.a
 SRC = main.c minishell.c \
       $(addprefix utils/, \
       error.c signals.c term_config.c \
-      dublicate_shell_env.c cursor.c \
+      cursor.c \
+      ) \
+      $(addprefix hash_table/, \
+      hash_table.c hash_table_utils.c \
       ) \
 
 OBJ = $(SRC:%.c=$(OBJ_DIR)/%.o)

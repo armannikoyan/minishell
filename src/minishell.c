@@ -6,7 +6,7 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/12 20:17:13 by anikoyan          #+#    #+#             */
-/*   Updated: 2025/03/13 11:25:05 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/03/17 19:46:27 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,11 +14,10 @@
 
 extern void	rl_clear_history(void);
 
-void	interactive_loop(char **shell_env)
+void	interactive_loop(void)
 {
 	char	*input;
 
-	(void)shell_env;
 	while (true)
 	{
 		input = readline("minishell$ ");
@@ -29,6 +28,7 @@ void	interactive_loop(char **shell_env)
 			break ;
 		}
 		add_history(input);
+		free(input);
 	}
 	rl_clear_history();
 }
