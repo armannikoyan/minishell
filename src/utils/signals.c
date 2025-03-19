@@ -6,11 +6,12 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/04 18:58:38 by anikoyan          #+#    #+#             */
-/*   Updated: 2025/03/12 20:16:35 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/03/19 17:30:17 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../includes/minishell.h"
+#include "../../includes/utils.h"
 
 extern void	rl_replace_line(const char *text, int clear_undo);
 
