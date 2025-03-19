@@ -1,5 +1,5 @@
 CFLAGS := -Wall -Wextra -Werror -I$(LIBFT_DIR) -Iincludes
-LIB = -lreadline
+LIB = -lreadline -lncurses
 
 NAME = minishell
 SRC_DIR = src
