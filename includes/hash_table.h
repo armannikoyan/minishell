@@ -6,7 +6,7 @@
 /*   By: anikoyan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/17 16:15:58 by anikoyan          #+#    #+#             */
-/*   Updated: 2025/03/19 12:08:15 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/03/19 17:32:32 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,8 +16,6 @@
 # include <unistd.h>
 # include <stdio.h>
 # include <stdbool.h>
-
-# include "../libs/libft/libft.h"
 
 # define MAX_LOAD_FACTOR 0.7
 # define MIN_LOAD_FACTOR 0.7

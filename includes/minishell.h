@@ -6,7 +6,7 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/04 18:57:19 by anikoyan          #+#    #+#             */
-/*   Updated: 2025/03/19 12:11:21 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/03/19 18:37:37 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,12 +17,11 @@
 # include <errno.h>
 # include <readline/readline.h>
 # include <readline/history.h>
+# include <limits.h>
 
 # include "../libs/libft/libft.h"
-# include "utils.h"
-# include "hash_table.h"
 
 // --------- MINISHELL ENTRY ---------
-void	interactive_loop(char **envp);
+void	interactive_loop(const char **envp);
 
 #endif
