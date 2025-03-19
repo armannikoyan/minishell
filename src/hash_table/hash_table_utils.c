@@ -6,7 +6,7 @@
 /*   By: anikoyan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/17 16:54:25 by anikoyan          #+#    #+#             */
-/*   Updated: 2025/03/19 12:21:29 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/03/19 16:25:24 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -149,6 +149,8 @@ void	ht_delete(t_hash_table *ht, const char *key)
 
 	hash = hash_func(key);
 	index = hash % ht->size;
+	prev = NULL;
+	entry = ht->buckets[index];
 	while (entry)
 	{
 		if (ft_strcmp(entry->key, key) == 0)

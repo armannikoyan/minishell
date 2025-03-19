@@ -6,7 +6,7 @@
 /*   By: anikoyan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/17 16:17:00 by anikoyan          #+#    #+#             */
-/*   Updated: 2025/03/19 12:22:05 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/03/19 16:22:48 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,7 +52,7 @@ void	ht_destroy(t_hash_table *ht)
 			free(entry);
 			entry = next;
 		}
-		i++;
+		++i;
 	}
 	free(ht->buckets);
 	free(ht);

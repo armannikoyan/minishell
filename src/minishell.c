@@ -6,7 +6,7 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/12 20:17:13 by anikoyan          #+#    #+#             */
-/*   Updated: 2025/03/19 12:16:16 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/03/19 16:47:55 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,6 +37,37 @@ static void	ht_insert_env(t_hash_table *ht, char **envp)
 		free(str);
 		i++;
 	}
+	char *shlvl = ht_get(ht, "SHLVL");
+	if (shlvl)
+		str = ft_itoa(ft_atoi(ht_get(ht, "SHLVL")) + 1);
+	else
+		str = ft_itoa(1);
+	if (!str)
+	{
+		print_error("minishell: Failed to duplicate environment.\n");
+		exit(EXIT_FAILURE);
+	}
+	ht_insert(ht, "SHLVL", str);
+	free(str);
+	str = (char *)malloc(sizeof(char) * PATH_MAX);
+	if (!str)
+	{
+		perror("malloc");
+		exit(EXIT_FAILURE);
+	}
+	ht_insert(ht, "PWD", getcwd(str, PATH_MAX));
+	free(str);
+	i = 0;
+	while (i < ht->size)
+	{
+		t_entry *entry = ht->buckets[i];
+		while (entry)
+		{
+			ft_printf("%s=\"%s\"\n", entry->key, entry->value);
+			entry = entry->next;
+		}
+		++i;
+	}
 }
 
 void	interactive_loop(char	**envp)
@@ -50,6 +81,7 @@ void	interactive_loop(char	**envp)
 		print_error("minishell: Failed to duplicate environment.\n");
 		exit(EXIT_FAILURE);
 	}
+	ht_insert_env(ht, envp);
 	while (true)
 	{
 		input = readline("minishell$ ");
@@ -62,8 +94,6 @@ void	interactive_loop(char	**envp)
 		add_history(input);
 		free(input);
 	}
-	ft_printf("%s\n", ht_get(ht, "USER")); // remove
-	ft_printf("%s\n", ht_get(ht, "PATH"));
 	ht_destroy(ht);
 	rl_clear_history();
 }
