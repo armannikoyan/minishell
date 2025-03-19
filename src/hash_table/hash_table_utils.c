@@ -6,12 +6,13 @@
 /*   By: anikoyan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/17 16:54:25 by anikoyan          #+#    #+#             */
-/*   Updated: 2025/03/19 16:25:24 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/03/19 19:24:27 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../includes/hash_table.h"
 #include "../../includes/utils.h"
+#include "../../libs/libft/libft.h"
 
 static int	next_prime(int current)
 {
@@ -63,10 +64,7 @@ static void	ht_resize(t_hash_table *ht, int new_size)
 
 	new_buckets = (t_entry **)ft_calloc(new_size, sizeof(t_entry *));
 	if (!new_buckets)
-	{
-		print_error("minishell: Failed to allocate memory");
-		exit(EXIT_FAILURE);
-	}
+		print_error("malloc", EXIT_FAILURE);
 	i = 0;
 	while (i < ht->size)
 	{
@@ -111,10 +109,7 @@ void	ht_insert(t_hash_table *ht, const char *key, const char *value)
 	}
 	new_entry = (t_entry *)malloc(sizeof(t_entry));
 	if (!new_entry)
-	{
-		perror("malloc");
-		exit(EXIT_FAILURE);
-	}
+		print_error("malloc", EXIT_FAILURE);
 	new_entry->key = ft_strdup(key);
 	new_entry->value = ft_strdup(value);
 	new_entry->next = ht->buckets[index];

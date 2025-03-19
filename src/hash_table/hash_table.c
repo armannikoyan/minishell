@@ -6,12 +6,13 @@
 /*   By: anikoyan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/17 16:17:00 by anikoyan          #+#    #+#             */
-/*   Updated: 2025/03/19 16:22:48 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/03/19 19:24:56 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../includes/hash_table.h"
 #include "../../includes/utils.h"
+#include "../../libs/libft/libft.h"
 
 t_hash_table	*ht_create(void)
 {
@@ -19,18 +20,12 @@ t_hash_table	*ht_create(void)
 
 	ht = (t_hash_table *)malloc(sizeof(t_hash_table));
 	if (!ht)
-	{
-		perror("malloc");
-		exit(EXIT_FAILURE);
-	}
+		print_error("malloc", EXIT_FAILURE);
 	ht->size = INITIAL_SIZE;
 	ht->count = 0;
 	ht->buckets = ft_calloc(ht->size, sizeof(t_entry *));
 	if (!ht->buckets)
-	{
-		print_error("minishell: Failed to allocate memory");
-		exit(EXIT_FAILURE);
-	}
+		print_error("malloc", EXIT_FAILURE);
 	return (ht);
 }
 
