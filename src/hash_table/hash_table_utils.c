@@ -6,29 +6,40 @@
 /*   By: anikoyan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/17 16:54:25 by anikoyan          #+#    #+#             */
-/*   Updated: 2025/03/17 20:05:00 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/03/19 12:21:29 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../includes/hash_table.h"
 #include "../../includes/utils.h"
 
-static int next_prime(int current) {
-    int candidate = current * 2;
-    while (1) {
-        if (ft_isprime(candidate)) return candidate;
-        candidate++;
-    }
+static int	next_prime(int current)
+{
+	int	candidate;
+
+	candidate = current * 2;
+	while (true)
+	{
+		if (ft_isprime(candidate))
+			return (candidate);
+		++candidate;
+	}
 }
 
-static int prev_prime(int current) {
-    int desired = current / 2;
-    if (desired < MIN_SIZE) return MIN_SIZE;
-    while (desired >= MIN_SIZE) {
-        if (ft_isprime(desired)) return desired;
-        desired--;
-    }
-    return MIN_SIZE;
+static int	prev_prime(int current)
+{
+	int	desired;
+
+	desired = current / 2;
+	if (desired < MIN_SIZE)
+		return (MIN_SIZE);
+	while (desired >= MIN_SIZE)
+	{
+		if (ft_isprime(desired))
+			return (desired);
+		--desired;
+	}
+	return (MIN_SIZE);
 }
 
 static unsigned long	hash_func(const char *str)
@@ -43,12 +54,12 @@ static unsigned long	hash_func(const char *str)
 
 static void	ht_resize(t_hash_table *ht, int new_size)
 {
-	t_entry		**new_buckets;
-	t_entry		*entry;
-	t_entry		*next;
+	t_entry			**new_buckets;
+	t_entry			*entry;
+	t_entry			*next;
 	unsigned long	hash;
-	int		index;
-	int		i;
+	int				index;
+	int				i;
 
 	new_buckets = (t_entry **)ft_calloc(new_size, sizeof(t_entry *));
 	if (!new_buckets)
@@ -78,10 +89,10 @@ static void	ht_resize(t_hash_table *ht, int new_size)
 
 void	ht_insert(t_hash_table *ht, const char *key, const char *value)
 {
-	t_entry		*entry;
-	t_entry		*new_entry;
+	t_entry			*entry;
+	t_entry			*new_entry;
 	unsigned long	hash;
-	int		index;
+	int				index;
 
 	if ((float)ht->count / ht->size >= MAX_LOAD_FACTOR)
 		ht_resize(ht, next_prime(ht->size));
@@ -113,9 +124,9 @@ void	ht_insert(t_hash_table *ht, const char *key, const char *value)
 
 char	*ht_get(t_hash_table *ht, const char *key)
 {
-	t_entry		*entry;
+	t_entry			*entry;
 	unsigned long	hash;
-	int		index;
+	int				index;
 
 	hash = hash_func(key);
 	index = hash % ht->size;
@@ -131,10 +142,10 @@ char	*ht_get(t_hash_table *ht, const char *key)
 
 void	ht_delete(t_hash_table *ht, const char *key)
 {
-	t_entry		*entry;
-	t_entry		*prev;
+	t_entry			*entry;
+	t_entry			*prev;
 	unsigned long	hash;
-	int		index;
+	int				index;
 
 	hash = hash_func(key);
 	index = hash % ht->size;
@@ -150,7 +161,8 @@ void	ht_delete(t_hash_table *ht, const char *key)
 			free(entry->value);
 			free(entry);
 			ht->count--;
-			if (ht->size > MIN_SIZE && (float)ht->count / ht->size <= MIN_LOAD_FACTOR)
+			if (ht->size > MIN_SIZE
+				&& (float)ht->count / ht->size <= MIN_LOAD_FACTOR)
 				ht_resize(ht, prev_prime(ht->size));
 			return ;
 		}

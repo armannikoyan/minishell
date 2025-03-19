@@ -6,7 +6,7 @@
 /*   By: anikoyan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/17 16:17:00 by anikoyan          #+#    #+#             */
-/*   Updated: 2025/03/17 18:29:07 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/03/19 12:22:05 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 
 t_hash_table	*ht_create(void)
 {
-	t_hash_table *ht;
+	t_hash_table	*ht;
 
 	ht = (t_hash_table *)malloc(sizeof(t_hash_table));
 	if (!ht)
@@ -36,7 +36,7 @@ t_hash_table	*ht_create(void)
 
 void	ht_destroy(t_hash_table *ht)
 {
-	int	i;
+	int		i;
 	t_entry	*entry;
 	t_entry	*next;
 

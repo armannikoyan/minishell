@@ -6,7 +6,7 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/04 18:57:19 by anikoyan          #+#    #+#             */
-/*   Updated: 2025/03/17 19:46:17 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/03/19 12:11:21 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,6 @@
 # include "hash_table.h"
 
 // --------- MINISHELL ENTRY ---------
-void	interactive_loop(void);
+void	interactive_loop(char **envp);
 
 #endif
