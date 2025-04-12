@@ -6,7 +6,7 @@
 /*   By: anikoyan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/17 16:15:58 by anikoyan          #+#    #+#             */
-/*   Updated: 2025/03/19 12:08:15 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/04/12 14:49:16 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,5 +43,10 @@ void			ht_destroy(t_hash_table *ht);
 void			ht_insert(t_hash_table *ht, const char *key, const char *value);
 char			*ht_get(t_hash_table *ht, const char *key);
 void			ht_delete(t_hash_table *ht, const char *key);
+
+int				next_prime(int current);
+int				prev_prime(int current);
+unsigned long	hash_func(const char *str);
+void			ht_resize(t_hash_table *ht, int new_size);
 
 #endif
