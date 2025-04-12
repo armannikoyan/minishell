@@ -6,7 +6,7 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/12 20:17:13 by anikoyan          #+#    #+#             */
-/*   Updated: 2025/03/19 16:47:55 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/04/12 13:41:41 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,33 @@
 #include "../includes/hash_table.h"
 
 extern void	rl_clear_history(void);
+
+static void	ht_replace_incorrect_env(t_hash_table *ht)
+{
+	char	*shlvl;
+	char	*str;
+
+	shlvl = ht_get(ht, "SHLVL");
+	if (shlvl)
+		str = ft_itoa(ft_atoi(ht_get(ht, "SHLVL")) + 1);
+	else
+		str = ft_itoa(1);
+	if (!str)
+	{
+		print_error("minishell: Failed to duplicate environment.\n");
+		exit(EXIT_FAILURE);
+	}
+	ht_insert(ht, "SHLVL", str);
+	free(str);
+	str = (char *)malloc(sizeof(char) * PATH_MAX);
+	if (!str)
+	{
+		perror("malloc");
+		exit(EXIT_FAILURE);
+	}
+	ht_insert(ht, "PWD", getcwd(str, PATH_MAX));
+	free(str);
+}
 
 static void	ht_insert_env(t_hash_table *ht, char **envp)
 {
@@ -37,37 +64,7 @@ static void	ht_insert_env(t_hash_table *ht, char **envp)
 		free(str);
 		i++;
 	}
-	char *shlvl = ht_get(ht, "SHLVL");
-	if (shlvl)
-		str = ft_itoa(ft_atoi(ht_get(ht, "SHLVL")) + 1);
-	else
-		str = ft_itoa(1);
-	if (!str)
-	{
-		print_error("minishell: Failed to duplicate environment.\n");
-		exit(EXIT_FAILURE);
-	}
-	ht_insert(ht, "SHLVL", str);
-	free(str);
-	str = (char *)malloc(sizeof(char) * PATH_MAX);
-	if (!str)
-	{
-		perror("malloc");
-		exit(EXIT_FAILURE);
-	}
-	ht_insert(ht, "PWD", getcwd(str, PATH_MAX));
-	free(str);
-	i = 0;
-	while (i < ht->size)
-	{
-		t_entry *entry = ht->buckets[i];
-		while (entry)
-		{
-			ft_printf("%s=\"%s\"\n", entry->key, entry->value);
-			entry = entry->next;
-		}
-		++i;
-	}
+	ht_replace_incorrect_env(ht);
 }
 
 void	interactive_loop(char	**envp)
