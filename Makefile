@@ -1,5 +1,8 @@
 CFLAGS := -Wall -Wextra -Werror -I$(LIBFT_DIR) -Iincludes
-LIB = -lreadline
+CPPFLAGS += -I$(shell brew --prefix readline)/include
+LDFLAGS  += -L$(shell brew --prefix readline)/lib
+LDFLAGS += -lreadline
+
 
 NAME = minishell
 SRC_DIR = src
@@ -27,10 +30,10 @@ all: $(NAME)
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
 	@mkdir -p $(@D)
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
 
 $(NAME): $(OBJ) $(LIBFT) $(DEP)
-	$(CC) $(CFLAGS) $(OBJ) $(LIBFT) $(LDFLAGS) $(LIB) -o $(NAME)
+	$(CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) $(OBJ) $(LIBFT) -o $(NAME)
 
 $(LIBFT):
 	make -C $(LIBFT_DIR) all
