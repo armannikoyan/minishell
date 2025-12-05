@@ -6,13 +6,18 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/12 20:17:13 by anikoyan          #+#    #+#             */
-/*   Updated: 2025/12/05 23:13:03 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/12/06 01:35:00 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include <stdio.h>
+#include <readline/readline.h>
+#include <readline/history.h>
+
 #include "../includes/minishell.h"
 #include "../includes/hash_table.h"
-#include <stdlib.h>
+#include "../includes/utils.h"
+#include "../libs/libft/libft.h"
 
 extern void	rl_clear_history(void);
 

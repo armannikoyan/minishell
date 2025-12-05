@@ -6,18 +6,12 @@
 /*   By: anikoyan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/17 16:15:58 by anikoyan          #+#    #+#             */
-/*   Updated: 2025/04/12 14:49:16 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/12/06 01:31:30 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef HASH_TABLE_H
 # define HASH_TABLE_H
-
-# include <unistd.h>
-# include <stdio.h>
-# include <stdbool.h>
-
-# include "../libs/libft/libft.h"
 
 # define MAX_LOAD_FACTOR 0.7
 # define MIN_LOAD_FACTOR 0.7

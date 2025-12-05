@@ -6,11 +6,11 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/12 20:14:59 by anikoyan          #+#    #+#             */
-/*   Updated: 2025/03/12 20:15:33 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/12/06 01:37:23 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../includes/minishell.h"
+#include "../../libs/libft/libft.h"
 
 void	move_cursor_up(void)
 {

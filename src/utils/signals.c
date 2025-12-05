@@ -6,11 +6,16 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/04 18:58:38 by anikoyan          #+#    #+#             */
-/*   Updated: 2025/03/12 20:16:35 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/12/06 01:44:19 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../includes/minishell.h"
+#include <termios.h>
+#include <signal.h>
+#include <stdio.h>
+#include <readline/readline.h>
+
+#include "../../libs/libft/libft.h"
 
 extern void	rl_replace_line(const char *text, int clear_undo);
 

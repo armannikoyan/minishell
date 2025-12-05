@@ -6,20 +6,14 @@
 /*   By: anikoyan <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/17 18:14:57 by anikoyan          #+#    #+#             */
-/*   Updated: 2025/09/16 20:33:56 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/12/06 01:43:25 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef UTILS_H
 # define UTILS_H
 
-# include <unistd.h>
-# include <errno.h>
 # include <termios.h>
-# include <signal.h>
-# include <stdbool.h>
-
-# include "../libs/libft/libft.h"
 
 // --------- TERMINAL SETTINGS ---------
 void	set_term_config(struct termios *original);

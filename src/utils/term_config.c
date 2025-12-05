@@ -6,11 +6,12 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/05 13:51:51 by anikoyan          #+#    #+#             */
-/*   Updated: 2025/03/12 20:16:29 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/12/06 01:39:57 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../includes/minishell.h"
+#include <termios.h>
+#include <unistd.h>
 
 void	restore_terminal_settings(struct termios *original)
 {

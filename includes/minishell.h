@@ -6,22 +6,12 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/04 18:57:19 by anikoyan          #+#    #+#             */
-/*   Updated: 2025/09/16 20:26:06 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/12/06 01:31:55 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef MINISHELL_H
 # define MINISHELL_H
-
-# include <stdio.h>
-# include <unistd.h>
-# include <errno.h>
-# include <readline/readline.h>
-# include <readline/history.h>
-
-# include "../libs/libft/libft.h"
-# include "utils.h"
-# include "hash_table.h"
 
 // --------- MINISHELL ENTRY ---------
 void	interactive_loop(char **envp);

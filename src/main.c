@@ -6,10 +6,14 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/04 18:50:38 by anikoyan          #+#    #+#             */
-/*   Updated: 2025/03/19 12:11:45 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/12/06 01:36:46 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include <termios.h>
+#include <stdlib.h>
+
+#include "../includes/utils.h"
 #include "../includes/minishell.h"
 
 extern void	rl_clear_history(void);
