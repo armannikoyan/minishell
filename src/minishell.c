@@ -6,12 +6,13 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/12 20:17:13 by anikoyan          #+#    #+#             */
-/*   Updated: 2025/04/12 13:41:41 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/12/05 23:13:03 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/minishell.h"
 #include "../includes/hash_table.h"
+#include <stdlib.h>
 
 extern void	rl_clear_history(void);
 
@@ -83,11 +84,7 @@ void	interactive_loop(char	**envp)
 	{
 		input = readline("minishell$ ");
 		if (!input)
-		{
-			move_cursor_up();
-			ft_printf("minishell$ exit\n");
-			break ;
-		}
+			input = ft_strdup("exit");
 		add_history(input);
 		free(input);
 	}
