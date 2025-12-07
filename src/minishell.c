@@ -6,7 +6,7 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/12 20:17:13 by anikoyan          #+#    #+#             */
-/*   Updated: 2025/12/06 01:35:00 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/12/07 20:36:20 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@
 #include "../includes/hash_table.h"
 #include "../includes/utils.h"
 #include "../libs/libft/libft.h"
+#include "../includes/tokenization.h"
 
 extern void	rl_clear_history(void);
 
@@ -89,8 +90,10 @@ void	interactive_loop(char	**envp)
 	{
 		input = readline("minishell$ ");
 		if (!input)
-			input = ft_strdup("exit");
+			exit(0);
+			// input = ft_strdup("exit");
 		add_history(input);
+		lexer(input);
 		free(input);
 	}
 	ht_destroy(ht);

@@ -20,6 +20,12 @@ SRC = main.c minishell.c \
       $(addprefix hash_table/, \
       hash_table.c hash_table_utils.c \
       ) \
+      $(addprefix ast/, \
+      ast.c ast_utils.c \
+      ) \
+      $(addprefix lexer/, \
+      tokenization.c \
+      ) \
 
 OBJ = $(SRC:%.c=$(OBJ_DIR)/%.o)
 
