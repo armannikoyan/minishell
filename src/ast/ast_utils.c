@@ -20,6 +20,7 @@ static t_ast_node	*create_node(t_node_type type)
 	node->u_data.redir.child = NULL;
 	node->u_data.redir.filename = NULL;
 	node->u_data.redir.fd = -1;
+	node->u_data.subshell.root = NULL;
 	return (node);
 }
 
