@@ -118,7 +118,7 @@ t_ast_node	*tokenize(char *input)
 			if (type >= NODE_REDIRECT_IN && type <= NODE_HEREDOC)
 			{
 				i += op_len; 
-				node = create_redir_node(type, substr_next(input, &i), -1);
+				node = create_redir_node(type, substr_next(input, &i));
 			}
 			else
 			{
