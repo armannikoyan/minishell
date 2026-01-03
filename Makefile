@@ -1,8 +1,11 @@
 CFLAGS := -Wall -Wextra -Werror -I$(LIBFT_DIR) -Iincludes
-CPPFLAGS += -I$(shell brew --prefix readline)/include
-LDFLAGS  += -L$(shell brew --prefix readline)/lib
-LDFLAGS += -lreadline
 
+ifeq ($(UNAME_S),Darwin)
+	READLINE_PREFIX := $(shell brew --prefix readline)
+	CPPFLAGS += -I$(READLINE_PREFIX)/include
+	LDFLAGS  += -L$(READLINE_PREFIX)/lib
+endif
+LDFLAGS += -lreadline
 
 NAME = minishell
 SRC_DIR = src
@@ -23,8 +26,8 @@ SRC = main.c minishell.c \
       $(addprefix ast/, \
       ast.c ast_utils.c \
       ) \
-      $(addprefix lexer/, \
-      tokenization.c \
+      $(addprefix tokenization/, \
+      tokenization.c tokenization_utils.c\
       ) \
 
 OBJ = $(SRC:%.c=$(OBJ_DIR)/%.o)

@@ -6,7 +6,7 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/05 23:17:52 by anikoyan          #+#    #+#             */
-/*   Updated: 2025/12/07 21:53:48 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/12/15 14:24:21 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,6 +62,6 @@ t_ast_node	*create_cmd_node(t_node_type type, char **argv);
 t_ast_node	*create_binary_node(t_node_type type);
 t_ast_node	*create_redir_node(t_node_type type, char *filename, int fd);
 
-t_ast_node	*ast_build(t_ast_node *node);
+t_ast_node	*ast_build(t_ast_node *new_node);
 
 #endif

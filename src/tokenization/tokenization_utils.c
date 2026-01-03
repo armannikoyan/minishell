@@ -1,25 +1,31 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   tokenization.h                                     :+:      :+:    :+:   */
+/*   tokenization_utils.c                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/12/07 20:16:46 by anikoyan          #+#    #+#             */
-/*   Updated: 2025/12/13 18:27:37 by anikoyan         ###   ########.fr       */
+/*   Created: 2025/12/12 18:57:24 by anikoyan          #+#    #+#             */
+/*   Updated: 2025/12/12 18:58:03 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef TOKENIZATION_H
-# define TOKENIZATION_H
-
 #include <stdbool.h>
 
-#include "ast.h"
+#include "../../libs/libft/libft.h"
 
-bool	is_redir(char *str);
-bool	is_operator(char *str);
+bool	is_redir(char *str)
+{
+	if (!ft_strncmp(str, "<<", 2) || *str == '<'
+		|| !ft_strncmp(str, ">>", 2) || *str == '>')
+		return (true);
+	return (false);
+}
 
-t_ast_node	*tokenize(char *input);
-
-#endif
+bool	is_operator(char *str)
+{
+	if (!ft_strncmp(str, "||", 2) || *str == '|'
+		|| !ft_strncmp(str, "&&", 2))
+		return (true);
+	return (false);
+}

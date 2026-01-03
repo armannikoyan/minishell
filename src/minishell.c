@@ -6,7 +6,7 @@
 /*   By: anikoyan <anikoyan@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/12 20:17:13 by anikoyan          #+#    #+#             */
-/*   Updated: 2025/12/07 20:36:20 by anikoyan         ###   ########.fr       */
+/*   Updated: 2025/12/15 14:23:35 by anikoyan         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,7 +93,7 @@ void	interactive_loop(char	**envp)
 			exit(0);
 			// input = ft_strdup("exit");
 		add_history(input);
-		lexer(input);
+		tokenize(input);
 		free(input);
 	}
 	ht_destroy(ht);
