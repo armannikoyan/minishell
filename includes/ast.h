@@ -12,7 +12,7 @@ typedef enum node_type
 	NODE_REDIRECT_IN,
 	NODE_REDIRECT_OUT,
 	NODE_REDIRECT_APPEND,
-	NODE_HEREDOC
+	NODE_HEREDOC,
 }	t_node_type;
 
 struct	s_ast_node;
@@ -50,6 +50,6 @@ t_ast_node	*create_cmd_node(t_node_type type, char **argv);
 t_ast_node	*create_binary_node(t_node_type type);
 t_ast_node	*create_redir_node(t_node_type type, char *filename, int fd);
 
-t_ast_node	*ast_build(t_ast_node *new_node);
+t_ast_node	*ast_build(t_ast_node *new_node, t_ast_node *head_node);
 
 #endif
