@@ -3,6 +3,7 @@
 
 #include "../../includes/tokenization.h"
 #include "../../libs/libft/libft.h"
+#include "../../includes/utils.h"
 
 static void	set_quote_char(char c, char *quote_char)
 {
@@ -20,6 +21,43 @@ static void	set_quote_char(char c, char *quote_char)
 		else
 			*quote_char = '\'';
 	}
+}
+
+static char	*extract_subshell_content(char *input, size_t *i)
+{
+	size_t	start;
+	char	*tmp;
+	int		nested_level;
+	char	quote_char;
+
+	(*i)++;
+	start = *i;
+	nested_level = 1;
+	quote_char = 0;
+	while (input[*i])
+	{
+		set_quote_char(input[*i], &quote_char);
+		if (quote_char == 0)
+		{
+			if (input[*i] == '(')
+				nested_level++;
+			else if (input[*i] == ')')
+				nested_level--;
+			if (nested_level == 0)
+				break ;
+		}
+		(*i)++;
+	}
+	if (nested_level != 0)
+	{
+		// TODO: Change the content of the message
+		print_error("syntax error: unclosed parenthesis\n");
+		return (NULL);
+	}
+	tmp = ft_substr(input, start, *i - start);
+	if (input[*i] == ')')
+		(*i)++;
+	return (tmp);
 }
 
 static char	*substr_next(char *input, size_t *i)
@@ -96,10 +134,11 @@ t_ast_node	*tokenize(char *input)
 	t_node_type	type;
 	size_t	i;
 	size_t	op_len;
+	char	*sub_str;
+	t_ast_node *sub_tree;
 
 	i = 0;
 	node = NULL;
-
 	while (input[i])
 	{
 		while (input[i] == ' ')
@@ -107,14 +146,32 @@ t_ast_node	*tokenize(char *input)
 		if (!input[i])
 			break ;
 		type = get_node_type(&(input[i]));
-		if (type == NODE_COMMAND)
-			node = create_cmd_node(NODE_COMMAND, get_argv(input, &i));
+		if (type == SUBSHELL_NODE)
+		{
+			sub_str = extract_subshell_content(input, &i);
+			if (!sub_str)
+				return (NULL);
+			sub_tree = tokenize(sub_str);
+			free(sub_str);
+			if (!sub_tree)
+				return (NULL);
+			node = create_subshell_node(SUBSHELL_NODE, sub_tree);
+		}
+		else if (type == ERROR_NODE)
+		{
+			// TODO: Change to fd 2
+			//		 Change the content of the message
+			ft_printf("Minishell: syntax error near unexpected token `%c'\n", input[i]);
+			return (NULL);
+		}
+		else if (type == COMMAND_NODE)
+			node = create_cmd_node(COMMAND_NODE, get_argv(input, &i));
 		else if (is_operator(&(input[i])) || is_redir(&(input[i])))
 		{
 			op_len = get_operator_len(type);
-			if (type >= NODE_REDIRECT_IN && type <= NODE_HEREDOC)
+			if (type >= REDIRECT_IN_NODE && type <= HEREDOC_NODE)
 			{
-				i += op_len; 
+				i += op_len;
 				node = create_redir_node(type, substr_next(input, &i), -1);
 			}
 			else

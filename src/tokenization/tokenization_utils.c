@@ -14,7 +14,7 @@ bool	is_redir(char *str)
 bool	is_operator(char *str)
 {
 	if (!ft_strncmp(str, "||", 2) || *str == '|'
-		|| !ft_strncmp(str, "&&", 2))
+		|| !ft_strncmp(str, "&&", 2) || *str == '(' || *str == ')')
 		return (true);
 	return (false);
 }
@@ -22,29 +22,33 @@ bool	is_operator(char *str)
 t_node_type	get_node_type(char *input)
 {
 	if (!ft_strncmp(input, "<<", 2))
-		return (NODE_HEREDOC);
+		return (HEREDOC_NODE);
 	else if (*input == '<')
-		return (NODE_REDIRECT_IN);
+		return (REDIRECT_IN_NODE);
 	else if (!ft_strncmp(input, ">>", 2))
-		return (NODE_REDIRECT_APPEND);
+		return (REDIRECT_APPEND_NODE);
 	else if (*input == '>')
-		return (NODE_REDIRECT_OUT);
+		return (REDIRECT_OUT_NODE);
 	else if (!ft_strncmp(input, "||", 2))
-		return (NODE_OR);
+		return (OR_NODE);
 	else if (*input == '|')
-		return (NODE_PIPE);
+		return (PIPE_NODE);
 	else if (!ft_strncmp(input, "&&", 2))
-		return (NODE_AND);
-	return (NODE_COMMAND);
+		return (AND_NODE);
+	else if (*input == '(')
+		return (SUBSHELL_NODE);
+	else if (*input == ')')
+		return (ERROR_NODE);
+	return (COMMAND_NODE);
 }
 
 size_t	get_operator_len(t_node_type type)
 {
-	if (type == NODE_HEREDOC || type == NODE_REDIRECT_APPEND
-			|| type == NODE_OR || type == NODE_AND)
+	if (type == HEREDOC_NODE || type == REDIRECT_APPEND_NODE
+			|| type == OR_NODE || type == AND_NODE)
 		return (2);
-	else if (type == NODE_REDIRECT_IN || type == NODE_REDIRECT_OUT
-			|| type == NODE_PIPE)
+	else if (type == REDIRECT_IN_NODE || type == REDIRECT_OUT_NODE
+			|| type == PIPE_NODE)
 		return (1);
 	return (0);
 }

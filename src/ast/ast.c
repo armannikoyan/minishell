@@ -11,14 +11,18 @@
 t_ast_node	*ast_build(t_ast_node *new_node)
 {
 	(void)new_node;
-	if (new_node->type == NODE_COMMAND)
+	if (new_node->type == COMMAND_NODE)
 	{
 		printf("-----------------------------\nType: NODE_COMMAND\n");
 		for (size_t i = 0; new_node->u_data.cmd.argv[i]; ++i)
 			printf("%s\n", new_node->u_data.cmd.argv[i]);
 		printf("-----------------------------\n");
 	}
-	else if (new_node->type == NODE_AND || new_node->type == NODE_OR || new_node->type == NODE_PIPE)
+	else if (new_node->type == SUBSHELL_NODE) {
+		printf("-----------------------------\nType: NODE_SUBSHELL\n");
+		printf("-----------------------------\n");
+	}
+	else if (new_node->type == AND_NODE || new_node->type == OR_NODE || new_node->type == PIPE_NODE)
 	{
 		printf("-----------------------------\nType: NODE_BINARY[%d]\n", new_node->type);
 		printf("-----------------------------\n");

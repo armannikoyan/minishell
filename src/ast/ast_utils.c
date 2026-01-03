@@ -43,3 +43,12 @@ t_ast_node	*create_redir_node(t_node_type type, char *filename, int fd)
 	node->u_data.redir.fd = fd;
 	return (node);
 }
+
+t_ast_node	*create_subshell_node(t_node_type type, t_ast_node *root)
+{
+	t_ast_node	*node;
+
+	node = create_node(type);
+	node->u_data.subshell.root = root;
+	return (node);
+}
