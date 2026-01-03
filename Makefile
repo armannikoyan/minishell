@@ -1,16 +1,24 @@
-CFLAGS := -Wall -Wextra -Werror -I$(LIBFT_DIR) -Iincludes
+UNAME_S := $(shell uname -s)
 
 ifeq ($(UNAME_S),Darwin)
 	READLINE_PREFIX := $(shell brew --prefix readline)
 	CPPFLAGS += -I$(READLINE_PREFIX)/include
 	LDFLAGS  += -L$(READLINE_PREFIX)/lib
 endif
-LDFLAGS += -lreadline
+
+ifeq ($(UNAME_S),Linux)
+	LDFLAGS += -lncurses
+endif
+
+LDLIBS += -lreadline
 
 NAME = minishell
 SRC_DIR = src
 OBJ_DIR = obj
 LIBFT_DIR = libs/libft
+
+CFLAGS := -Wall -Wextra -Werror -I$(LIBFT_DIR) -Iincludes
+
 DEP = includes/minishell.h
 
 LIBFT = $(LIBFT_DIR)/libft.a
@@ -42,7 +50,7 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
 
 $(NAME): $(OBJ) $(LIBFT) $(DEP)
-	$(CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) $(OBJ) $(LIBFT) -o $(NAME)
+	$(CC) $(CFLAGS) $(CPPFLAGS) $(OBJ) $(LIBFT) $(LDFLAGS) $(LDLIBS) -o $(NAME)
 
 $(LIBFT):
 	make -C $(LIBFT_DIR) all
