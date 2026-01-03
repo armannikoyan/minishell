@@ -4,29 +4,49 @@
 #include "../../includes/tokenization.h"
 #include "../../libs/libft/libft.h"
 
+static void	set_quote_char(char c, char *quote_char)
+{
+	if (c == '"' && *quote_char != '\'')
+	{
+		if (*quote_char == '"')
+			*quote_char = 0;
+		else
+			*quote_char = '"';
+	}
+	else if (c == '\'' && *quote_char != '"')
+	{
+		if (*quote_char == '\'')
+			*quote_char = 0;
+		else
+			*quote_char = '\'';
+	}
+}
+
 static char	*substr_next(char *input, size_t *i)
 {
-	char		*tmp;
-	size_t		len;
-	size_t		start;
-	size_t		j;
+	char	*tmp;
+	size_t	start;
+	size_t	j;
+	char	quote_char;
 
 	while (input[*i] == ' ')
-		++(*i);
+		(*i)++;
 	start = *i;
-	while (input[*i] && input[*i] != ' ' 
-           && !is_operator(&(input[*i])) && !is_redir(&(input[*i])))
-		++(*i);
-	len = *i - start;
-	tmp = (char *)malloc(sizeof(char) * (len + 1));
+	quote_char = 0;
+	while (input[*i])
+	{
+		set_quote_char(input[*i], &quote_char);
+		if (quote_char == 0 && (input[*i] == ' ' ||
+			is_operator(&(input[*i])) || is_redir(&(input[*i]))))
+			break ;
+		(*i)++;
+	}
+	tmp = (char *)malloc(sizeof(char) * ((*i - start) + 1));
 	if (!tmp)
 		return (NULL);
 	j = 0;
-	while (j < len)
-	{
-		tmp[j] = input[start + j];
-		++j;
-	}
+	while (start < *i)
+		tmp[j++] = input[start++];
 	tmp[j] = '\0';
 	return (tmp);
 }
@@ -34,6 +54,7 @@ static char	*substr_next(char *input, size_t *i)
 static char	**get_argv(char *input, size_t *i)
 {
 	char	**argv;
+	char	quote_char;
 	size_t	len;
 	size_t	j;
 
@@ -42,13 +63,19 @@ static char	**get_argv(char *input, size_t *i)
 	while (input[j] && !is_operator(&(input[j])) && !is_redir(&(input[j])))
 	{
 		while (input[j] == ' ')
-			++j;
+			j++;
 		if (input[j] && !is_operator(&(input[j])) && !is_redir(&(input[j])))
 		{
-			++len;
-			while (input[j] && input[j] != ' ' 
-                   && !is_operator(&(input[j])) && !is_redir(&(input[j])))
-				++j;
+			len++;
+			quote_char = 0;
+			while (input[j])
+			{
+				set_quote_char(input[j], &quote_char);
+				if (quote_char == 0 && (input[j] == ' ' ||
+					is_operator(&(input[j])) || is_redir(&(input[j]))))
+					break ;
+				j++;
+			}
 		}
 	}
 	if (len == 0)
@@ -61,36 +88,6 @@ static char	**get_argv(char *input, size_t *i)
 		argv[j++] = substr_next(input, i);
 	argv[len] = NULL;
 	return (argv);
-}
-
-t_node_type	get_node_type(char *input)
-{
-	if (!ft_strncmp(input, "<<", 2))
-			return (NODE_HEREDOC);
-	else if (*input == '<')
-			return (NODE_REDIRECT_IN);
-	else if (!ft_strncmp(input, ">>", 2))
-		return (NODE_REDIRECT_APPEND);
-	else if (*input == '>')
-		return (NODE_REDIRECT_OUT);
-	else if (!ft_strncmp(input, "||", 2))
-		return (NODE_OR);
-	else if (*input == '|')
-		return (NODE_PIPE);
-	else if (!ft_strncmp(input, "&&", 2))
-		return (NODE_AND);
-	return (NODE_COMMAND);
-}
-
-size_t	get_operator_len(t_node_type type)
-{
-	if (type == NODE_HEREDOC || type == NODE_REDIRECT_APPEND
-			|| type == NODE_OR || type == NODE_AND)
-		return (2);
-	else if (type == NODE_REDIRECT_IN || type == NODE_REDIRECT_OUT
-			|| type == NODE_PIPE)
-		return (1);
-	return (0);
 }
 
 t_ast_node	*tokenize(char *input)
