@@ -34,11 +34,6 @@ const char *node_type_to_str(t_ast_node *node) {
     return "NODE_UNKNOWN";
 }
 
-t_ast_node *ast_tree_error() {
-    print_error("Abstract tree syntax error occurred: impossible node combination\n");
-    return NULL;
-}
-
 int is_binary_node_full(t_ast_node *node) {
     int right_full;
     int left_full;
@@ -132,7 +127,10 @@ t_ast_node *upd_tree(t_ast_node *new_node, t_ast_node *head_node) {
             }
         }
     }
-    return ast_tree_error();
+
+    //TODO: make a normal error
+    print_error("Abstract tree syntax error occurred: impossible node combination\n");
+    return NULL;
 }
 
 // Takes a head node of abstract tree and a new node, and returns an updated ast tree.
