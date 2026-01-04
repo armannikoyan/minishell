@@ -60,8 +60,8 @@ int is_binary_node_filled_right(t_ast_node *node) {
     int right_correct;
     int left_correct;
 
-    right_correct = node->u_data.binary.right != NULL;
-    left_correct = node->u_data.binary.left == NULL;
+    right_correct = node->u_data.binary.right == NULL;
+    left_correct = node->u_data.binary.left != NULL;
     return right_correct && left_correct;
 }
 
