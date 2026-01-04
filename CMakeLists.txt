@@ -34,9 +34,9 @@ set(SOURCES
         src/hash_table/hash_table.c
         src/hash_table/hash_table_utils.c
 
-        src/ast_tree/ast_tree.c
-        src/ast_tree/ast_tree_node_utils.c
-        src/ast_tree/ast_tree_print_module.c
+        src/ast/ast.c
+        src/ast/ast_node_utils.c
+        src/ast/ast_print_module.c
 
         src/tokenization/tokenization.c
         src/tokenization/tokenization_utils.c

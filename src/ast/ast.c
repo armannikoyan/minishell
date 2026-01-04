@@ -1,7 +1,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 
-#include "../../includes/ast_tree.h"
+#include "../../includes/ast.h"
 
 
 #include <stdio.h> // remove

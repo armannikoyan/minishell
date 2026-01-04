@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "ast_tree.h"
+#include "ast.h"
 
 // Return a name of a node for printing abstract tree
 static const char *get_node_name(t_node_type type) {
