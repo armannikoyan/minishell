@@ -1,25 +1,37 @@
 #include <stddef.h>
 #include <stdlib.h>
 
-#include "../../includes/ast.h"
+#include "../../includes/ast_tree.h"
 
 
 #include <stdio.h> // remove
 
 #include "utils.h"
 
-const char *node_type_to_str(t_node_type type) {
-    switch (type) {
-        case NODE_COMMAND: return "NODE_COMMAND";
-        case NODE_PIPE: return "NODE_PIPE";
-        case NODE_AND: return "NODE_AND";
-        case NODE_OR: return "NODE_OR";
-        case NODE_REDIRECT_IN: return "NODE_REDIRECT_IN";
-        case NODE_REDIRECT_OUT: return "NODE_REDIRECT_OUT";
-        case NODE_REDIRECT_APPEND: return "NODE_REDIRECT_APPEND";
-        case NODE_HEREDOC: return "NODE_HEREDOC";
-        default: return "NODE_UNKNOWN";
-    }
+const char *node_type_to_str(t_ast_node *node) {
+    t_node_type type;
+
+    if (node == NULL)
+        return "NODE_UNKNOWN";
+    type = node->type;
+
+    if (type == NODE_COMMAND)
+        return "COMMAND_NODE";
+    if (type == NODE_PIPE)
+        return "NODE_PIPE";
+    if (type == NODE_AND)
+        return "NODE_AND";
+    if (type == NODE_OR)
+        return "NODE_OR";
+    if (type == NODE_REDIRECT_IN)
+        return "NODE_REDIRECT_IN";
+    if (type == NODE_REDIRECT_OUT)
+        return "NODE_REDIRECT_OUT";
+    if (type == NODE_REDIRECT_APPEND)
+        return "NODE_REDIRECT_APPEND";
+    if (type == NODE_HEREDOC)
+        return "NODE_HEREDOC";
+    return "NODE_UNKNOWN";
 }
 
 t_node_type_abstraction get_node_type_abstraction(t_ast_node *node) {
@@ -173,9 +185,9 @@ t_ast_node *ast_build(t_ast_node *new_node, t_ast_node *head_node) {
             printf("%s ", new_node->u_data.cmd.argv[i]);
         printf("\n");
     } else if (node_type_abstraction == BINARY_NODE) {
-        printf("New node - BINARY_NODE[%s]\n", node_type_to_str(new_node->type));
+        printf("New node - BINARY_NODE[%s]\n", node_type_to_str(new_node));
     } else if (node_type_abstraction == REDIRECTION_NODE) {
-        printf("New node - REDIRECTION_NODE[%s]\n", node_type_to_str(new_node->type));
+        printf("New node - REDIRECTION_NODE[%s]\n", node_type_to_str(new_node));
         printf("Redirection path: %s\n", new_node->u_data.redir.filename);
     } else {
         printf("New node - UNKNOWN_NODE\n");

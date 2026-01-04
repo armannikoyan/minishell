@@ -3,7 +3,7 @@
 
 #include <stdbool.h>
 
-#include "ast.h"
+#include "ast_tree.h"
 
 bool	is_redir(char *str);
 bool	is_operator(char *str);

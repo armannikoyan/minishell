@@ -2,7 +2,7 @@
 # define UTILS_H
 
 # include <termios.h>
-#include "ast.h"
+#include "ast_tree.h"
 
 // --------- TERMINAL SETTINGS ---------
 void	set_term_config(struct termios *original);

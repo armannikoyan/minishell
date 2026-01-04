@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#include "../../includes/ast.h"
+#include "../../includes/ast_tree.h"
 
 static t_ast_node	*create_node(t_node_type type)
 {

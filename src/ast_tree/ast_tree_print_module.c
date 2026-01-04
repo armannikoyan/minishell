@@ -1,9 +1,7 @@
 #include <stdio.h>
-#include "ast.h"
+#include "ast_tree.h"
 
-/*
-** Человекочитаемое имя ноды
-*/
+// Return a name of a node for printing abstract tree
 static const char *node_name(t_node_type type)
 {
 	if (type == NODE_COMMAND)
