@@ -56,4 +56,6 @@ t_ast_node *create_redir_node(t_node_type type, char *filename);
 
 t_ast_node *ast_build(t_ast_node *new_node, t_ast_node *head_node);
 
+t_node_type_abstraction get_node_type_abstraction(t_ast_node *node);
+
 #endif
