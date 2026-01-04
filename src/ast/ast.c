@@ -22,7 +22,13 @@ const char *node_type_to_str(t_node_type type) {
     }
 }
 
-t_node_type_abstraction get_node_type_abstraction(t_node_type type) {
+t_node_type_abstraction get_node_type_abstraction(t_ast_node *node) {
+    t_node_type type;
+
+    if (node == NULL)
+        return UNDEFINED_NODE;
+
+    type = node->type;
     if (type == NODE_COMMAND)
         return COMMAND_NODE;
     if (type == NODE_PIPE)
@@ -69,15 +75,24 @@ int is_binary_node_filled_right(t_ast_node *node) {
 t_ast_node *upd_tree(t_ast_node *new_node, t_ast_node *head_node) {
     t_node_type_abstraction new_node_type;
     t_node_type_abstraction head_node_type;
+    t_node_type_abstraction node_iterations_child_type;
+    t_ast_node *node_iterations;
+
 
     if (head_node == NULL)
         return new_node;
-    new_node_type = get_node_type_abstraction(new_node->type);
-    head_node_type = get_node_type_abstraction(head_node->type);
+    new_node_type = get_node_type_abstraction(new_node);
+    head_node_type = get_node_type_abstraction(head_node);
+    node_iterations = head_node;
+
 
     if (head_node_type == COMMAND_NODE) {
         if (new_node_type == BINARY_NODE) {
             new_node->u_data.binary.left = head_node;
+            return new_node;
+        }
+        if (new_node_type == REDIRECTION_NODE) {
+            new_node->u_data.redir.child = head_node;
             return new_node;
         }
     }
@@ -87,6 +102,18 @@ t_ast_node *upd_tree(t_ast_node *new_node, t_ast_node *head_node) {
                 head_node->u_data.binary.right = new_node;
                 return head_node;
             }
+            if (get_node_type_abstraction(head_node->u_data.binary.right) == REDIRECTION_NODE) {
+                node_iterations = head_node->u_data.binary.right;
+                node_iterations_child_type = get_node_type_abstraction(node_iterations->u_data.redir.child);
+                while (node_iterations_child_type == REDIRECTION_NODE) {
+                    node_iterations = node_iterations->u_data.redir.child;
+                    node_iterations_child_type = get_node_type_abstraction(node_iterations->u_data.redir.child);
+                }
+                if (node_iterations_child_type == UNDEFINED_NODE) {
+                    node_iterations->u_data.redir.child = new_node;
+                    return head_node;
+                }
+            }
         }
         if (new_node_type == BINARY_NODE) {
             if (is_binary_node_full(head_node)) {
@@ -94,6 +121,42 @@ t_ast_node *upd_tree(t_ast_node *new_node, t_ast_node *head_node) {
                 return new_node;
             }
         }
+        if (new_node_type == REDIRECTION_NODE) {
+            if (head_node->u_data.binary.right == NULL) {
+                head_node->u_data.binary.right = new_node;
+                return head_node;
+            }
+            if (head_node->u_data.binary.right != NULL) {
+                if (get_node_type_abstraction(head_node->u_data.binary.right) == COMMAND_NODE ||
+                    get_node_type_abstraction(head_node->u_data.binary.right) == REDIRECTION_NODE) {
+                    new_node->u_data.redir.child = head_node->u_data.binary.right;
+                    head_node->u_data.binary.right = new_node;
+                    return head_node;
+                }
+            }
+        }
+    }
+    if (head_node_type == REDIRECTION_NODE) {
+        if (new_node_type == REDIRECTION_NODE) {
+            new_node->u_data.redir.child = head_node;
+            return new_node;
+        }
+        if (new_node_type == BINARY_NODE) {
+            new_node->u_data.binary.left = head_node;
+            return new_node;
+        }
+        if (new_node_type == COMMAND_NODE) {
+            node_iterations_child_type = get_node_type_abstraction(node_iterations->u_data.redir.child);
+            while (node_iterations_child_type == REDIRECTION_NODE) {
+                node_iterations = node_iterations->u_data.redir.child;
+                node_iterations_child_type = get_node_type_abstraction(node_iterations->u_data.redir.child);
+            }
+             if (node_iterations_child_type == UNDEFINED_NODE) {
+                 node_iterations->u_data.redir.child = new_node;
+                 return head_node;
+             }
+        }
+
     }
     return ast_tree_error();
 }
@@ -103,7 +166,7 @@ t_ast_node *upd_tree(t_ast_node *new_node, t_ast_node *head_node) {
 t_ast_node *ast_build(t_ast_node *new_node, t_ast_node *head_node) {
     t_node_type_abstraction node_type_abstraction;
 
-    node_type_abstraction = get_node_type_abstraction(new_node->type);
+    node_type_abstraction = get_node_type_abstraction(new_node);
     if (node_type_abstraction == COMMAND_NODE) {
         printf("New node - COMMAND_NODE: ");
         for (size_t i = 0; new_node->u_data.cmd.argv[i]; ++i)
@@ -121,3 +184,5 @@ t_ast_node *ast_build(t_ast_node *new_node, t_ast_node *head_node) {
 
     return upd_tree(new_node, head_node);
 }
+
+

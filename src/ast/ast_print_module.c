@@ -61,8 +61,8 @@ static void	print_argv(char **argv)
 /*
 ** Рекурсивная печать AST с ASCII-разметкой
 **
-** prefix      — накопленный отступ ("|   ", "    " и т.п.)
-** is_last     — последний ли это потомок
+** prefix  — накопленный отступ ("|   ", "    " и т.п.)
+** is_last — последний ли это потомок
 */
 static void	print_ast_rec(t_ast_node *node, const char *prefix, int is_last)
 {
@@ -74,12 +74,17 @@ static void	print_ast_rec(t_ast_node *node, const char *prefix, int is_last)
 	printf(is_last ? "`-- " : "|-- ");
 	printf("%s", node_name(node->type));
 
-	/* Доп. данные */
+	/* Дополнительные данные ноды */
 	if (node->type == NODE_COMMAND)
 	{
 		printf(": ");
 		print_argv(node->u_data.cmd.argv);
 	}
+	else if (is_redir(node->type))
+	{
+		printf(": %s", node->u_data.redir.filename);
+	}
+
 	printf("\n");
 
 	/* Новый prefix для потомков */
