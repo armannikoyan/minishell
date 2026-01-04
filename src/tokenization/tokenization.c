@@ -3,6 +3,8 @@
 
 #include "../../includes/tokenization.h"
 
+#include <stdio.h>
+
 #include "utils.h"
 #include "../../libs/libft/libft.h"
 
@@ -120,8 +122,9 @@ t_ast_node *tokenize(char *input) {
         if (node) {
             node = ast_build(node, head_node);
             head_node = node;
+            print_ast(node);
+            printf("\n\n");
         }
     }
-    print_ast(node);
     return (node);
 }
