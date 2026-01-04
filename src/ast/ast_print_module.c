@@ -62,16 +62,16 @@ static void print_ast_rec(t_ast_node *node, int depth, int *has_pipe, int is_las
     else
         printf("|-- ");
     printf("%s", get_node_name(node->type));
-    if (node->type == NODE_COMMAND)
+    if (node->abstract_type == COMMAND_NODE)
         print_argv(node->u_data.cmd.argv);
-    else if (get_node_type_abstraction(node) == REDIRECTION_NODE)
+    else if (node->abstract_type == REDIRECTION_NODE)
         printf(": %s", node->u_data.redir.filename);
     printf("\n");
     has_pipe[depth] = !is_last;
-    if (get_node_type_abstraction(node) == BINARY_NODE) {
+    if (node->abstract_type == BINARY_NODE) {
         print_ast_rec(node->u_data.binary.left, depth + 1, has_pipe, 0);
         print_ast_rec(node->u_data.binary.right, depth + 1, has_pipe, 1);
-    } else if (get_node_type_abstraction(node) == REDIRECTION_NODE) {
+    } else if (node->abstract_type == REDIRECTION_NODE) {
         print_ast_rec(node->u_data.redir.child, depth + 1, has_pipe, 1);
     }
 }

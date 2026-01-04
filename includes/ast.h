@@ -14,12 +14,12 @@ typedef enum node_type {
     NODE_HEREDOC,
 } t_node_type;
 
-typedef enum node_type_abstraction {
+typedef enum node_abstract_type {
     COMMAND_NODE,
     BINARY_NODE,
     REDIRECTION_NODE,
     UNDEFINED_NODE,
-} t_node_type_abstraction;
+} t_node_abstract_type;
 
 struct s_ast_node;
 
@@ -40,6 +40,7 @@ struct s_redirection {
 
 typedef struct s_ast_node {
     t_node_type type;
+    t_node_abstract_type abstract_type;
 
     union {
         struct s_command cmd;
@@ -55,7 +56,5 @@ t_ast_node *create_binary_node(t_node_type type);
 t_ast_node *create_redir_node(t_node_type type, char *filename);
 
 t_ast_node *ast_build(t_ast_node *new_node, t_ast_node *head_node);
-
-t_node_type_abstraction get_node_type_abstraction(t_ast_node *node);
 
 #endif
