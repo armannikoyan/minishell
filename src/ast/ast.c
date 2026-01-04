@@ -1,11 +1,6 @@
-#include <stddef.h>
-#include <stdlib.h>
+#include <stdio.h>
 
 #include "../../includes/ast.h"
-
-
-#include <stdio.h> // remove
-
 #include "utils.h"
 
 const char *node_type_to_str(t_ast_node *node) {
@@ -34,100 +29,97 @@ const char *node_type_to_str(t_ast_node *node) {
     return "NODE_UNKNOWN";
 }
 
-int is_binary_node_full(t_ast_node *node) {
-    int right_full;
-    int left_full;
-
-    right_full = node->u_data.binary.right != NULL;
-    left_full = node->u_data.binary.left != NULL;
-    return right_full && left_full;
+t_ast_node *head_is_comand_node(t_ast_node *node, t_ast_node *head) {
+    if (node->abstract_type == BINARY_NODE) {
+        node->u_data.binary.left = head;
+        return node;
+    }
+    if (node->abstract_type == REDIRECTION_NODE) {
+        node->u_data.redir.child = head;
+        return node;
+    }
+    //TODO: make a normal error
+    print_error("Abstract tree syntax error occurred: impossible node combination\n");
+    return NULL;
 }
 
-int is_binary_node_filled_right(t_ast_node *node) {
-    int right_correct;
-    int left_correct;
+t_ast_node *head_is_binary_node(t_ast_node *node, t_ast_node *head) {
+    t_ast_node *iter;
 
-    right_correct = node->u_data.binary.right == NULL;
-    left_correct = node->u_data.binary.left != NULL;
-    return right_correct && left_correct;
+    if (node->abstract_type == COMMAND_NODE) {
+        if (head->u_data.binary.right == NULL && head->u_data.binary.left != NULL) {
+            head->u_data.binary.right = node;
+            return head;
+        }
+        iter = head->u_data.binary.right;
+        if (iter != NULL && iter->abstract_type == REDIRECTION_NODE) {
+            while (iter->u_data.redir.child != NULL && iter->u_data.redir.child->abstract_type == REDIRECTION_NODE)
+                iter = iter->u_data.redir.child;
+            if (iter->u_data.redir.child == NULL) {
+                iter->u_data.redir.child = node;
+                return head;
+            }
+        }
+    }
+    if (node->abstract_type == BINARY_NODE) {
+        if (head->u_data.binary.right != NULL && head->u_data.binary.left != NULL) {
+            node->u_data.binary.left = head;
+            return node;
+        }
+    }
+    if (node->abstract_type == REDIRECTION_NODE) {
+        if (head->u_data.binary.right == NULL) {
+            head->u_data.binary.right = node;
+            return head;
+        }
+        if (head->u_data.binary.right->abstract_type == COMMAND_NODE ||
+            head->u_data.binary.right->abstract_type == REDIRECTION_NODE) {
+            node->u_data.redir.child = head->u_data.binary.right;
+            head->u_data.binary.right = node;
+            return head;
+        }
+    }
+    //TODO: make a normal error
+    print_error("Abstract tree syntax error occurred: impossible node combination\n");
+    return NULL;
+}
+
+t_ast_node *head_is_redir_node(t_ast_node *node, t_ast_node *head) {
+    t_ast_node *iter;
+
+    if (node->abstract_type == REDIRECTION_NODE) {
+        node->u_data.redir.child = head;
+        return node;
+    }
+    if (node->abstract_type == BINARY_NODE) {
+        node->u_data.binary.left = head;
+        return node;
+    }
+    iter = head;
+    if (node->abstract_type == COMMAND_NODE) {
+        while (iter->u_data.redir.child != NULL && iter->u_data.redir.child->abstract_type == REDIRECTION_NODE)
+            iter = iter->u_data.redir.child;
+        if (iter->u_data.redir.child == NULL) {
+            iter->u_data.redir.child = node;
+            return head;
+        }
+    }
+    //TODO: make a normal error
+    print_error("Abstract tree syntax error occurred: impossible node combination\n");
+    return NULL;
 }
 
 
 t_ast_node *upd_tree(t_ast_node *new_node, t_ast_node *head_node) {
-    t_ast_node *iter;
-
-
     if (head_node == NULL)
         return new_node;
-    iter = head_node;
 
-
-    if (head_node->abstract_type == COMMAND_NODE) {
-        if (new_node->abstract_type == BINARY_NODE) {
-            new_node->u_data.binary.left = head_node;
-            return new_node;
-        }
-        if (new_node->abstract_type == REDIRECTION_NODE) {
-            new_node->u_data.redir.child = head_node;
-            return new_node;
-        }
-    }
-    if (head_node->abstract_type == BINARY_NODE) {
-        if (new_node->abstract_type == COMMAND_NODE) {
-            if (is_binary_node_filled_right(head_node)) {
-                head_node->u_data.binary.right = new_node;
-                return head_node;
-            }
-            iter = head_node->u_data.binary.right;
-            if (iter != NULL && iter->abstract_type == REDIRECTION_NODE) {
-                while (iter->u_data.redir.child != NULL && iter->u_data.redir.child->abstract_type == REDIRECTION_NODE)
-                    iter = iter->u_data.redir.child;
-                if (iter->u_data.redir.child == NULL) {
-                    iter->u_data.redir.child = new_node;
-                    return head_node;
-                }
-            }
-        }
-        if (new_node->abstract_type == BINARY_NODE) {
-            if (is_binary_node_full(head_node)) {
-                new_node->u_data.binary.left = head_node;
-                return new_node;
-            }
-        }
-        if (new_node->abstract_type == REDIRECTION_NODE) {
-            if (head_node->u_data.binary.right == NULL) {
-                head_node->u_data.binary.right = new_node;
-                return head_node;
-            }
-            if (head_node->u_data.binary.right != NULL) {
-                if (head_node->u_data.binary.right->abstract_type == COMMAND_NODE ||
-                    head_node->u_data.binary.right->abstract_type == REDIRECTION_NODE) {
-                    new_node->u_data.redir.child = head_node->u_data.binary.right;
-                    head_node->u_data.binary.right = new_node;
-                    return head_node;
-                }
-            }
-        }
-    }
-    if (head_node->abstract_type == REDIRECTION_NODE) {
-        if (new_node->abstract_type == REDIRECTION_NODE) {
-            new_node->u_data.redir.child = head_node;
-            return new_node;
-        }
-        if (new_node->abstract_type == BINARY_NODE) {
-            new_node->u_data.binary.left = head_node;
-            return new_node;
-        }
-        if (new_node->abstract_type == COMMAND_NODE) {
-            while (iter->u_data.redir.child != NULL && iter->u_data.redir.child->abstract_type == REDIRECTION_NODE)
-                iter = iter->u_data.redir.child;
-            if (iter->u_data.redir.child == NULL) {
-                iter->u_data.redir.child = new_node;
-                return head_node;
-            }
-        }
-    }
-
+    if (head_node->abstract_type == COMMAND_NODE)
+        return head_is_comand_node(new_node, head_node);
+    if (head_node->abstract_type == BINARY_NODE)
+        return head_is_binary_node(new_node, head_node);
+    if (head_node->abstract_type == REDIRECTION_NODE)
+        return head_is_redir_node(new_node, head_node);
     //TODO: make a normal error
     print_error("Abstract tree syntax error occurred: impossible node combination\n");
     return NULL;
