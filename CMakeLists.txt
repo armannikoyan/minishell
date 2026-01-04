@@ -39,6 +39,7 @@ set(SOURCES
 
         ${SRC_DIR}/tokenization/tokenization.c
         ${SRC_DIR}/tokenization/tokenization_utils.c
+        src/ast/ast_print_module.c
 )
 
 # ===============================

@@ -2,6 +2,8 @@
 #include <stdlib.h>
 
 #include "../../includes/tokenization.h"
+
+#include "utils.h"
 #include "../../libs/libft/libft.h"
 
 static char *substr_next(char *input, size_t *i) {
@@ -120,5 +122,6 @@ t_ast_node *tokenize(char *input) {
             head_node = node;
         }
     }
+    print_ast(node);
     return (node);
 }
