@@ -41,6 +41,7 @@ set(SOURCES
         src/tokenization/tokenization.c
         src/tokenization/tokenization_utils.c
         src/ast/ast_print_module.c
+        src/tokenization/tokenization_node_creation_module.c
 )
 
 # ===============================

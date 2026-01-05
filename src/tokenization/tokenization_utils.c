@@ -52,3 +52,21 @@ t_node_type	get_node_type(char *input)
 		return (ERROR_NODE);
 	return (COMMAND_NODE);
 }
+
+void	set_quote_char(char c, char *quote_char)
+{
+	if (c == '"' && *quote_char != '\'')
+	{
+		if (*quote_char == '"')
+			*quote_char = 0;
+		else
+			*quote_char = '"';
+	}
+	else if (c == '\'' && *quote_char != '"')
+	{
+		if (*quote_char == '\'')
+			*quote_char = 0;
+		else
+			*quote_char = '\'';
+	}
+}
