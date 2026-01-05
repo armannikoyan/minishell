@@ -129,10 +129,13 @@ t_ast_node *upd_tree(t_ast_node *new_node, t_ast_node *root) {
 // If a syntaxis error occurred while updating tree, returns NULL
 t_ast_node *ast_build(t_ast_node *new_node, t_ast_node *root) {
     if (new_node->abstract_type == CMD_NODE) {
-        printf("New node - COMMAND_NODE: ");
-        for (size_t i = 0; new_node->u_data.cmd.argv[i]; ++i)
-            printf("%s ", new_node->u_data.cmd.argv[i]);
-        printf("\n");
+        if (new_node->type == COMMAND_NODE) {
+            printf("New node - COMMAND_NODE: ");
+            for (size_t i = 0; new_node->u_data.cmd.argv[i]; ++i)
+                printf("%s ", new_node->u_data.cmd.argv[i]);
+            printf("\n");
+        } else
+            printf("New node - SUBSHELL_NODE: it contains in itself previous tree\n");
     } else if (new_node->abstract_type == BIN_NODE) {
         printf("New node - BINARY_NODE[%s]\n", node_type_to_str(new_node));
     } else if (new_node->abstract_type == REDIR_NODE) {

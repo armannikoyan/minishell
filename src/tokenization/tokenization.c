@@ -157,6 +157,10 @@ t_ast_node	*tokenize(char *input)
 			sub_str = extract_subshell_content(input, &i);
 			if (!sub_str)
 				return (NULL);
+			if (ft_strlen(sub_str) == 0) {
+				free(sub_str);
+				continue;
+			}
 			sub_tree = tokenize(sub_str);
 			free(sub_str);
 			if (!sub_tree)

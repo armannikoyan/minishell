@@ -61,6 +61,7 @@ t_ast_node	*create_subshell_node(t_node_type type, t_ast_node *root)
 	t_ast_node	*node;
 
 	node = create_node(type);
+	node->abstract_type = CMD_NODE;
 	node->u_data.subshell.root = root;
 	return (node);
 }

@@ -19,6 +19,8 @@ static const char *get_node_name(t_node_type type) {
         return "REDIR_APPEND";
     if (type == HEREDOC_NODE)
         return "HEREDOC";
+    if (type == SUBSHELL_NODE)
+        return "SUBSHELL";
     return "UNKNOWN";
 }
 
@@ -62,7 +64,7 @@ static void print_ast_rec(t_ast_node *node, int depth, int *has_pipe, int is_las
     else
         printf("|-- ");
     printf("%s", get_node_name(node->type));
-    if (node->abstract_type == CMD_NODE)
+    if (node->type == COMMAND_NODE)
         print_argv(node->u_data.cmd.argv);
     else if (node->abstract_type == REDIR_NODE)
         printf(": %s", node->u_data.redir.filename);
