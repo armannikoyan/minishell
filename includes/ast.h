@@ -21,7 +21,7 @@ typedef enum node_abstract_type {
 	CMD_NODE,
 	BIN_NODE,
 	REDIR_NODE,
-	UNDF_NODE,
+	UNDEF_NODE,
 } t_node_abstract_type;
 
 struct	s_ast_node;
