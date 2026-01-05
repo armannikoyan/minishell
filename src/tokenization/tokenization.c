@@ -191,10 +191,8 @@ t_ast_node	*tokenize(char *input)
 			}
 		}
 		if (node) {
-			node = ast_build(node, head_node);
-			head_node = node;
-			print_ast(node);
-			printf("\n\n");
+			head_node = ast_build(node, head_node);
+			print_ast_info(head_node, node);
 		}
 	}
 	return (node);

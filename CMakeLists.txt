@@ -36,10 +36,11 @@ set(SOURCES
 
         src/ast/ast.c
         src/ast/ast_node_utils.c
-        src/ast/ast_print_module.c
+        src/ast/ast_print_module_utils.c
 
         src/tokenization/tokenization.c
         src/tokenization/tokenization_utils.c
+        src/ast/ast_print_module.c
 )
 
 # ===============================

@@ -1,92 +1,48 @@
 #include <stdio.h>
+
 #include "ast.h"
 
-// Return a name of a node for printing abstract tree
-static const char *get_node_name(t_node_type type) {
-    if (type == COMMAND_NODE)
-        return "CMD";
+static const char *get_type(t_node_type type) {
     if (type == PIPE_NODE)
-        return "PIPE";
+        return "PIPE_NODE";
     if (type == AND_NODE)
-        return "AND";
+        return "AND_NODE";
     if (type == OR_NODE)
-        return "OR";
+        return "OR_NODE";
     if (type == REDIRECT_IN_NODE)
-        return "REDIR_IN";
+        return "REDIRECT_IN_NODE";
     if (type == REDIRECT_OUT_NODE)
-        return "REDIR_OUT";
+        return "REDIRECT_OUT_NODE";
     if (type == REDIRECT_APPEND_NODE)
-        return "REDIR_APPEND";
+        return "REDIRECT_APPEND_NODE";
     if (type == HEREDOC_NODE)
-        return "HEREDOC";
-    if (type == SUBSHELL_NODE)
-        return "SUBSHELL";
-    return "UNKNOWN";
+        return "HEREDOC_NODE";
+    return "UNKNOWN_NODE";
 }
 
-// Prints argv for command node
-static void print_argv(char **argv) {
-    int i;
+// Prints current node info and abstract syntax tree structure
+void print_ast_info(t_ast_node *root, t_ast_node *curr_node) {
+    char *str;
 
-    i = 0;
-    printf(": ");
-    if (!argv)
-        return;
-    while (argv[i]) {
-        printf("%s", argv[i]);
-        if (argv[i + 1])
-            printf(" ");
-        i++;
+    str = "New node - ";
+    if (curr_node->abstract_type == CMD_NODE) {
+        if (curr_node->type == COMMAND_NODE) {
+            printf("%sCOMMAND_NODE: ", str);
+            for (size_t i = 0; curr_node->u_data.cmd.argv[i]; ++i)
+                printf("%s ", curr_node->u_data.cmd.argv[i]);
+            printf("\n");
+        } else
+            printf("%sSUBSHELL_NODE: it contains a previous tree\n", str);
     }
-}
-
-// Prints accumulated prefix
-static void print_prefix(int depth, int *has_pipe) {
-    int i;
-
-    i = 0;
-    while (i < depth) {
-        if (has_pipe[i])
-            printf("|   ");
-        else
-            printf("    ");
-        i++;
+    else if (curr_node->abstract_type == BIN_NODE)
+        printf("%sBINARY_NODE[%s]\n", str, get_type(curr_node->type));
+    else if (curr_node->abstract_type == REDIR_NODE) {
+        printf("%sREDIRECTION_NODE[%s]\n", str, get_type(curr_node->type));
+        printf("Redirection path: %s\n", curr_node->u_data.redir.filename);
     }
-}
-
-// Recursive printing of abstract tree with ASCII-marking
-static void print_ast_rec(t_ast_node *node, int depth, int *has_pipe, int is_last) {
-    if (!node)
-        return;
-    print_prefix(depth, has_pipe);
-    if (is_last)
-        printf("`-- ");
     else
-        printf("|-- ");
-    printf("%s", get_node_name(node->type));
-    if (node->type == COMMAND_NODE)
-        print_argv(node->u_data.cmd.argv);
-    else if (node->abstract_type == REDIR_NODE)
-        printf(": %s", node->u_data.redir.filename);
-    printf("\n");
-    has_pipe[depth] = !is_last;
-    if (node->abstract_type == BIN_NODE) {
-        print_ast_rec(node->u_data.binary.left, depth + 1, has_pipe, 0);
-        print_ast_rec(node->u_data.binary.right, depth + 1, has_pipe, 1);
-    } else if (node->abstract_type == REDIR_NODE) {
-        print_ast_rec(node->u_data.redir.child, depth + 1, has_pipe, 1);
-    }
-}
+        printf("%sUNKNOWN_NODE\n", str);
 
-// Prints abstract syntax tree
-void print_ast(t_ast_node *root) {
-    int has_pipe[64];
-    int i;
-
-    if (!root)
-        return;
-    i = 0;
-    while (i < 64)
-        has_pipe[i++] = 0;
-    print_ast_rec(root, 0, has_pipe, 1);
+    print_ast(root);
+    printf("\n\n");
 }

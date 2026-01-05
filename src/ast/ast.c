@@ -1,35 +1,9 @@
 #include <stdio.h>
 
-#include "../../includes/ast.h"
 #include "utils.h"
+#include "ast.h"
 
-const char *node_type_to_str(t_ast_node *node) {
-    t_node_type type;
-
-    if (node == NULL)
-        return "UNKNOWN_NODE";
-    type = node->type;
-
-    if (type == COMMAND_NODE)
-        return "COMMAND_NODE";
-    if (type == PIPE_NODE)
-        return "PIPE_NODE";
-    if (type == AND_NODE)
-        return "AND_NODE";
-    if (type == OR_NODE)
-        return "OR_NODE";
-    if (type == REDIRECT_IN_NODE)
-        return "REDIRECT_IN_NODE";
-    if (type == REDIRECT_OUT_NODE)
-        return "REDIRECT_OUT_NODE";
-    if (type == REDIRECT_APPEND_NODE)
-        return "REDIRECT_APPEND_NODE";
-    if (type == HEREDOC_NODE)
-        return "HEREDOC_NODE";
-    return "UNKNOWN_NODE";
-}
-
-t_ast_node *head_is_comand_node(t_ast_node *node, t_ast_node *root) {
+static t_ast_node *head_is_command_node(t_ast_node *node, t_ast_node *root) {
     if (node->abstract_type == BIN_NODE) {
         node->u_data.binary.left = root;
         return node;
@@ -43,7 +17,7 @@ t_ast_node *head_is_comand_node(t_ast_node *node, t_ast_node *root) {
     return NULL;
 }
 
-t_ast_node *head_is_binary_node(t_ast_node *node, t_ast_node *root) {
+static t_ast_node *head_is_binary_node(t_ast_node *node, t_ast_node *root) {
     t_ast_node *iter;
 
     if (node->abstract_type == CMD_NODE) {
@@ -84,7 +58,7 @@ t_ast_node *head_is_binary_node(t_ast_node *node, t_ast_node *root) {
     return NULL;
 }
 
-t_ast_node *head_is_redir_node(t_ast_node *node, t_ast_node *root) {
+static t_ast_node *head_is_redir_node(t_ast_node *node, t_ast_node *root) {
     t_ast_node *iter;
 
     if (node->abstract_type == REDIR_NODE) {
@@ -109,13 +83,14 @@ t_ast_node *head_is_redir_node(t_ast_node *node, t_ast_node *root) {
     return NULL;
 }
 
-
-t_ast_node *upd_tree(t_ast_node *new_node, t_ast_node *root) {
+// Takes a head node of abstract tree and a new node, and returns an updated ast tree.
+// If a syntaxis error occurred while updating tree, returns NULL
+t_ast_node *ast_build(t_ast_node *new_node, t_ast_node *root) {
     if (root == NULL)
         return new_node;
 
     if (root->abstract_type == CMD_NODE)
-        return head_is_comand_node(new_node, root);
+        return head_is_command_node(new_node, root);
     if (root->abstract_type == BIN_NODE)
         return head_is_binary_node(new_node, root);
     if (root->abstract_type == REDIR_NODE)
@@ -123,28 +98,4 @@ t_ast_node *upd_tree(t_ast_node *new_node, t_ast_node *root) {
     //TODO: make a normal error
     print_error("Abstract tree syntax error occurred: impossible node combination\n");
     return NULL;
-}
-
-// Takes a head node of abstract tree and a new node, and returns an updated ast tree.
-// If a syntaxis error occurred while updating tree, returns NULL
-t_ast_node *ast_build(t_ast_node *new_node, t_ast_node *root) {
-    if (new_node->abstract_type == CMD_NODE) {
-        if (new_node->type == COMMAND_NODE) {
-            printf("New node - COMMAND_NODE: ");
-            for (size_t i = 0; new_node->u_data.cmd.argv[i]; ++i)
-                printf("%s ", new_node->u_data.cmd.argv[i]);
-            printf("\n");
-        } else
-            printf("New node - SUBSHELL_NODE: it contains in itself previous tree\n");
-    } else if (new_node->abstract_type == BIN_NODE) {
-        printf("New node - BINARY_NODE[%s]\n", node_type_to_str(new_node));
-    } else if (new_node->abstract_type == REDIR_NODE) {
-        printf("New node - REDIRECTION_NODE[%s]\n", node_type_to_str(new_node));
-        printf("Redirection path: %s\n", new_node->u_data.redir.filename);
-    } else {
-        printf("New node - UNKNOWN_NODE\n");
-    }
-
-
-    return upd_tree(new_node, root);
 }
