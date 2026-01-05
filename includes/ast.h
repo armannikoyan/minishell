@@ -17,6 +17,13 @@ typedef enum node_type
 	ERROR_NODE
 }	t_node_type;
 
+typedef enum node_abstract_type {
+	CMD_NODE,
+	BIN_NODE,
+	REDIR_NODE,
+	INK_NODE,
+} t_node_abstract_type;
+
 struct	s_ast_node;
 
 struct	s_command
@@ -60,6 +67,6 @@ t_ast_node	*create_binary_node(t_node_type type);
 t_ast_node	*create_redir_node(t_node_type type, char *filename);
 t_ast_node	*create_subshell_node(t_node_type type, t_ast_node *root);
 
-t_ast_node	*ast_build(t_ast_node *new_node);
+t_ast_node	*ast_build(t_ast_node *new_node, t_ast_node *root);
 
 #endif
