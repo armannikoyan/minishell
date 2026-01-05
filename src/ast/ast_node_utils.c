@@ -21,6 +21,7 @@ static t_ast_node	*create_node(t_node_type type)
 	node->u_data.redir.child = NULL;
 	node->u_data.redir.filename = NULL;
 	node->u_data.redir.fd = -1;
+	node->u_data.subshell.root = NULL;
 	return (node);
 }
 
@@ -52,5 +53,14 @@ t_ast_node	*create_redir_node(t_node_type type, char *filename)
 	node->abstract_type = REDIRECTION_NODE;
 	if (filename)
 		node->u_data.redir.filename = filename;
+	return (node);
+}
+
+t_ast_node	*create_subshell_node(t_node_type type, t_ast_node *root)
+{
+	t_ast_node	*node;
+
+	node = create_node(type);
+	node->u_data.subshell.root = root;
 	return (node);
 }
