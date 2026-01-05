@@ -14,7 +14,7 @@ static t_ast_node	*create_node(t_node_type type)
 		exit(EXIT_FAILURE);
 	}
 	node->type = type;
-	node->abstract_type = INK_NODE;
+	node->abstract_type = UNDF_NODE;
 	node->u_data.cmd.argv = NULL;
 	node->u_data.binary.left = NULL;
 	node->u_data.binary.right = NULL;
