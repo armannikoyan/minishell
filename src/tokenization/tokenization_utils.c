@@ -19,6 +19,17 @@ bool	is_operator(char *str)
 	return (false);
 }
 
+size_t	get_operator_len(t_node_type type)
+{
+	if (type == HEREDOC_NODE || type == REDIRECT_APPEND_NODE
+			|| type == OR_NODE || type == AND_NODE)
+		return (2);
+	else if (type == REDIRECT_IN_NODE || type == REDIRECT_OUT_NODE
+			|| type == PIPE_NODE)
+		return (1);
+	return (0);
+}
+
 t_node_type	get_node_type(char *input)
 {
 	if (!ft_strncmp(input, "<<", 2))
@@ -40,15 +51,4 @@ t_node_type	get_node_type(char *input)
 	else if (*input == ')')
 		return (ERROR_NODE);
 	return (COMMAND_NODE);
-}
-
-size_t	get_operator_len(t_node_type type)
-{
-	if (type == HEREDOC_NODE || type == REDIRECT_APPEND_NODE
-			|| type == OR_NODE || type == AND_NODE)
-		return (2);
-	else if (type == REDIRECT_IN_NODE || type == REDIRECT_OUT_NODE
-			|| type == PIPE_NODE)
-		return (1);
-	return (0);
 }

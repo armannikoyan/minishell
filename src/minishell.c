@@ -78,8 +78,7 @@ void	interactive_loop(char	**envp)
 	{
 		input = readline("minishell$ ");
 		if (!input)
-			exit(0);
-			// input = ft_strdup("exit");
+			input = ft_strdup("exit");
 		add_history(input);
 		tokenize(input);
 		free(input);

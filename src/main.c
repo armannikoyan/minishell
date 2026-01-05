@@ -15,5 +15,5 @@ int	main(int argc __attribute__((unused)),
 	psig_set();
 	interactive_loop(envp);
 	restore_terminal_settings(&original_termios);
-	return (EXIT_SUCCESS);
+	return (0);
 }
