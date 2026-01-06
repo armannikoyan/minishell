@@ -50,14 +50,14 @@ char	*substr_next(char *input, size_t *i)
     size_t		start;
     char	quote_char;
 
-    while (input[*i] == ' ')
+    while (input[*i] == ' ' || input[*i] == '\t')
         ++(*i);
     start = *i;
     quote_char = 0;
     while (input[*i])
     {
         set_quote_char(input[*i], &quote_char);
-        if (quote_char == 0 && (input[*i] == ' ' ||
+        if (quote_char == 0 && (input[*i] == ' ' || input[*i] == '\t' ||
             is_operator(&(input[*i])) || is_redir(&(input[*i]))))
             break ;
         ++(*i);
@@ -75,7 +75,7 @@ static size_t   get_argv_len(char *input, size_t *i)
     len = 0;
     while (input[j] && !is_operator(&(input[j])) && !is_redir(&(input[j])))
     {
-        while (input[j] == ' ')
+        while (input[j] == ' ' || input[j] == '\t')
             j++;
         if (input[j] && !is_operator(&(input[j])) && !is_redir(&(input[j])))
         {
@@ -84,7 +84,7 @@ static size_t   get_argv_len(char *input, size_t *i)
             while (input[j])
             {
                 set_quote_char(input[j], &quote_char);
-                if (quote_char == 0 && (input[j] == ' ' ||
+                if (quote_char == 0 && (input[j] == ' ' || input[j] == '\t' ||
                     is_operator(&(input[j])) || is_redir(&(input[j]))))
                     break ;
                 j++;

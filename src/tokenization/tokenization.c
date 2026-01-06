@@ -67,7 +67,7 @@ t_ast_node	*tokenize(char *input)
     head_node = NULL;
 	while (input[i])
 	{
-		while (input[i] == ' ')
+		while (input[i] == ' ' || input[i] == '\t')
 			++i;
 		if (!input[i])
 			break ;
