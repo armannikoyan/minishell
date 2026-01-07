@@ -21,7 +21,10 @@ static t_ast_node	*construct_subshell_node(char *input, size_t *i, bool *is_iter
 	sub_tree = tokenize(sub_str);
 	free(sub_str);
 	if (!sub_tree)
+	{
+		*is_iter_skippable = true;
 		return (NULL);
+	}
 	return (create_subshell_node(SUBSHELL_NODE, sub_tree));
 }
 
@@ -41,10 +44,7 @@ static t_ast_node	*construct_node(char *input, size_t *i, t_node_type type, bool
 			node = create_binary_node(type);
 	}
 	else if (type == SUBSHELL_NODE)
-	{
-		*is_iter_skippable = false;
 		node = construct_subshell_node(input, i, is_iter_skippable);
-	}
 	else if (type == ERROR_NODE)
 	{
 		// TODO: Change to fd 2
@@ -65,9 +65,10 @@ t_ast_node	*tokenize(char *input)
 	i = 0;
 	node = NULL;
     head_node = NULL;
+	is_iter_skippable = false;
 	while (input[i])
 	{
-		while (input[i] == ' ')
+		while (input[i] == ' ' || input[i] == '\t')
 			++i;
 		if (!input[i])
 			break ;

@@ -1,5 +1,4 @@
 #include <termios.h>
-#include <stdlib.h>
 
 #include "../includes/utils.h"
 #include "../includes/minishell.h"
