@@ -22,7 +22,8 @@ static void	ht_replace_incorrect_env(t_hash_table *ht)
 		str = ft_itoa(1);
 	if (!str)
 	{
-		print_error("minishell: Failed to duplicate environment.\n");
+		//TODO: make normal error
+		print_error("minishell: Failed to duplicate environment.\n", true);
 		exit(EXIT_FAILURE);
 	}
 	ht_insert(ht, "SHLVL", str);
@@ -30,6 +31,7 @@ static void	ht_replace_incorrect_env(t_hash_table *ht)
 	str = (char *)malloc(sizeof(char) * PATH_MAX);
 	if (!str)
 	{
+		//TODO: make normal error
 		perror("malloc");
 		exit(EXIT_FAILURE);
 	}
@@ -51,6 +53,7 @@ static void	ht_insert_env(t_hash_table *ht, char **envp)
 		str = (char *)malloc(sizeof(char) * (j + 1));
 		if (!str)
 		{
+			//TODO: make normal error
 			perror("malloc");
 			exit(EXIT_FAILURE);
 		}
@@ -70,7 +73,8 @@ void	interactive_loop(char	**envp)
 	ht = ht_create();
 	if (!ht)
 	{
-		print_error("minishell: Failed to duplicate environment.\n");
+		//TODO: make normal error
+		print_error("minishell: Failed to duplicate environment.\n", true);
 		exit(EXIT_FAILURE);
 	}
 	ht_insert_env(ht, envp);

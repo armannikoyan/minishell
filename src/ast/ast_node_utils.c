@@ -10,6 +10,7 @@ static t_ast_node	*create_node(t_node_type type)
 	node = (t_ast_node *)malloc(sizeof(t_ast_node));
 	if (!node)
 	{
+		//TODO: make normal error
 		perror("malloc");
 		exit(EXIT_FAILURE);
 	}

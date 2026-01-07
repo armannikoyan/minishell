@@ -12,6 +12,7 @@ t_hash_table	*ht_create(void)
 	ht = (t_hash_table *)malloc(sizeof(t_hash_table));
 	if (!ht)
 	{
+		//TODO: make normal error
 		perror("malloc");
 		exit(EXIT_FAILURE);
 	}
@@ -20,7 +21,8 @@ t_hash_table	*ht_create(void)
 	ht->buckets = ft_calloc(ht->size, sizeof(t_entry *));
 	if (!ht->buckets)
 	{
-		print_error("minishell: Failed to allocate memory");
+		//TODO: make normal error
+		print_error("minishell: Failed to allocate memory", true);
 		exit(EXIT_FAILURE);
 	}
 	return (ht);
@@ -93,6 +95,7 @@ void	ht_insert(t_hash_table *ht, const char *key, const char *value)
 	new_entry = (t_entry *)malloc(sizeof(t_entry));
 	if (!new_entry)
 	{
+		//TODO: make normal error
 		perror("malloc");
 		exit(EXIT_FAILURE);
 	}

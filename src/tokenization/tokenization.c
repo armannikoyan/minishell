@@ -54,8 +54,8 @@ static char	*extract_subshell_content(char *input, size_t *i)
 	}
 	if (nested_level != 0)
 	{
-		// TODO: Change the content of the message
-		print_error("syntax error: unclosed parenthesis\n");
+		//TODO: make normal error
+		print_error("syntax error: unclosed parenthesis\n", true);
 		return (NULL);
 	}
 	tmp = ft_substr(input, start, *i - start);

@@ -1,6 +1,7 @@
 #ifndef UTILS_H
 # define UTILS_H
 
+#include <stdbool.h>
 # include <termios.h>
 
 // --------- TERMINAL SETTINGS ---------
@@ -15,6 +16,6 @@ void	psig_handler(int signo);
 void	move_cursor_up(void);
 
 // --------- ERROR PRINTING ---------
-void	print_error(const char *err);
+void print_error(const char *err, bool is_custom_err);
 
 #endif
