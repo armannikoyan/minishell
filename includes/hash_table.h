@@ -2,7 +2,7 @@
 # define HASH_TABLE_H
 
 # define MAX_LOAD_FACTOR 0.7
-# define MIN_LOAD_FACTOR 0.7
+# define MIN_LOAD_FACTOR 0.3
 # define INITIAL_SIZE 7
 # define MIN_SIZE 7
 
