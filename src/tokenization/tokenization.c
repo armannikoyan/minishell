@@ -65,13 +65,13 @@ t_ast_node	*tokenize(char *input)
 	i = 0;
 	node = NULL;
     head_node = NULL;
-	is_iter_skippable = false;
 	while (input[i])
 	{
 		while (input[i] == ' ' || input[i] == '\t')
 			++i;
 		if (!input[i])
 			break ;
+		is_iter_skippable = false;
 		node = construct_node(input, &i, get_node_type(&(input[i])), &is_iter_skippable);
 		if (is_iter_skippable)
 			continue ;
