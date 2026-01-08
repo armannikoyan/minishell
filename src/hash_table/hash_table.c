@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "../../includes/hash_table.h"
-#include "../../includes/utils.h"
+#include "hash_table.h"
+#include "utils.h"
 #include "../../libs/libft/libft.h"
 
 t_hash_table	*ht_create(void)

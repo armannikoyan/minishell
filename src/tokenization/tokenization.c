@@ -1,13 +1,9 @@
 #include <stddef.h>
 #include <stdlib.h>
-#include <stdio.h>
+
+#include "tokenization.h"
 #include "utils.h"
-
-#include "../../includes/tokenization.h"
-
-
 #include "../../libs/libft/libft.h"
-#include "../../includes/utils.h"
 
 static void	set_quote_char(char c, char *quote_char)
 {

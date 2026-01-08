@@ -2,11 +2,11 @@
 #include <readline/readline.h>
 #include <readline/history.h>
 
-#include "../includes/minishell.h"
-#include "../includes/hash_table.h"
-#include "../includes/utils.h"
+#include "minishell.h"
+#include "hash_table.h"
+#include "utils.h"
 #include "../libs/libft/libft.h"
-#include "../includes/tokenization.h"
+#include "tokenization.h"
 
 extern void	rl_clear_history(void);
 
