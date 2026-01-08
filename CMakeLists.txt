@@ -27,21 +27,23 @@ set(SOURCES
         src/minishell.c
 
         src/utils/error.c
-        src/utils/signals.c
-        src/utils/term_config.c
-        src/utils/cursor.c
+        src/utils/env_var_parser.c
+
+        src/term_settings/signals.c
+        src/term_settings/term_config.c
 
         src/hash_table/hash_table.c
         src/hash_table/hash_table_utils.c
 
-        src/ast/ast.c
-        src/ast/ast_node_utils.c
-        src/ast/ast_print_module_utils.c
 
         src/tokenization/tokenization.c
         src/tokenization/tokenization_utils.c
-        src/ast/ast_print_module.c
         src/tokenization/tokenization_node_creation_module.c
+
+        src/ast/ast.c
+        src/ast/ast_node_utils.c
+        src/ast/ast_print_module.c
+        src/ast/ast_print_module_utils.c
 )
 
 # ===============================

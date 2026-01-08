@@ -1,4 +1,5 @@
 #include <stdio.h>
+
 #include "ast.h"
 
 // Return a name of a node for printing abstract tree

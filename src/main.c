@@ -1,7 +1,7 @@
 #include <termios.h>
 
-#include "../includes/term_settings.h"
-#include "../includes/minishell.h"
+#include "term_settings.h"
+#include "minishell.h"
 
 extern void	rl_clear_history(void);
 

@@ -1,8 +1,6 @@
 #ifndef AST_H
 # define AST_H
 
-# include <stdbool.h>
-
 typedef enum node_type {
     COMMAND_NODE,
     PIPE_NODE,

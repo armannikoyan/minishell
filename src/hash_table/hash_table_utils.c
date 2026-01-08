@@ -2,7 +2,6 @@
 #include "utils.h"
 #include "../../libs/libft/libft.h"
 
-
 int next_prime(int current) {
     int candidate;
 
