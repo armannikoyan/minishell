@@ -1,6 +1,4 @@
 #include <stdlib.h>
-#include <string.h>
-#include <stdio.h>
 
 #include "utils.h"
 #include "../../libs/libft/libft.h"
@@ -69,7 +67,7 @@ static char **basic_checks(const char *str, bool *is_done) {
         }
         return result;
     }
-    if (str[0] == ':' || str[strlen(str) - 1] == ':') {
+    if (str[0] == ':' || str[ft_strlen(str) - 1] == ':') {
         // TODO: make normal error
         print_error("cd: split_env_var: basic_checks: empty path\n", true);
         return NULL;
