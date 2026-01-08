@@ -13,7 +13,7 @@ static t_ast_node *head_is_command_node(t_ast_node *node, t_ast_node *root) {
         return node;
     }
     //TODO: make a normal error
-    print_error("Abstract tree syntax error occurred: impossible node combination\n");
+    print_error("Abstract tree syntax error occurred: impossible node combination\n", true);
     return NULL;
 }
 
@@ -54,7 +54,7 @@ static t_ast_node *head_is_binary_node(t_ast_node *node, t_ast_node *root) {
         }
     }
     //TODO: make a normal error
-    print_error("Abstract tree syntax error occurred: impossible node combination\n");
+    print_error("Abstract tree syntax error occurred: impossible node combination\n", true);
     return NULL;
 }
 
@@ -79,7 +79,7 @@ static t_ast_node *head_is_redir_node(t_ast_node *node, t_ast_node *root) {
         }
     }
     //TODO: make a normal error
-    print_error("Abstract tree syntax error occurred: impossible node combination\n");
+    print_error("Abstract tree syntax error occurred: impossible node combination\n", true);
     return NULL;
 }
 
@@ -96,6 +96,6 @@ t_ast_node *ast_build(t_ast_node *new_node, t_ast_node *root) {
     if (root->abstract_type == REDIR_NODE)
         return head_is_redir_node(new_node, root);
     //TODO: make a normal error
-    print_error("Abstract tree syntax error occurred: impossible node combination\n");
+    print_error("Abstract tree syntax error occurred: impossible node combination\n", true);
     return NULL;
 }
