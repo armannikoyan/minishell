@@ -17,7 +17,7 @@ int ft_pwd(int argc, char **argv, t_hash_table *ht) {
         print_error("pwd: too many arguments\n", true);
         return 2;
     }
-    if (getcwd(cwd, PATH_MAX) == NULL) {
+    if (getcwd(cwd, sizeof(cwd)) == NULL) {
         //TODO: make normal error
         print_error("pwd: getcwd", false);
         return 2;
