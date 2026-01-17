@@ -3,12 +3,23 @@
 #include "utils.h"
 #include "../../libs/libft/libft.h"
 
-// Counts the number of path segments in a colon-separated string.
-//
-// Assumes the string is non-NULL and non-empty.
-// Each ':' increases the number of segments by one.
-// Used to preallocate an array of pointers for the split result.
-static size_t count_parts(const char *str) {
+// Frees an array of strings produced by split_env_var.
+// Safe to call on fully or partially constructed arrays.
+void free_split(char **paths) {
+    size_t i = 0;
+
+    if (!paths)
+        return;
+    while (paths[i]) {
+        free(paths[i]);
+        i++;
+    }
+    free(paths);
+}
+
+// Counts the number of segments in the colon-separated string.
+// Every ':' implies a split, so segments = colons + 1.
+static size_t count_segments(const char *str) {
     size_t count = 1;
 
     while (*str) {
@@ -19,96 +30,76 @@ static size_t count_parts(const char *str) {
     return count;
 }
 
-// Duplicates a substring defined by [start, start + len).
-//
-// Allocates a new null-terminated string containing exactly `len` characters from `start`.
-// Returns NULL on allocation failure.
-static char *substr_dup(const char *start, size_t len) {
-    char *s = malloc(len + 1);
-    if (!s)
-        return NULL;
+// Creates a new string from the range [start, end).
+// If the length is 0 (empty segment), allocates and returns ".".
+static char *extract_segment(const char *start, const char *end) {
+    char    *segment;
+    size_t  len;
 
-    ft_memcpy(s, start, len);
-    s[len] = '\0';
-    return s;
-}
-
-// Frees an array of strings produced by split_env_var.
-//
-// Assumes the array is NULL-terminated.
-// Safe to call only on fully or partially constructed split results.
-void free_split(char **cd_path) {
-    size_t i = 0;
-
-    while (cd_path[i])
-        free(cd_path[i++]);
-    free(cd_path);
-}
-
-// Performs basic validation and initialization for splitting a colon-separated environment variable.
-//
-// Semantics:
-// - If `str` is NULL, the variable is considered unset → returns NULL.
-// - If `str` is an empty string, the variable is considered disabled → returns NULL.
-// - Rejects values starting or ending with ':' (empty path segment).
-//
-// On success, allocates and returns an array of string pointers sized
-// to hold all path segments plus a terminating NULL.
-// The returned array is zero-initialized.
-//
-// Returns NULL on validation failure or allocation error.
-static char **basic_checks(const char *str) {
-    char **result;
-
-    if (str == NULL || str[0] == '\0')
-        return NULL;
-
-    if (str[0] == ':' || str[ft_strlen(str) - 1] == ':') {
-        // TODO: make normal error
-        print_error("cd: split_env_var: basic_checks: empty path\n", true);
-        return NULL;
+    len = end - start;
+    if (len == 0) {
+        segment = ".";
+    } else {
+        segment = malloc(len + 1);
+        if (segment) {
+            ft_memcpy(segment, start, len);
+            segment[len] = '\0';
+        }
     }
-
-    result = ft_calloc((count_parts(str) + 1), sizeof(char *));
-    // TODO: make normal error
-    if (!result)
-        return (print_error("cd: split_env_var: malloc", false), NULL);
-
-    return result;
+    return segment;
 }
 
+// Iterates through the string and fills the allocated array.
+// Returns true on success, false on allocation failure.
+static bool fill_split_array(char **result, const char *str) {
+    const char  *start = str;
+    size_t      i = 0;
 
-// Splits a colon-separated environment variable into an array of paths.
-//
-// Behavior:
-// - Uses ':' as a delimiter.
-// - Rejects empty segments (e.g. "::", ":path", "path:").
-// - Returns a NULL-terminated array of newly allocated strings.
-// - If the variable is unset or empty, returns NULL.
-//
-// On error, prints an error message, frees any allocated memory, and returns NULL.
-char **split_env_var(const char *str) {
-    char **result;
-    const char *start;
-    size_t i = 0;
-
-    result = basic_checks(str);
-    if (result == NULL)
-        return NULL;
-
-    start = str;
     while (*str) {
         if (*str == ':') {
-            if (str == start) {
-                // TODO: make normal error
-                print_error("cd: split_env_var: basic_checks: empty path\n", true);
-                return (free_split(result), NULL);
-            }
-            result[i++] = substr_dup(start, str - start);
-            start = str + 1;
+            result[i] = extract_segment(start, str);
+            if (!result[i])
+                return false;
+            i++;
+            start = str + 1; // Move start to character after colon
         }
         str++;
     }
-    result[i] = substr_dup(start, str - start);
+    // Handle the final segment (trailing path or implicit last path)
+    result[i] = extract_segment(start, str);
+    if (!result[i])
+        return false;
+    return true;
+}
+
+// Splits a colon-separated environment variable (like CDPATH) into an array.
+//
+// Behavior:
+// - Uses ':' as a delimiter.
+// - Empty segments (start, end, or "::") are converted to ".".
+// - Returns a NULL-terminated array of strings.
+// - Returns NULL if str is NULL, empty, or on malloc failure.
+char **split_cd_path(const char *str) {
+    char    **result;
+
+    if (!str || !*str)
+        return NULL;
+
+    // 1. Allocate the array of pointers
+    result = ft_calloc(count_segments(str) + 1, sizeof(char *));
+    if (!result) {
+        //TODO: make normal error
+        print_error("minishell: split_env_var: malloc", false);
+        return NULL;
+    }
+
+    // 2. Fill the array
+    if (!fill_split_array(result, str)) {
+        //TODO: make normal error
+        print_error("minishell: split_env_var: malloc", false);
+        free_split(result);
+        return NULL;
+    }
+
     return result;
 }
