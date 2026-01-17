@@ -27,9 +27,8 @@ set(SOURCES
         src/minishell.c
 
         src/utils/error.c
-        src/utils/signals.c
-        src/utils/term_config.c
-        src/utils/cursor.c
+        src/term_settings/signals.c
+        src/term_settings/term_config.c
 
         src/hash_table/hash_table.c
         src/hash_table/hash_table_utils.c
@@ -37,10 +36,20 @@ set(SOURCES
         src/ast/ast.c
         src/ast/ast_node_utils.c
         src/ast/ast_print_module_utils.c
+        src/ast/ast_print_module.c
 
         src/tokenization/tokenization.c
         src/tokenization/tokenization_utils.c
-        src/ast/ast_print_module.c
+
+        src/builtin/pwd.c
+        src/builtin/exit.c
+        src/builtin/env.c
+        src/builtin/echo.c
+        src/builtin/cd/cd.c
+        src/builtin/cd/cd_path_utils.c
+        src/builtin/cd/cd_path_parser.c
+        src/path_utils/path_utils.c
+        src/builtin/cd/cd_path_resolver.c
 )
 
 # ===============================
