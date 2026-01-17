@@ -1,7 +1,8 @@
 #include <stdlib.h>
 
+#include "../../../libs/libft/libft.h"
+#include "cd_path_utils.h"
 #include "utils.h"
-#include "../../libs/libft/libft.h"
 
 // Frees an array of strings produced by split_env_var.
 // Safe to call on fully or partially constructed arrays.
