@@ -39,7 +39,7 @@ static char *extract_segment(const char *start, const char *end) {
 
     len = end - start;
     if (len == 0) {
-        segment = ".";
+        segment = ft_strdup(".");
     } else {
         segment = malloc(len + 1);
         if (segment) {
