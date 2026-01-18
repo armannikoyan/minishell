@@ -1,8 +1,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 
-#include "../../includes/tokenization.h"
-
+#include "tokenization.h"
 #include "utils.h"
 #include "../../libs/libft/libft.h"
 
