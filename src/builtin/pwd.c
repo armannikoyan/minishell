@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <unistd.h>
-#include <linux/limits.h>
+#include <limits.h>
 
 #include "hash_table.h"
 #include "utils.h"

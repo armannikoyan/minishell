@@ -23,12 +23,13 @@ set(INCLUDE_DIR ${CMAKE_SOURCE_DIR}/includes)
 # Sources
 # ===============================
 set(SOURCES
+        src/term_settings/signals.c
+        src/term_settings/term_config.c
+
         src/main.c
         src/minishell.c
 
         src/utils/error.c
-        src/term_settings/signals.c
-        src/term_settings/term_config.c
 
         src/hash_table/hash_table.c
         src/hash_table/hash_table_utils.c
@@ -39,6 +40,7 @@ set(SOURCES
         src/ast/ast_print_module.c
 
         src/tokenization/tokenization.c
+        src/tokenization/tokenization_node_creation_module.c
         src/tokenization/tokenization_utils.c
 
         src/builtin/pwd.c
