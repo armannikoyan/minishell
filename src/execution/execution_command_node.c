@@ -8,6 +8,7 @@
 #include "expansion.h"
 #include "term_settings.h"
 #include "utils.h"
+#include "path_utils.h"
 #include "../../libs/libft/libft.h"
 
 static char    *get_cmd_path(char *cmd, size_t *i, size_t *access_bitmask, t_hash_table *ht) {
@@ -17,7 +18,7 @@ static char    *get_cmd_path(char *cmd, size_t *i, size_t *access_bitmask, t_has
 
     cmd_path = NULL;
     if (cmd[*i] != '/') {
-        path = split_env_var(ht_get(ht, "PATH"));
+        path = ft_split(ht_get(ht, "PATH"), ':');
         *i = 0;
         while (path[*i]) {
             tmp = ft_strjoin(path[*i], "/");
@@ -51,20 +52,30 @@ void    execute_command(t_ast_node *node, t_hash_table *ht)
 {
     char    *cmd;
     char    *cmd_path;
+    char    *tmp;
     size_t  access_bitmask;
     size_t  i;
 
     i = -1;
     while (node->u_data.cmd.argv[++i])
     {
-        node->u_data.cmd.argv[i] = expand_dollar_sign(node->u_data.cmd.argv[i], ht);
+        tmp = node->u_data.cmd.argv[i];
+        node->u_data.cmd.argv[i] = expand_dollar_sign(tmp, ht);
+        free(tmp);
         if (node->u_data.cmd.argv[i] == NULL) {
             print_error("minishell: malloc", false);
             // TODO: Destruct everything or return error status so that the execution stops and the tree destroys
             return ;
         }
         // TODO: implementation of the expansion of wildcard and tilde
-        // TODO: remove quotes
+        tmp = node->u_data.cmd.argv[i];
+        node->u_data.cmd.argv[i] = remove_quotes(tmp);
+        if (node->u_data.cmd.argv[i] == NULL) {
+            print_error("minishell: malloc", false);
+            // TODO: Destruct everything or return error status so that the execution stops and the tree destroys
+            return ;
+        }
+        free(tmp);
     }
     i = 0;
     cmd = node->u_data.cmd.argv[0];
@@ -92,7 +103,6 @@ void    execute_command(t_ast_node *node, t_hash_table *ht)
                         signal(SIGINT, SIG_IGN);
                         signal(SIGQUIT, SIG_IGN);
                         handle_child_exit(pid);
-                        printf("child exited with code %d\n", pid);
                         psig_set();
                     }
                     else {
@@ -109,10 +119,11 @@ void    execute_command(t_ast_node *node, t_hash_table *ht)
                         while (i < (size_t)ht->size) {
                             entry = ht->buckets[i];
                             while (entry) {
-                                char *tmp = ft_strjoin(entry->key, "=");
+                                tmp = ft_strjoin(entry->key, "=");
                                 envp[j] = ft_strjoin(tmp, entry->value);
                                 free(tmp);
                                 entry = entry->next;
+                                ++j;
                             }
                             i++;
                         }

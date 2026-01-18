@@ -1,9 +1,9 @@
 #include <unistd.h>
 #include <sys/stat.h>
 
-#include "../../libs/libft/libft.h"
 #include "path_utils.h"
 #include "utils.h"
+#include "../../libs/libft/libft.h"
 
 // Concatenates two path components into a single path.
 // Automatically inserts a '/' between components if needed.

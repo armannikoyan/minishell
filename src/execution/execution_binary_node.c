@@ -1,4 +1,5 @@
 #include <errno.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/_types/_pid_t.h>
@@ -6,6 +7,7 @@
 #include "ast.h"
 #include "execution.h"
 #include "hash_table.h"
+#include "term_settings.h"
 #include "utils.h"
 
 static void execute_pipe_helper(int *filedes, pid_t *pid, t_ast_node *node, t_hash_table *ht) {
@@ -26,6 +28,8 @@ static void execute_pipe_helper(int *filedes, pid_t *pid, t_ast_node *node, t_ha
         exit(errno);
     }
     if (pid[0] && pid[1]) {
+        signal(SIGINT, SIG_IGN);
+        signal(SIGQUIT, SIG_IGN);
         if (close(filedes[0]) == -1) {
             print_error("minishell: close", false);
             return ;
@@ -39,6 +43,7 @@ static void execute_pipe_helper(int *filedes, pid_t *pid, t_ast_node *node, t_ha
             print_error("minishell: waitpid", false);
         }
         handle_child_exit(pid[1]);
+        psig_set();
     }
     else {
         if (close(filedes[1]) == -1) {

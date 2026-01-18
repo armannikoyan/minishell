@@ -8,6 +8,8 @@
 #include "utils.h"
 #include "execution.h"
 
+#include <stdio.h>
+
 void    execute_subshell(t_ast_node *node, t_hash_table *ht) {
     pid_t pid;
 

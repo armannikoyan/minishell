@@ -3,6 +3,9 @@
 #include <readline/history.h>
 
 #include "minishell.h"
+
+#include <sys/errno.h>
+
 #include "hash_table.h"
 #include "utils.h"
 #include "../libs/libft/libft.h"
@@ -63,11 +66,24 @@ static void	ht_insert_env(t_hash_table *ht, char **envp)
 	ht_replace_incorrect_env(ht);
 }
 
+static bool	isallspace(const char *str) {
+	size_t	i;
+
+	i = 0;
+	while (str[i]) {
+		if (str[i] != ' ' && str[i] != '\t' && str[i] != '\n')
+			return (false);
+		++i;
+	}
+	return (true);
+}
+
 void	interactive_loop(char	**envp)
 {
 	t_hash_table	*ht;
 	char			*input;
 	t_ast_node	*node;
+	int	errno_buff;
 
 	ht = ht_create();
 	if (!ht)
@@ -78,12 +94,18 @@ void	interactive_loop(char	**envp)
 	ht_insert_env(ht, envp);
 	while (true)
 	{
+		errno_buff = errno;
 		input = readline("minishell$ ");
 		if (!input)
 		{
 			input = ft_strdup("exit");
 			if (!input)
 				print_error("minishell: malloc", false);
+		}
+		errno = errno_buff;
+		if (isallspace(input)) {
+			free(input);
+			continue ;
 		}
 		add_history(input);
 		node = tokenize(input);

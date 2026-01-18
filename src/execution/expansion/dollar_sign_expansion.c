@@ -1,5 +1,6 @@
 #include <unistd.h>
 #include <errno.h>
+#include <stdio.h>
 
 #include "expansion.h"
 #include "hash_table.h"
@@ -119,17 +120,13 @@ char    *expand_dollar_sign(char *str, t_hash_table *ht)
 
     len = get_expanded_strlen(str, ht);
     if (len == 0)
-    {
-        free(str);
         return (ft_strdup(""));
-    }
-    new_str = (char *)malloc(sizeof(char) * (len + 1));
+    new_str = (char *)ft_calloc(sizeof(char), len + 1);
     if (!new_str) {
         print_error("minishell: malloc", false);
         free(str);
         return (NULL);
     }
     fill_exp_str(new_str, str, ht);
-    free(str);
     return (new_str);
 }

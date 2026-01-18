@@ -77,7 +77,7 @@ t_ast_node	*tokenize(char *input)
 		if (node)
 		{
 			head_node = ast_build(node, head_node);
-			// print_ast_info(head_node, node);
+			print_ast_info(head_node, node);
 		}
 		else
 		{

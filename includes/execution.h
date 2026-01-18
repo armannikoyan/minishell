@@ -7,6 +7,7 @@
 # define HEREDOC_TMP_FILE "/tmp/minishell_heredoc.tmp"
 
 void    handle_child_exit(pid_t pid);
+char    *remove_quotes(char *str);
 
 void    execute_command(t_ast_node *node, t_hash_table *ht);
 void    execute_binary(t_ast_node *node, t_hash_table *ht);
