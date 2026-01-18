@@ -35,13 +35,12 @@ char	*extract_subshell_content(char *input, size_t *i)
     get_subshell_nesting_info(input, i, &nested_level);
     if (nested_level != 0)
     {
-        // TODO: Change the content of the message
-        print_error("syntax error: unclosed parenthesis\n", true);
+        print_error("minishell: parsing error near unexpected token `('\n", true);
         return (NULL);
     }
     tmp = ft_substr(input, start, *i - start);
     if (input[*i] == ')')
-        (*i)++;
+        ++(*i);
     return (tmp);
 }
 
@@ -89,6 +88,12 @@ static size_t   get_argv_len(char *input, size_t *i)
                     break ;
                 j++;
             }
+            if (quote_char != 0) {
+                print_error("minishell: parsing error near unexpected token `", true);
+                write(2, &quote_char, 1);
+                write(2, "'\n", 2);
+                return (0);
+            }
         }
     }
     return (len);
@@ -104,11 +109,21 @@ char	**get_argv(char *input, size_t *i)
     if (len == 0)
         return (NULL);
     argv = (char **)malloc(sizeof(char *) * (len + 1));
-    if (!argv)
+    if (!argv) {
+        print_error("minishell: malloc", false);
         return (NULL);
+    }
     j = 0;
     while (j < len)
-        argv[j++] = substr_next(input, i);
+    {
+        argv[j] = substr_next(input, i);
+        if (!argv[j])
+        {
+            free_split(argv);
+            return (NULL);
+        }
+        ++j;
+    }
     argv[len] = NULL;
     return (argv);
 }

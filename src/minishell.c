@@ -7,6 +7,7 @@
 #include "utils.h"
 #include "../libs/libft/libft.h"
 #include "tokenization.h"
+#include "execution.h"
 
 extern void	rl_clear_history(void);
 
@@ -22,7 +23,6 @@ static void	ht_replace_incorrect_env(t_hash_table *ht)
 		str = ft_itoa(1);
 	if (!str)
 	{
-		//TODO: make normal error
 		print_error("minishell: Failed to duplicate environment.\n", true);
 		exit(EXIT_FAILURE);
 	}
@@ -31,8 +31,7 @@ static void	ht_replace_incorrect_env(t_hash_table *ht)
 	str = (char *)malloc(sizeof(char) * PATH_MAX);
 	if (!str)
 	{
-		//TODO: make normal error
-		perror("malloc");
+		print_error("minishell: malloc", false);
 		exit(EXIT_FAILURE);
 	}
 	ht_insert(ht, "PWD", getcwd(str, PATH_MAX));
@@ -53,8 +52,7 @@ static void	ht_insert_env(t_hash_table *ht, char **envp)
 		str = (char *)malloc(sizeof(char) * (j + 1));
 		if (!str)
 		{
-			//TODO: make normal error
-			perror("malloc");
+			print_error("minishell: malloc", false);
 			exit(EXIT_FAILURE);
 		}
 		ft_strlcpy(str, envp[i], j + 1);
@@ -69,11 +67,11 @@ void	interactive_loop(char	**envp)
 {
 	t_hash_table	*ht;
 	char			*input;
+	t_ast_node	*node;
 
 	ht = ht_create();
 	if (!ht)
 	{
-		//TODO: make normal error
 		print_error("minishell: Failed to duplicate environment.\n", true);
 		exit(EXIT_FAILURE);
 	}
@@ -82,9 +80,18 @@ void	interactive_loop(char	**envp)
 	{
 		input = readline("minishell$ ");
 		if (!input)
+		{
 			input = ft_strdup("exit");
+			if (!input)
+				print_error("minishell: malloc", false);
+		}
 		add_history(input);
-		tokenize(input);
+		node = tokenize(input);
+		if (node == NULL) {
+			free(input);
+			continue ;
+		}
+		execute(node, ht);
 		free(input);
 	}
 	ht_destroy(ht);

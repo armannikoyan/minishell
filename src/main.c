@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <termios.h>
 
 #include "term_settings.h"

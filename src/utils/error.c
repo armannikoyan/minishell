@@ -8,7 +8,7 @@
 void print_error(const char *err, bool is_custom_err) {
     if (is_custom_err == true) {
         if (write(2, err, ft_strlen(err)) == -1)
-            perror("print_error: write");
+            perror("minishell: write");
         return;
     }
     perror(err);

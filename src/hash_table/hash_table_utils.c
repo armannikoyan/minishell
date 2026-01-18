@@ -46,8 +46,7 @@ void ht_resize(t_hash_table *ht, int new_size) {
 
     new_buckets = (t_entry **) ft_calloc(new_size, sizeof(t_entry *));
     if (!new_buckets) {
-        //TODO: make normal error
-        print_error("minishell: Failed to allocate memory", true);
+        print_error("minishell: calloc", false);
         exit(EXIT_FAILURE);
     }
     i = 0;

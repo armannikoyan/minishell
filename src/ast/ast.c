@@ -3,7 +3,7 @@
 #include "utils.h"
 #include "ast.h"
 
-static t_ast_node *head_is_command_node(t_ast_node *node, t_ast_node *root) {
+static t_ast_node *root_is_command_node(t_ast_node *node, t_ast_node *root) {
     if (node->abstract_type == BIN_NODE) {
         node->u_data.binary.left = root;
         return node;
@@ -17,7 +17,7 @@ static t_ast_node *head_is_command_node(t_ast_node *node, t_ast_node *root) {
     return NULL;
 }
 
-static t_ast_node *head_is_binary_node(t_ast_node *node, t_ast_node *root) {
+static t_ast_node *root_is_binary_node(t_ast_node *node, t_ast_node *root) {
     t_ast_node *iter;
 
     if (node->abstract_type == CMD_NODE) {
@@ -58,7 +58,7 @@ static t_ast_node *head_is_binary_node(t_ast_node *node, t_ast_node *root) {
     return NULL;
 }
 
-static t_ast_node *head_is_redir_node(t_ast_node *node, t_ast_node *root) {
+static t_ast_node *root_is_redir_node(t_ast_node *node, t_ast_node *root) {
     t_ast_node *iter;
 
     if (node->abstract_type == REDIR_NODE) {
@@ -90,11 +90,11 @@ t_ast_node *ast_build(t_ast_node *new_node, t_ast_node *root) {
         return new_node;
 
     if (root->abstract_type == CMD_NODE)
-        return head_is_command_node(new_node, root);
+        return root_is_command_node(new_node, root);
     if (root->abstract_type == BIN_NODE)
-        return head_is_binary_node(new_node, root);
+        return root_is_binary_node(new_node, root);
     if (root->abstract_type == REDIR_NODE)
-        return head_is_redir_node(new_node, root);
+        return root_is_redir_node(new_node, root);
     //TODO: make a normal error
     print_error("Abstract tree syntax error occurred: impossible node combination\n", true);
     return NULL;

@@ -27,14 +27,12 @@ set(SOURCES
         src/minishell.c
 
         src/utils/error.c
-        src/utils/env_var_parser.c
 
         src/term_settings/signals.c
         src/term_settings/term_config.c
 
         src/hash_table/hash_table.c
         src/hash_table/hash_table_utils.c
-
 
         src/tokenization/tokenization.c
         src/tokenization/tokenization_utils.c
@@ -44,6 +42,15 @@ set(SOURCES
         src/ast/ast_node_utils.c
         src/ast/ast_print_module.c
         src/ast/ast_print_module_utils.c
+        src/execution/execution.c
+        includes/execution.h
+        src/execution/expansion/dollar_sign_expansion.c
+        includes/expansion.h
+        src/execution/execution_command_node.c
+        src/execution/expansion/dollar_sign_expansion_utils.c
+        src/execution/execution_binary_node.c
+        src/execution/execution_redir_node.c
+        src/execution/execution_utils.c
 )
 
 # ===============================

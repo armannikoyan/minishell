@@ -2,6 +2,8 @@
 #include <stdlib.h>
 
 #include "../../includes/tokenization.h"
+
+#include "utils.h"
 #include "../../libs/libft/libft.h"
 
 static t_ast_node	*construct_subshell_node(char *input, size_t *i, bool *is_iter_skippable)
@@ -14,8 +16,8 @@ static t_ast_node	*construct_subshell_node(char *input, size_t *i, bool *is_iter
 		return (NULL);
 	if (ft_strlen(sub_str) == 0)
 	{
+		print_error("minishell: parsing error near unexpected token `)'\n", true);
 		free(sub_str);
-		*is_iter_skippable = true;
 		return (NULL);
 	}
 	sub_tree = tokenize(sub_str);
@@ -38,7 +40,7 @@ static t_ast_node	*construct_node(char *input, size_t *i, t_node_type type, bool
 	else if (type >= PIPE_NODE && type <= HEREDOC_NODE)
 	{
 		*i += get_operator_len(type);
-		if (type >= REDIRECT_IN_NODE && type <= HEREDOC_NODE)
+		if (type >= REDIRECT_IN_NODE)
 			node = create_redir_node(type, substr_next(input, i));
 		else
 			node = create_binary_node(type);
@@ -47,9 +49,7 @@ static t_ast_node	*construct_node(char *input, size_t *i, t_node_type type, bool
 		node = construct_subshell_node(input, i, is_iter_skippable);
 	else if (type == ERROR_NODE)
 	{
-		// TODO: Change to fd 2
-		//		 Change the content of the message
-		ft_printf("Minishell: syntax error near unexpected token `%c'\n", input[*i]);
+		print_error("minishell: parsing error near unexpected token `)'\n", true);
 		return (NULL);
 	}
 	return (node);
@@ -78,10 +78,13 @@ t_ast_node	*tokenize(char *input)
 		if (node)
 		{
 			head_node = ast_build(node, head_node);
-			print_ast_info(head_node, node);
+			// print_ast_info(head_node, node);
 		}
 		else
+		{
+			// TODO: Clear the tree
 			return (NULL);
+		}
 	}
 	return (head_node);
 }

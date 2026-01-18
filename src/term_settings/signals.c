@@ -1,4 +1,3 @@
-#include <termios.h>
 #include <signal.h>
 #include <stdio.h>
 #include <readline/readline.h>
