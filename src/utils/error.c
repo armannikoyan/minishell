@@ -2,7 +2,14 @@
 
 #include "../../libs/libft/libft.h"
 
-void	print_error(const char *err)
-{
-    write(2, err, ft_strlen(err));
+// If is_custom_err is true, write 'err' directly to stderr by write.
+// If the write operation fails, print an error reasons using perror.
+// Otherwise, print the 'err' description with perror.
+void print_error(const char *err, bool is_custom_err) {
+    if (is_custom_err == true) {
+        if (write(2, err, ft_strlen(err)) == -1)
+            perror("print_error: write");
+        return;
+    }
+    perror(err);
 }
