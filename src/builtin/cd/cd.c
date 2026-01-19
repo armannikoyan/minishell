@@ -30,12 +30,16 @@ static char *get_path(const char *cd_path, const char *path) {
 }
 
 int resolve_cd_path(int i, char **cd_path, const char *path, t_hash_table *ht) {
+    char cwd[PATH_MAX];
     char *res;
 
+    //TODO: make normal error
+    if (getcwd(cwd, sizeof(cwd)) == NULL)
+        return (print_error("cd: change_dir: get_path_comb: getcwd", false), 2);
     while (cd_path[i]) {
         res = get_path(cd_path[i], path);
         if (res != NULL && chdir(res) == 0) {
-            set_oldpwd_and_pwd(res, ht);
+            set_oldpwd_and_pwd(cwd, res, ht);
             return (printf("%s\n", res), free(res), free_split(cd_path), 0);
         }
         free(res);
@@ -54,21 +58,21 @@ static int analyse_path(char **argv, t_hash_table *ht) {
     char *tmp;
     int i;
 
+    //TODO: make normal error
+    if (getcwd(cwd, sizeof(cwd)) == NULL)
+        return (print_error("cd: change_dir: get_path_comb: getcwd", false), 2);
     if (argv[1][0] == '/') {
         target = normalize_and_resolve_path(argv[1]);
-        i = try_change_dir(target, ht);
+        i = try_change_dir(target, ht, cwd);
         free(target);
         return i;
     }
     i = 0;
     if (ht_get(ht, M1) == NULL || split_ev(ht_get(ht, M1)->val, &cd) == NULL) {
-        //TODO: make normal error
-        if (getcwd(cwd, sizeof(cwd)) == NULL)
-            return (print_error("cd: change_dir: get_path_comb: getcwd", false), 2);
         target = concat_path(cwd, argv[1]);
         tmp = normalize_and_resolve_path(target);
         free(target);
-        i = try_change_dir(tmp, ht);
+        i = try_change_dir(tmp, ht, cwd);
         return (free(tmp), i);
     }
     return resolve_cd_path(i, cd, argv[1], ht);
@@ -79,18 +83,18 @@ static int solve_env_var(char *target, bool should_print, t_hash_table *ht) {
     char *tmp;
     int res;
 
+    //TODO: make normal error
+    if (getcwd(cwd, sizeof(cwd)) == NULL)
+        return (print_error("cd: getcwd", false), 2);
     if (target[0] != '/') {
-        //TODO: make normal error
-        if (getcwd(cwd, sizeof(cwd)) == NULL)
-            return (print_error("cd: getcwd", false), 2);
         target = concat_path(cwd, target);
         tmp = normalize_and_resolve_path(target);
         free(target);
-        res = try_change_dir(tmp, ht);
+        res = try_change_dir(tmp, ht, cwd);
         return (free(tmp), res);
     }
     tmp = normalize_and_resolve_path(target);
-    res = try_change_dir(tmp, ht);
+    res = try_change_dir(tmp, ht, cwd);
     if (res == 0 && should_print == true)
         printf("%s\n", tmp);
     return (free(tmp), res);

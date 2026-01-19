@@ -95,6 +95,9 @@ int	ht_create_bucket(t_hash_table *ht, const char *key, const char *value, bool 
 	return (0);
 }
 
+// 0 - success
+// 1 - entry doesn't exist
+// 2 - strdup failed
 int	ht_update_value(t_hash_table *ht, const char *key, const char *value)
 {
 	t_entry			*entry;
@@ -108,7 +111,7 @@ int	ht_update_value(t_hash_table *ht, const char *key, const char *value)
 		// TODO: make normal error
 		print_error("minishell: ht_update_value: ft_strdup", false);
 		// print_error("minishell: malloc", false);
-		return (1);
+		return (2);
 	}
 	free(entry->val);
 	entry->val = new_value;

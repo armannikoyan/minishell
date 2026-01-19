@@ -33,14 +33,18 @@ int check_path(const char *path) {
     return 0;
 }
 
-void set_oldpwd_and_pwd(const char *pwd, t_hash_table *ht) {
-    char cwd[PATH_MAX];
-    ht_update_value(ht, "OLDPWD", pwd);
-    if (getcwd(cwd, sizeof(cwd)) != NULL)
-        ht_update_value(ht, "PWD", cwd);
+void set_oldpwd_and_pwd(const char *oldpwd, const char *pwd, t_hash_table *ht) {
+    int res;
+
+    res = ht_update_value(ht, "OLDPWD", pwd);
+    if (res == 1)
+        ht_create_bucket(ht, "OLDPWD", pwd, false);
+    res = ht_update_value(ht, "PWD", oldpwd);
+    if (res == 1)
+        ht_create_bucket(ht, "PWD", oldpwd, false);
 }
 
-int try_change_dir(const char *path, t_hash_table *ht) {
+int try_change_dir(const char *path, t_hash_table *ht, const char *cwd) {
     if (!path) {
         //TODO: make normal error
         print_error("cd: no such directory\n", true);
@@ -53,6 +57,6 @@ int try_change_dir(const char *path, t_hash_table *ht) {
         print_error("cd: chdir", false);
         return 2;
     }
-    set_oldpwd_and_pwd(path, ht);
+    set_oldpwd_and_pwd(cwd, path, ht);
     return 0;
 }
