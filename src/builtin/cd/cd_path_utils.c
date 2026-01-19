@@ -35,9 +35,9 @@ int check_path(const char *path) {
 
 void set_oldpwd_and_pwd(const char *pwd, t_hash_table *ht) {
     char cwd[PATH_MAX];
-    ht_insert(ht, "OLDPWD", pwd);
+    ht_update_value(ht, "OLDPWD", pwd);
     if (getcwd(cwd, sizeof(cwd)) != NULL)
-        ht_insert(ht, "PWD", cwd);
+        ht_update_value(ht, "PWD", cwd);
 }
 
 int try_change_dir(const char *path, t_hash_table *ht) {

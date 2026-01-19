@@ -26,7 +26,7 @@ static void	ht_replace_incorrect_env(t_hash_table *ht)
 		print_error("minishell: Failed to duplicate environment.\n", true);
 		exit(EXIT_FAILURE);
 	}
-	ht_insert(ht, "SHLVL", str);
+	ht_update_value(ht, "SHLVL", str);
 	free(str);
 	str = (char *)malloc(sizeof(char) * PATH_MAX);
 	if (!str)
@@ -35,7 +35,7 @@ static void	ht_replace_incorrect_env(t_hash_table *ht)
 		perror("malloc");
 		exit(EXIT_FAILURE);
 	}
-	ht_insert(ht, "PWD", getcwd(str, PATH_MAX));
+	ht_update_value(ht, "PWD", getcwd(str, PATH_MAX));
 	free(str);
 }
 
@@ -58,7 +58,7 @@ static void	ht_insert_env(t_hash_table *ht, char **envp)
 			exit(EXIT_FAILURE);
 		}
 		ft_strlcpy(str, envp[i], j + 1);
-		ht_insert(ht, str, &envp[i][j + 1]);
+		ht_update_value(ht, str, &envp[i][j + 1]);
 		free(str);
 		i++;
 	}
