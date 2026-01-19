@@ -20,7 +20,8 @@ int ft_env(int argc, char **argv, t_hash_table *ht) {
     while (i < ht->size) {
         entry = ht->buckets[i];
         while (entry) {
-            printf("%s=%s\n", entry->key, entry->val);
+            if (entry->is_local == false)
+                printf("%s=%s\n", entry->key, entry->val);
             entry = entry->next;
         }
         i++;
