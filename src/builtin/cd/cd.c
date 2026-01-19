@@ -29,7 +29,7 @@ static char *get_path(const char *cd_path, const char *path) {
     return tmp;
 }
 
-int resolve_cd_path(int i, char **cd_path, char *path, t_hash_table *ht) {
+int resolve_cd_path(int i, char **cd_path, const char *path, t_hash_table *ht) {
     char *res;
 
     while (cd_path[i]) {
@@ -49,7 +49,7 @@ int resolve_cd_path(int i, char **cd_path, char *path, t_hash_table *ht) {
 
 static int analyse_path(char **argv, t_hash_table *ht) {
     char cwd[PATH_MAX];
-    char **cd_path;
+    char **cd;
     char *target;
     char *tmp;
     int i;
@@ -61,8 +61,7 @@ static int analyse_path(char **argv, t_hash_table *ht) {
         return i;
     }
     i = 0;
-    cd_path = split_cd_path(ht_get(ht, "CDPATH"));
-    if (cd_path == NULL) {
+    if (ht_get(ht, M1) == NULL || split_ev(ht_get(ht, M1)->val, &cd) == NULL) {
         //TODO: make normal error
         if (getcwd(cwd, sizeof(cwd)) == NULL)
             return (print_error("cd: change_dir: get_path_comb: getcwd", false), 2);
@@ -72,7 +71,7 @@ static int analyse_path(char **argv, t_hash_table *ht) {
         i = try_change_dir(tmp, ht);
         return (free(tmp), i);
     }
-    return resolve_cd_path(i, cd_path, argv[1], ht);
+    return resolve_cd_path(i, cd, argv[1], ht);
 }
 
 static int solve_env_var(char *target, bool should_print, t_hash_table *ht) {
@@ -101,22 +100,27 @@ int ft_cd(int argc, char **argv, t_hash_table *ht) {
     char *target;
 
     if (argc == 1) {
-        target = ht_get(ht, "HOME");
+        //TODO: make normal error
+        if (ht_get(ht, "HOME") == NULL)
+            return (print_error("cd: environment variable 'HOME' doesn't exist\n", true), 2);
+        target = ht_get(ht, "HOME")->val;
         //TODO: make normal error
         if (target == NULL)
-            return (print_error("cd: environment variable 'HOME' doesn't exist\n", true), 2);
+            return (print_error("cd: environment variable 'HOME' is empty\n", true), 2);
         return solve_env_var(target, false, ht);
     }
     if (argc == 2 && argv[1][0] != '\0') {
         if (strcmp("-", argv[1]) == 0) {
-            target = ht_get(ht, "OLDPWD");
+            //TODO: make normal error
+            if (ht_get(ht, "OLDPWD") == NULL)
+                return (print_error("cd: environment variable 'OLDPWD' doesn't exist\n", true), 2);
+            target = ht_get(ht, "OLDPWD")->val;
             //TODO: make normal error
             if (target == NULL)
-                return (print_error("cd: environment variable 'OLDPWD' doesn't exist\n", true), 2);
+                return (print_error("cd: environment variable 'OLDPWD' is empty\n", true), 2);
             return solve_env_var(target, true, ht);
         }
         return analyse_path(argv, ht);
     }
-
     return 2;
 }

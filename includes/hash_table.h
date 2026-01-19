@@ -11,7 +11,7 @@
 typedef struct s_entry
 {
 	char			*key;
-	char			*value;
+	char			*val;
 	bool			is_local;
 	struct s_entry	*next;
 }	t_entry;

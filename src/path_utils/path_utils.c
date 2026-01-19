@@ -68,23 +68,25 @@ char *remove_last_dir(char *path) {
 // Expansion of '~user' is intentionally not supported due to project restrictions.
 // Returns a newly allocated string or NULL on error.
 char *expand_tilda(const char *path, t_hash_table *ht) {
+    t_entry *entry;
     const char *home;
     const char *rest;
 
     if (path == NULL)
         return NULL;
-    home = ht_get(ht, "HOME");
-    if (home == NULL) {
-        //TODO: make normal error
-        print_error("expand_user_home: environment variable ''HOME'' is empty", true);
-        return NULL;
-    }
-
     if (path[1] == '/')
         rest = path + 2;
     else
-        rest = "";
-
+        return NULL;
+    entry = ht_get(ht, "HOME");
+    if (entry == NULL) {
+        //TODO: make normal error
+        print_error("expand_tilda: environment variable ''HOME'' doesn't exist", true);
+        return NULL;
+    }
+    home = entry->val;
+    if (home == NULL)
+        home = "";
     return concat_path(home, rest);
 }
 
