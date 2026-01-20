@@ -52,6 +52,7 @@ set(SOURCES
         src/builtin/cd/cd_path_parser.c
         src/path_utils/path_utils.c
         src/builtin/cd/cd_path_resolver.c
+        src/builtin/export.c
 )
 
 # ===============================
