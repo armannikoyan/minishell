@@ -7,6 +7,7 @@
 #include "cd_path_utils.h"
 #include "path_utils.h"
 #include "utils.h"
+#include "builtin.h"
 
 static char *get_path(const char *cd_path, const char *path) {
     char cwd[PATH_MAX];

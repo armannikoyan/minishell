@@ -2,25 +2,13 @@
 
 #include "hash_table.h"
 #include "utils.h"
-
-static void inner_circle(t_entry *entry) {
-    while (entry) {
-        if (entry->is_local == false) {
-            if (entry->val == NULL)
-                printf("%s\n", entry->key);
-            else if (entry->val[0] == '\0')
-                printf("%s=""\n", entry->key);
-            else
-                printf("%s=%s\n", entry->key, entry->val);
-        }
-        entry = entry->next;
-    }
-}
+#include "builtin.h"
 
 // Prints all environment variables and finishes with status 0.
 // In case of no environment variables prints noting.
 // If any arguments passed prints an error and finishes with status 2.
 int ft_env(int argc, char **argv, t_hash_table *ht) {
+    t_entry *entry;
     int i;
 
     (void) argv;
@@ -29,7 +17,12 @@ int ft_env(int argc, char **argv, t_hash_table *ht) {
         return (print_error("env: too many arguments\n", true), 2);
     i = 0;
     while (i < ht->size) {
-        inner_circle(ht->buckets[i]);
+        entry = ht->buckets[i];
+        while (entry) {
+            if (entry->is_local == false && entry->val != NULL)
+                printf("%s=%s\n", entry->key, entry->val);
+            entry = entry->next;
+        }
         i++;
     }
     return (0);
