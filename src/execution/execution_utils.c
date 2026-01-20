@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/errno.h>
@@ -55,21 +56,31 @@ char    *remove_quotes(char *str)
     return (new_str);
 }
 
-void    handle_child_exit(pid_t pid) {
+void handle_child_exit(pid_t pid) {
     int status;
 
     if (waitpid(pid, &status, 0) == -1) {
-        // TODO: write normal error
-        print_error("minishell: waitpid", false);
+        if (errno != ECHILD)
+            print_error("minishell: waitpid", false);
+        return;
     }
-    if (WIFEXITED(status))
+
+    if (WIFEXITED(status)) {
         errno = WEXITSTATUS(status);
-    else if (WIFSIGNALED(status))
-    {
-        errno = 128 + WTERMSIG(status);
-        if (WTERMSIG(status) == SIGINT)
-            print_error("\n", true);
-        else if (WTERMSIG(status) == SIGQUIT)
+    }
+    else if (WIFSIGNALED(status)) {
+        int sig = WTERMSIG(status);
+        errno = 128 + sig;
+
+        // FIX: Silence SIGPIPE so it doesn't print newlines or errors
+        // if (sig == SIGPIPE) {
+        //     printf("\n"); // Using printf directly or your print_error("\n", true)
+        //     return;
+        // }
+
+        if (sig == SIGINT)
+            printf("\n"); // Using printf directly or your print_error("\n", true)
+        else if (sig == SIGQUIT)
             print_error("Quit (core dumped)\n", true);
     }
 }

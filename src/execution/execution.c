@@ -10,6 +10,8 @@
 
 #include <stdio.h>
 
+#include "term_settings.h"
+
 void    execute_subshell(t_ast_node *node, t_hash_table *ht) {
     pid_t pid;
 
@@ -19,8 +21,12 @@ void    execute_subshell(t_ast_node *node, t_hash_table *ht) {
         print_error("minishell: fork", false);
         return ;
     }
-    if (pid)
+    if (pid) {
+        signal(SIGINT, SIG_IGN);
+        signal(SIGQUIT, SIG_IGN);
         handle_child_exit(pid);
+        psig_set();
+    }
     else {
         execute(node->u_data.subshell.root, ht);
         exit(errno);

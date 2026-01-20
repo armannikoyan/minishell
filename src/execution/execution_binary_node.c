@@ -10,8 +10,10 @@
 #include "term_settings.h"
 #include "utils.h"
 
+// TODO: ctrl+c should print \n
 static void execute_pipe_helper(int *filedes, pid_t *pid, t_ast_node *node, t_hash_table *ht) {
     if (pid[0] == 0) {
+        // signal(SIGPIPE, SIG_DFL);
         if (close(filedes[0]) == -1) {
             print_error("minishell: close", false);
             return ;
