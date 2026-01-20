@@ -49,7 +49,10 @@ static void	ht_replace_incorrect_env(t_hash_table *ht)
 	if (getcwd(str, PATH_MAX) == NULL) {
 		print_error("minishell: getcwd", false);
 	}
-	ht_create_bucket(ht, "PWD", str, false);
+	if (ht_get(ht, "PWD") == NULL)
+		ht_create_bucket(ht, "PWD", str, false);
+	else
+		ht_update_value(ht, "PWD", str);
 	if (ht_get(ht, "OLDPWD") == NULL)
 		ht_create_bucket(ht, "OLDPWD", NULL, false);
 	free(str);
@@ -94,7 +97,6 @@ void	interactive_loop(char	**envp)
 		exit(EXIT_FAILURE);
 	}
 	ht_insert_env(ht, envp);
-	ft_env(1, envp, ht);
 	while (true)
 	{
 		input = readline("minishell$ ");
