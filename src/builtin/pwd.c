@@ -4,6 +4,7 @@
 
 #include "hash_table.h"
 #include "utils.h"
+#include "builtin.h"
 
 // Prints current working directory and finishes with status 0.
 // If any arguments passed prints an error and finishes with status 2.

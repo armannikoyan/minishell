@@ -3,6 +3,7 @@
 
 #include "hash_table.h"
 #include "../../libs/libft/libft.h"
+#include "builtin.h"
 
 // Prints all passed arguments and finishes with status 0.
 // In case of option '-n' passed doesn't add '\n' at the end.

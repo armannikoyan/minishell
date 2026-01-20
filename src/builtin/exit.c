@@ -2,6 +2,7 @@
 #include <stdlib.h>
 
 #include "hash_table.h"
+#include "builtin.h"
 
 
 static int get_error_status(const char *s) {

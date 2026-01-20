@@ -80,14 +80,12 @@ static bool fill_split_array(char **result, const char *str) {
 // - Empty segments (start, end, or "::") are converted to ".".
 // - Returns a NULL-terminated array of strings.
 // - Returns NULL if str is NULL, empty, or on malloc failure.
-char **split_cd_path(const char *str) {
-    char    **result;
-
+char **split_ev(const char *str, char ***result) {
     if (!str || !*str)
         return NULL;
 
     // 1. Allocate the array of pointers
-    result = ft_calloc(count_segments(str) + 1, sizeof(char *));
+    *result = ft_calloc(count_segments(str) + 1, sizeof(char *));
     if (!result) {
         //TODO: make normal error
         print_error("minishell: split_env_var: malloc", false);
@@ -95,12 +93,12 @@ char **split_cd_path(const char *str) {
     }
 
     // 2. Fill the array
-    if (!fill_split_array(result, str)) {
+    if (!fill_split_array(*result, str)) {
         //TODO: make normal error
         print_error("minishell: split_env_var: malloc", false);
-        free_split(result);
+        free_split(*result);
         return NULL;
     }
 
-    return result;
+    return *result;
 }
