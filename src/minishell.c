@@ -8,16 +8,20 @@
 #include "../libs/libft/libft.h"
 #include "tokenization.h"
 
-extern void	rl_clear_history(void);
-
-static void	ht_replace_incorrect_env(t_hash_table *ht)
-{
+static void ht_update_shlvl(t_hash_table *ht) {
 	char	*shlvl;
 	char	*str;
 
-	shlvl = ht_get(ht, "SHLVL");
+	if (ht_get(ht, "SHLVL") == NULL)
+	{
+		if (ht_create_bucket(ht, "SHLVL", NULL, false) == -1) {
+			//TODO: make normal error
+			exit(EXIT_FAILURE);
+		}
+	}
+	shlvl = ht_get(ht, "SHLVL")->val;
 	if (shlvl)
-		str = ft_itoa(ft_atoi(ht_get(ht, "SHLVL")) + 1);
+		str = ft_itoa(ft_atoi(shlvl) + 1);
 	else
 		str = ft_itoa(1);
 	if (!str)
@@ -28,6 +32,13 @@ static void	ht_replace_incorrect_env(t_hash_table *ht)
 	}
 	ht_update_value(ht, "SHLVL", str);
 	free(str);
+}
+
+static void	ht_replace_incorrect_env(t_hash_table *ht)
+{
+	char	*str;
+
+	ht_update_shlvl(ht);
 	str = (char *)malloc(sizeof(char) * PATH_MAX);
 	if (!str)
 	{
@@ -35,7 +46,12 @@ static void	ht_replace_incorrect_env(t_hash_table *ht)
 		perror("malloc");
 		exit(EXIT_FAILURE);
 	}
-	ht_update_value(ht, "PWD", getcwd(str, PATH_MAX));
+	if (getcwd(str, PATH_MAX) == NULL) {
+		print_error("minishell: getcwd", false);
+	}
+	ht_create_bucket(ht, "PWD", str, false);
+	if (ht_get(ht, "OLDPWD") == NULL)
+		ht_create_bucket(ht, "OLDPWD", NULL, false);
 	free(str);
 }
 
@@ -58,7 +74,7 @@ static void	ht_insert_env(t_hash_table *ht, char **envp)
 			exit(EXIT_FAILURE);
 		}
 		ft_strlcpy(str, envp[i], j + 1);
-		ht_update_value(ht, str, &envp[i][j + 1]);
+		ht_create_bucket(ht, str, &envp[i][j + 1], false);
 		free(str);
 		i++;
 	}
@@ -78,6 +94,7 @@ void	interactive_loop(char	**envp)
 		exit(EXIT_FAILURE);
 	}
 	ht_insert_env(ht, envp);
+	ft_env(1, envp, ht);
 	while (true)
 	{
 		input = readline("minishell$ ");

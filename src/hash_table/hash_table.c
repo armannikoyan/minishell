@@ -84,10 +84,13 @@ int	ht_create_bucket(t_hash_table *ht, const char *key, const char *value, bool 
 	{
 		//TODO: make normal error
 		print_error("minishell: malloc", false);
-		return (1);
+		return (-1);
 	}
 	new_entry->key = ft_strdup(key);
-	new_entry->val = ft_strdup(value);
+	if (value != NULL)
+		new_entry->val = ft_strdup(value);
+	else
+		new_entry->val = NULL;
 	new_entry->is_local = is_local;
 	new_entry->next = ht->buckets[index];
 	ht->buckets[index] = new_entry;
@@ -106,13 +109,17 @@ int	ht_update_value(t_hash_table *ht, const char *key, const char *value)
 	entry = ht_get(ht, key);
 	if (!entry)
 		return (1);
-	new_value = ft_strdup(value);
-	if (entry->val == NULL) {
-		// TODO: make normal error
-		print_error("minishell: ht_update_value: ft_strdup", false);
-		// print_error("minishell: malloc", false);
-		return (2);
+	if (value != NULL) {
+		new_value = ft_strdup(value);
+		if (new_value == NULL) {
+			// TODO: make normal error
+			print_error("minishell: ht_update_value: ft_strdup", false);
+			// print_error("minishell: malloc", false);
+			return (2);
+		}
 	}
+	else
+		new_value = NULL;
 	free(entry->val);
 	entry->val = new_value;
 	return (0);
