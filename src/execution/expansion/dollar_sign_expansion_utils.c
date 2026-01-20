@@ -27,7 +27,9 @@ char *get_env_val(char *str, t_hash_table *ht)
     key = ft_substr(str, 0, len);
     if (!key)
         return (NULL);
-    val = ht_get(ht, key);
+    if (ht_get(ht, key) == NULL)
+        return (NULL);
+    val = ht_get(ht, key)->val;
     free(key);
     return (val);
 }

@@ -18,27 +18,29 @@ static char    *get_cmd_path(char *cmd, size_t *i, size_t *access_bitmask, t_has
 
     cmd_path = NULL;
     if (cmd[*i] != '/') {
-        path = ft_split(ht_get(ht, "PATH"), ':');
-        *i = 0;
-        while (path[*i]) {
-            tmp = ft_strjoin(path[*i], "/");
-            if (tmp == NULL) {
-                // TODO: write normal error
-                perror("malloc");
+        if (ht_get(ht, "PATH") != NULL) {
+            path = ft_split(ht_get(ht, "PATH")->val, ':');
+            *i = 0;
+            while (path[*i]) {
+                tmp = ft_strjoin(path[*i], "/");
+                if (tmp == NULL) {
+                    // TODO: write normal error
+                    perror("malloc");
+                }
+                cmd_path = ft_strjoin(tmp, cmd);
+                free(tmp);
+                if (cmd_path == NULL) {
+                    // TODO: write normal error
+                    perror("malloc");
+                }
+                *access_bitmask = check_access(cmd_path);
+                if (*access_bitmask & EXISTS_BIT)
+                    break ;
+                ++(*i);
+                free(cmd_path);
             }
-            cmd_path = ft_strjoin(tmp, cmd);
-            free(tmp);
-            if (cmd_path == NULL) {
-                // TODO: write normal error
-                perror("malloc");
-            }
-            *access_bitmask = check_access(cmd_path);
-            if (*access_bitmask & EXISTS_BIT)
-                break ;
-            ++(*i);
-            free(cmd_path);
+            free_split(path);
         }
-        free_split(path);
     }
     if (!cmd_path)
     {
@@ -92,7 +94,14 @@ void    execute_command(t_ast_node *node, t_hash_table *ht)
                 if (access_bitmask & EXEC_BIT) {
                     pid_t pid;
 
-                    ht_insert(ht, "_", cmd_path);
+                    t_entry *entry;
+
+                    entry = ht_get(ht, "_");
+                    if (entry == NULL) {
+                        ht_create_bucket(ht, "_", cmd_path, false);
+                    }
+                    else
+                        ht_update_value(ht, "_", cmd_path);
                     pid = fork();
                     if (pid == -1) {
                         // TODO: write normal error
@@ -120,7 +129,7 @@ void    execute_command(t_ast_node *node, t_hash_table *ht)
                             entry = ht->buckets[i];
                             while (entry) {
                                 tmp = ft_strjoin(entry->key, "=");
-                                envp[j] = ft_strjoin(tmp, entry->value);
+                                envp[j] = ft_strjoin(tmp, entry->val);
                                 free(tmp);
                                 entry = entry->next;
                                 ++j;
