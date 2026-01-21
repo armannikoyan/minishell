@@ -1,3 +1,4 @@
+#include "error_codes.h"
 #include "../../libs/libft/libft.h"
 #include "hash_table.h"
 
@@ -26,5 +27,5 @@ int ft_unset(int argc, char **argv, t_hash_table *ht) {
         else
             is_err = true;
     }
-    return 2 * is_err;
+    return BUILTIN_ERROR * is_err;
 }

@@ -2,6 +2,10 @@
 #include <stdlib.h>
 
 #include "tokenization.h"
+
+#include <sys/errno.h>
+
+#include "error_codes.h"
 #include "utils.h"
 #include "../../libs/libft/libft.h"
 
@@ -49,6 +53,7 @@ static t_ast_node	*construct_node(char *input, size_t *i, t_node_type type, bool
 	else if (type == ERROR_NODE)
 	{
 		print_error("minishell: parsing error near unexpected token `)'\n", true);
+		errno = SYNTAX_ERROR;
 		return (NULL);
 	}
 	return (node);

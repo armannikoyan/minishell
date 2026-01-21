@@ -1,5 +1,6 @@
 #include <stdio.h>
 
+#include "error_codes.h"
 #include "../../libs/libft/libft.h"
 #include "hash_table.h"
 #include "utils.h"
@@ -108,6 +109,6 @@ int ft_export(int argc, char **argv, t_hash_table *ht) {
     if (key == NULL)
         return (print_error("export: malloc", false), 2);
     if (insert(key, 1, ht, argv))
-        return (free(key), 2);
+        return (free(key), BUILTIN_ERROR);
     return (free(key), 0);
 }

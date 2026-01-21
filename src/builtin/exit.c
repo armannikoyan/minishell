@@ -3,6 +3,7 @@
 
 #include "hash_table.h"
 #include "builtin.h"
+#include "error_codes.h"
 
 
 static int get_error_status(const char *s) {
@@ -48,5 +49,5 @@ int ft_exit(int argc, char **argv, t_hash_table *ht) {
     if (argc == 1) {
         exit(errno);
     }
-    exit(2);
+    exit(BUILTIN_ERROR);
 }

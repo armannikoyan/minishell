@@ -6,6 +6,7 @@
 
 #include <sys/errno.h>
 
+#include "error_codes.h"
 #include "hash_table.h"
 #include "utils.h"
 #include "../libs/libft/libft.h"
@@ -101,7 +102,7 @@ void	interactive_loop(char	**envp)
 {
 	t_hash_table	*ht;
 	char			*input;
-	t_ast_node	*node;
+	t_ast_node	*root;
 	int	errno_buff;
 	int	eof_count;
 
@@ -137,9 +138,10 @@ void	interactive_loop(char	**envp)
 		if (!isallspace(input))
 		{
 			add_history(input);
-			node = tokenize(input);
-			if (node != NULL) {
-				execute(node, ht);
+			root = tokenize(input);
+			if (root != NULL) {
+				if (syntax_check(root) != SYNTAX_ERROR)
+					execute(root, ht);
 			}
 		}
 		if (ht_get(ht, "IGNOREEOF") == NULL)

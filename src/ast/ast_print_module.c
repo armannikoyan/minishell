@@ -2,22 +2,22 @@
 
 #include "ast.h"
 
-static const char *get_type(t_node_type type) {
+const char *get_type(t_node_type type) {
     if (type == PIPE_NODE)
-        return "PIPE_NODE";
+        return "|";
     if (type == AND_NODE)
-        return "AND_NODE";
+        return "&&";
     if (type == OR_NODE)
-        return "OR_NODE";
+        return "||";
     if (type == REDIRECT_IN_NODE)
-        return "REDIRECT_IN_NODE";
+        return "<";
     if (type == REDIRECT_OUT_NODE)
-        return "REDIRECT_OUT_NODE";
+        return ">";
     if (type == REDIRECT_APPEND_NODE)
-        return "REDIRECT_APPEND_NODE";
+        return ">>";
     if (type == HEREDOC_NODE)
-        return "HEREDOC_NODE";
-    return "UNKNOWN_NODE";
+        return "<<";
+    return "unknown";
 }
 
 // Prints current node info and abstract syntax tree structure

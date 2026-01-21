@@ -62,6 +62,8 @@ set(SOURCES
         src/execution/execution_command_node.c
         src/execution/expansion/dollar_sign_expansion.c
         src/execution/expansion/dollar_sign_expansion_utils.c
+        includes/error_codes.h
+        src/ast/ast_syntax_check.c
 )
 
 # ===============================

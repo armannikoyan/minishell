@@ -3,6 +3,7 @@
 #include "hash_table.h"
 #include "utils.h"
 #include "builtin.h"
+#include "error_codes.h"
 
 // Prints all environment variables and finishes with status 0.
 // In case of no environment variables prints noting.
@@ -14,7 +15,7 @@ int ft_env(int argc, char **argv, t_hash_table *ht) {
     (void) argv;
     //TODO: make normal error
     if (argc > 1)
-        return (print_error("env: too many arguments\n", true), 2);
+        return (print_error("env: too many arguments\n", true), BUILTIN_ERROR);
     i = 0;
     while (i < ht->size) {
         entry = ht->buckets[i];

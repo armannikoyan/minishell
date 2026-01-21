@@ -8,6 +8,7 @@
 #include "path_utils.h"
 #include "utils.h"
 #include "builtin.h"
+#include "error_codes.h"
 
 static char *get_path(const char *cd_path, const char *path) {
     char cwd[PATH_MAX];
@@ -49,7 +50,7 @@ int resolve_cd_path(int i, char **cd_path, const char *path, t_hash_table *ht) {
     free_split(cd_path);
     //TODO: make normal error
     print_error("cd: no path found\n", true);
-    return 2;
+    return BUILTIN_ERROR;
 }
 
 static int analyse_path(char **argv, t_hash_table *ht) {
@@ -127,5 +128,5 @@ int ft_cd(int argc, char **argv, t_hash_table *ht) {
         }
         return analyse_path(argv, ht);
     }
-    return 2;
+    return BUILTIN_ERROR;
 }

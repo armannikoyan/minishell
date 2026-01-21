@@ -1,5 +1,7 @@
 #include "../../../libs/libft/libft.h"
 #include "cd_path_utils.h"
+
+#include "error_codes.h"
 #include "path_utils.h"
 #include "utils.h"
 
@@ -48,14 +50,14 @@ int try_change_dir(const char *path, t_hash_table *ht, const char *cwd) {
     if (!path) {
         //TODO: make normal error
         print_error("cd: no such directory\n", true);
-        return 2;
+        return BUILTIN_ERROR;
     }
     if (check_path(path) != 0)
-        return 2;
+        return BUILTIN_ERROR;
     //TODO: make normal error
     if (chdir(path) < 0) {
         print_error("cd: chdir", false);
-        return 2;
+        return BUILTIN_ERROR;
     }
     set_oldpwd_and_pwd(cwd, path, ht);
     return 0;
