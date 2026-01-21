@@ -60,6 +60,7 @@ static bool insert(char *key, size_t i, t_hash_table *ht, char **argv) {
             (print_error("export: `", true), print_error(argv[i], true));
             print_error("': not a valid identifier\n", true);
         }
+        ++i;
     }
     return is_err;
 }
@@ -94,7 +95,7 @@ int ft_export(int argc, char **argv, t_hash_table *ht) {
 
     if (argc == 1)
         return (print_exported(ht), 0);
-    i = 0;
+    i = 1;
     longest = 0;
     while (argv[i]) {
         tmp = 0;

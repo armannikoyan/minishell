@@ -161,11 +161,11 @@ static bool run_builtin(char **argv, t_hash_table *ht)
         update_underscore(ht, cmd);
         status = ft_pwd(argc, argv, ht);
     }
-    // else if (ft_strcmp(cmd, "export") == 0)
-    // {
-    //     update_underscore(ht, cmd);
-    //     status = ft_export(argc, argv, ht);
-    // }
+    else if (ft_strcmp(cmd, "export") == 0)
+    {
+        update_underscore(ht, cmd);
+        status = ft_export(argc, argv, ht);
+    }
     // else if (ft_strcmp(cmd, "unset") == 0)
     // {
     //     update_underscore(ht, cmd);
@@ -253,19 +253,12 @@ void execute_command(t_ast_node *node, t_hash_table *ht)
     int     err_code;
     pid_t   pid;
 
-    // 1. Expansion
-    if (run_expansion(node, ht) != 0)
+    if (run_expansion(node, ht) != 0 || run_builtin(node->u_data.cmd.argv, ht))
         return ;
-
-    if (run_builtin(node->u_data.cmd.argv, ht))
-        return ;
-
     cmd_path = resolve_cmd_path(node->u_data.cmd.argv[0], ht);
     if (!cmd_path)
         return ;
-
     update_underscore(ht, cmd_path);
-
     err_code = validate_executable(cmd_path);
     if (err_code != 0)
     {
@@ -273,14 +266,11 @@ void execute_command(t_ast_node *node, t_hash_table *ht)
         free(cmd_path);
         return ;
     }
-
     pid = fork();
     if (pid == -1)
-        perror("minishell: fork");
+        print_error("minishell: fork", false);
     else if (pid == 0)
-    {
         execute_child(cmd_path, node->u_data.cmd.argv, ht);
-    }
     else
     {
         free(cmd_path);

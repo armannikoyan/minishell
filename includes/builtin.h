@@ -11,6 +11,8 @@ int ft_env(int argc, char **argv, t_hash_table *ht);
 
 int ft_exit(int argc, char **argv, t_hash_table *ht);
 
+int ft_export(int argc, char **argv, t_hash_table *ht);
+
 int ft_pwd(int argc, char **argv, t_hash_table *ht);
 
 #endif

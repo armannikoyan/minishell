@@ -1,10 +1,7 @@
-#include <stdio.h>
 #include <termios.h>
 
 #include "term_settings.h"
 #include "minishell.h"
-
-extern void	rl_clear_history(void);
 
 int	main(int argc __attribute__((unused)),
 		char **argv __attribute__((unused)), char **envp)

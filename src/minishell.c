@@ -103,6 +103,7 @@ void	interactive_loop(char	**envp)
 	char			*input;
 	t_ast_node	*node;
 	int	errno_buff;
+	int	eof_count;
 
 	ht = ht_create();
 	if (!ht)
@@ -111,28 +112,40 @@ void	interactive_loop(char	**envp)
 		exit(EXIT_FAILURE);
 	}
 	ht_insert_env(ht, envp);
+	if (ht_get(ht, "IGNOREEOF") == NULL)
+		eof_count = 0;
+	else
+		eof_count = ft_atoi(ht_get(ht, "IGNOREEOF")->val);
 	while (true)
 	{
 		errno_buff = errno;
 		input = readline("minishell$ ");
 		if (!input)
 		{
-			input = ft_strdup("exit");
-			if (!input)
-				print_error("minishell: malloc", false);
+			eof_count--;
+			if (eof_count < 0) {
+				input = ft_strdup("exit");
+				if (!input)
+					print_error("minishell: malloc", false);
+			}
+			else {
+				printf("Use \"exit\" to leave the shell.\n");
+				continue;
+			}
 		}
 		errno = errno_buff;
-		if (isallspace(input)) {
-			free(input);
-			continue ;
+		if (!isallspace(input))
+		{
+			add_history(input);
+			node = tokenize(input);
+			if (node != NULL) {
+				execute(node, ht);
+			}
 		}
-		add_history(input);
-		node = tokenize(input);
-		if (node == NULL) {
-			free(input);
-			continue ;
-		}
-		execute(node, ht);
+		if (ht_get(ht, "IGNOREEOF") == NULL)
+			eof_count = 0;
+		else
+			eof_count = ft_atoi(ht_get(ht, "IGNOREEOF")->val);
 		free(input);
 	}
 	ht_destroy(ht);

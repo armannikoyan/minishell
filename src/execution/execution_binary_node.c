@@ -10,10 +10,10 @@
 #include "term_settings.h"
 #include "utils.h"
 
-// TODO: ctrl+c should print \n
 static void execute_pipe_helper(int *filedes, pid_t *pid, t_ast_node *node, t_hash_table *ht) {
     if (pid[0] == 0) {
-        // signal(SIGPIPE, SIG_DFL);
+        signal(SIGINT, SIG_DFL);
+        signal(SIGQUIT, SIG_DFL);
         if (close(filedes[0]) == -1) {
             print_error("minishell: close", false);
             return ;
@@ -40,14 +40,13 @@ static void execute_pipe_helper(int *filedes, pid_t *pid, t_ast_node *node, t_ha
             print_error("minishell: close", false);
             return ;
         }
-        if (waitpid(pid[0], NULL, 0) == -1) {
-            // TODO: write normal error
-            print_error("minishell: waitpid", false);
-        }
+        handle_child_exit(pid[0]);
         handle_child_exit(pid[1]);
         psig_set();
     }
     else {
+        signal(SIGINT, SIG_DFL);
+        signal(SIGQUIT, SIG_DFL);
         if (close(filedes[1]) == -1) {
             print_error("minishell: close", false);
             return ;

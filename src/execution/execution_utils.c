@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 #include <sys/errno.h>
 #include <sys/wait.h>
@@ -64,7 +65,6 @@ void handle_child_exit(pid_t pid) {
             print_error("minishell: waitpid", false);
         return;
     }
-
     if (WIFEXITED(status)) {
         errno = WEXITSTATUS(status);
     }
@@ -72,15 +72,9 @@ void handle_child_exit(pid_t pid) {
         int sig = WTERMSIG(status);
         errno = 128 + sig;
 
-        // FIX: Silence SIGPIPE so it doesn't print newlines or errors
-        // if (sig == SIGPIPE) {
-        //     printf("\n"); // Using printf directly or your print_error("\n", true)
-        //     return;
-        // }
-
-        if (sig == SIGINT)
-            printf("\n"); // Using printf directly or your print_error("\n", true)
+        if (sig == SIGINT || sig == SIGPIPE)
+            printf("^C\n");
         else if (sig == SIGQUIT)
-            print_error("Quit (core dumped)\n", true);
+            printf("^\\Quit: signum: %d\n", sig);
     }
 }
