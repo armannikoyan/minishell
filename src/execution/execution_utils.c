@@ -5,6 +5,7 @@
 #include <sys/errno.h>
 #include <sys/wait.h>
 
+#include "error_codes.h"
 #include "tokenization.h"
 #include "utils.h"
 
@@ -70,7 +71,7 @@ void handle_child_exit(pid_t pid) {
     }
     else if (WIFSIGNALED(status)) {
         int sig = WTERMSIG(status);
-        errno = 128 + sig;
+        errno = RESERVED_ERROR_CODES + sig;
 
         if (sig == SIGINT || sig == SIGPIPE)
             printf("^C\n");

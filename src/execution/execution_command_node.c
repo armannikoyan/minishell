@@ -5,6 +5,7 @@
 
 #include "ast.h"
 #include "builtin.h"
+#include "error_codes.h"
 #include "execution.h"
 #include "hash_table.h"
 #include "expansion.h"
@@ -201,21 +202,21 @@ static int validate_executable(char *path)
         print_error("minishell: ", true);
         print_error(path, true);
         print_error(": command not found\n", true);
-        return (127);
+        return (COMMAND_NOT_FOUND);
     }
     if (!(mask & FILE_BIT))
     {
         print_error("minishell: ", true);
         print_error(path, true);
         print_error(": Is a directory\n", true);
-        return (126);
+        return (IS_A_DIRECTORY);
     }
     if (!(mask & EXEC_BIT))
     {
         print_error("minishell: ", true);
         print_error(path, true);
         print_error(": Permission denied\n", true);
-        return (126);
+        return (PERMISSION_DENIED);
     }
     return (0);
 }
@@ -239,9 +240,9 @@ static void execute_child(char *cmd_path, char **argv, t_hash_table *ht)
         free_split(envp);
 
         if (errno == ENOENT)
-            exit(127);
+            exit(COMMAND_NOT_FOUND);
         else if (errno == EACCES)
-            exit(126);
+            exit(PERMISSION_DENIED);
         else
             exit(1);
     }
