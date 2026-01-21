@@ -166,11 +166,11 @@ static bool run_builtin(char **argv, t_hash_table *ht)
         update_underscore(ht, cmd);
         status = ft_export(argc, argv, ht);
     }
-    // else if (ft_strcmp(cmd, "unset") == 0)
-    // {
-    //     update_underscore(ht, cmd);
-    //     status = ft_unset(argc, argv, ht);
-    // }
+    else if (ft_strcmp(cmd, "unset") == 0)
+    {
+        update_underscore(ht, cmd);
+        status = ft_unset(argc, argv, ht);
+    }
     else if (ft_strcmp(cmd, "env") == 0)
     {
         update_underscore(ht, cmd);

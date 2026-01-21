@@ -4,7 +4,7 @@
 #include "hash_table.h"
 #include "utils.h"
 
-bool is_ev_correct(const char *str, size_t *len) {
+static bool is_ev_correct(const char *str, size_t *len) {
     if (!str || !(ft_isalpha(str[0]) || str[0] == '_'))
         return false;
     (*len)++;

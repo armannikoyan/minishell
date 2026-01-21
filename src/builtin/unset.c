@@ -1,7 +1,7 @@
 #include "../../libs/libft/libft.h"
 #include "hash_table.h"
 
-bool is_ev_correct(const char *str) {
+static bool is_ev_correct(const char *str) {
     size_t len;
 
     if (!str || !(ft_isalpha(str[0]) || str[0] == '_'))

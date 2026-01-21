@@ -56,12 +56,12 @@ set(SOURCES
         src/builtin/unset.c
 
         src/execution/execution.c
-        src/execution/execution_command_node.c
-        src/execution/execution_binary_node.c
+        src/execution/execution_utils.c
         src/execution/execution_redir_node.c
+        src/execution/execution_binary_node.c
+        src/execution/execution_command_node.c
         src/execution/expansion/dollar_sign_expansion.c
         src/execution/expansion/dollar_sign_expansion_utils.c
-        src/execution/execution_utils.c
 )
 
 # ===============================
