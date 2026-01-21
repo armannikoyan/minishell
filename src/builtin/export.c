@@ -77,9 +77,9 @@ static void print_exported(t_hash_table *ht) {
                 if (entry->val == NULL)
                     printf("declare -x %s\n", entry->key);
                 else if (entry->val[0] == '\0')
-                    printf("declare -x %s=""\n", entry->key);
+                    printf("declare -x %s=\"\"\n", entry->key);
                 else
-                    printf("declare -x %s=%s\n", entry->key, entry->val);
+                    printf("declare -x %s=\"%s\"\n", entry->key, entry->val);
             }
             entry = entry->next;
         }

@@ -36,7 +36,6 @@ set(SOURCES
 
         src/ast/ast.c
         src/ast/ast_node_utils.c
-        src/ast/ast_print_module_utils.c
         src/ast/ast_print_module.c
         src/ast/ast_print_module_utils.c
 
@@ -54,6 +53,7 @@ set(SOURCES
         src/builtin/cd/cd_path_parser.c
         src/builtin/cd/cd_path_resolver.c
         src/builtin/export.c
+        src/builtin/unset.c
 
         src/execution/execution.c
         src/execution/execution_command_node.c
