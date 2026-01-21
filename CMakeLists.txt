@@ -36,9 +36,10 @@ set(SOURCES
 
         src/ast/ast.c
         src/ast/ast_node_utils.c
+        src/ast/ast_print_module_utils.c
         src/ast/ast_print_module.c
         src/ast/ast_print_module_utils.c
-        
+
         src/tokenization/tokenization.c
         src/tokenization/tokenization_utils.c
         src/tokenization/tokenization_node_creation_module.c
@@ -47,12 +48,13 @@ set(SOURCES
         src/builtin/exit.c
         src/builtin/env.c
         src/builtin/echo.c
+        src/path_utils/path_utils.c
         src/builtin/cd/cd.c
         src/builtin/cd/cd_path_utils.c
         src/builtin/cd/cd_path_parser.c
-        src/path_utils/path_utils.c
         src/builtin/cd/cd_path_resolver.c
-        
+        src/builtin/export.c
+
         src/execution/execution.c
         src/execution/execution_command_node.c
         src/execution/execution_binary_node.c
