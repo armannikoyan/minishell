@@ -1,14 +1,12 @@
 #include <errno.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <sys/_types/_pid_t.h>
+#include <signal.h>
 
 #include "ast.h"
 #include "hash_table.h"
 #include "utils.h"
 #include "execution.h"
-
-#include <stdio.h>
 
 #include "term_settings.h"
 

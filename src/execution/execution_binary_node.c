@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <sys/_types/_pid_t.h>
+#include <signal.h>
 
 #include "ast.h"
 #include "execution.h"
