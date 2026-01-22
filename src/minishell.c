@@ -12,6 +12,7 @@
 #include "../libs/libft/libft.h"
 #include "tokenization.h"
 #include "execution.h"
+#include "../get_next_line/get_next_line.h"
 
 static void update_shlvl(t_hash_table *ht) {
 	char	*shlvl;
@@ -108,7 +109,14 @@ void	interactive_loop(char	**envp)
 	while (true)
 	{
 		errno_buff = errno;
-		input = readline("minishell$ ");
+		if (isatty(STDIN_FILENO))
+			input = readline("minishell$ ");
+		else {
+			char *line;
+			line = get_next_line(STDIN_FILENO);
+			input = ft_strtrim(line, "\n");
+			free(line);
+		}
 		if (!input)
 		{
 			eof_count--;

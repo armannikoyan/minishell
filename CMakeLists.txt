@@ -23,6 +23,8 @@ set(INCLUDE_DIR ${CMAKE_SOURCE_DIR}/includes)
 # Sources
 # ===============================
 set(SOURCES
+        get_next_line/get_next_line.c
+
         src/term_settings/signals.c
         src/term_settings/term_config.c
 
