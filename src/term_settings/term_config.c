@@ -15,9 +15,8 @@ void	set_term_config(struct termios *original)
 	if (tcgetattr(STDIN_FILENO, original) == -1)
 		print_error("minishell: tcgetattr", false);
 	new_termios = *original;
+	new_termios.c_lflag |= ICANON;
 	new_termios.c_lflag &= ~(ECHOCTL);
-	new_termios.c_cc[VMIN] = 1;
-	new_termios.c_cc[VTIME] = 0;
 	if (tcsetattr(STDIN_FILENO, TCSANOW, &new_termios) == -1)
 		print_error("minishell: tcsetattr", false);
 }
