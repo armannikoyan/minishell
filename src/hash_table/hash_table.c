@@ -13,7 +13,7 @@ t_hash_table	*ht_create(void)
 	if (!ht)
 	{
 		//TODO: make normal error
-		print_error("minishell: malloc", false);
+		print_error("minishell: ht_create: malloc", false);
 		return (NULL);
 	}
 	ht->size = INITIAL_SIZE;
@@ -22,7 +22,7 @@ t_hash_table	*ht_create(void)
 	if (!ht->buckets)
 	{
 		//TODO: make normal error
-		print_error("minishell: ft_calloc", false);
+		print_error("minishell: ht_create: ft_calloc", false);
 		return (NULL);
 	}
 	return (ht);
@@ -80,12 +80,9 @@ int	ht_create_bucket(t_hash_table *ht, const char *key, const char *value, bool 
 	hash = hash_func(key);
 	index = hash % ht->size;
 	new_entry = (t_entry *)malloc(sizeof(t_entry));
+	//TODO: make normal error
 	if (!new_entry)
-	{
-		//TODO: make normal error
-		print_error("minishell: malloc", false);
-		return (-1);
-	}
+		return (print_error("minishell: ht_create_bucket: malloc", false), -1);
 	new_entry->key = ft_strdup(key);
 	if (value != NULL)
 		new_entry->val = ft_strdup(value);
