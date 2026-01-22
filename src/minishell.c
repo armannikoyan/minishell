@@ -13,16 +13,14 @@
 #include "tokenization.h"
 #include "execution.h"
 
-static void ht_update_shlvl(t_hash_table *ht) {
+static void update_shlvl(t_hash_table *ht) {
 	char	*shlvl;
 	char	*str;
 
 	if (ht_get(ht, "SHLVL") == NULL)
 	{
-		if (ht_create_bucket(ht, "SHLVL", NULL, false) == -1) {
-			//TODO: make normal error
+		if (ht_create_bucket(ht, "SHLVL", NULL, false) == -1)
 			exit(EXIT_FAILURE);
-		}
 	}
 	shlvl = ht_get(ht, "SHLVL")->val;
 	if (shlvl)
@@ -38,30 +36,22 @@ static void ht_update_shlvl(t_hash_table *ht) {
 	free(str);
 }
 
-static void	ht_replace_incorrect_env(t_hash_table *ht)
+static void	replace_incorrect_env(t_hash_table *ht)
 {
-	char	*str;
+	char	str[PATH_MAX];
 
-	ht_update_shlvl(ht);
-	str = (char *)malloc(sizeof(char) * PATH_MAX);
-	if (!str)
-	{
-		print_error("minishell: malloc", false);
-		exit(EXIT_FAILURE);
-	}
-	if (getcwd(str, PATH_MAX) == NULL) {
-		print_error("minishell: getcwd", false);
-	}
+	update_shlvl(ht);
+	if (getcwd(str, sizeof(str)) == NULL)
+		print_error("minishell: replace_incorrect_env: getcwd", false);
 	if (ht_get(ht, "PWD") == NULL)
 		ht_create_bucket(ht, "PWD", str, false);
 	else
 		ht_update_value(ht, "PWD", str);
 	if (ht_get(ht, "OLDPWD") == NULL)
 		ht_create_bucket(ht, "OLDPWD", NULL, false);
-	free(str);
 }
 
-static void	ht_insert_env(t_hash_table *ht, char **envp)
+static void	insert_env(t_hash_table *ht, char **envp)
 {
 	char	*str;
 	int		i;
@@ -71,11 +61,12 @@ static void	ht_insert_env(t_hash_table *ht, char **envp)
 	j = 0;
 	while (envp[i])
 	{
+		// Тут можно попробовать сделать выделение одного буфера под все ключи. Пример найдёшь в экспорте
 		j = ft_strchr(envp[i], '=') - envp[i];
 		str = (char *)malloc(sizeof(char) * (j + 1));
 		if (!str)
 		{
-			print_error("minishell: malloc", false);
+			print_error("minishell: insert_env: malloc", false);
 			exit(EXIT_FAILURE);
 		}
 		ft_strlcpy(str, envp[i], j + 1);
@@ -83,10 +74,10 @@ static void	ht_insert_env(t_hash_table *ht, char **envp)
 		free(str);
 		i++;
 	}
-	ht_replace_incorrect_env(ht);
+	replace_incorrect_env(ht);
 }
 
-static bool	isallspace(const char *str) {
+static bool	is_all_space(const char *str) {
 	size_t	i;
 
 	i = 0;
@@ -108,11 +99,8 @@ void	interactive_loop(char	**envp)
 
 	ht = ht_create();
 	if (!ht)
-	{
-		print_error("minishell: Failed to duplicate environment.\n", true);
 		exit(EXIT_FAILURE);
-	}
-	ht_insert_env(ht, envp);
+	insert_env(ht, envp);
 	if (ht_get(ht, "IGNOREEOF") == NULL)
 		eof_count = 0;
 	else
@@ -125,6 +113,7 @@ void	interactive_loop(char	**envp)
 		{
 			eof_count--;
 			if (eof_count < 0) {
+				// Можно заменить на ft_exit. Будет также, но меньше строк
 				input = ft_strdup("exit");
 				if (!input)
 					print_error("minishell: malloc", false);
@@ -135,7 +124,7 @@ void	interactive_loop(char	**envp)
 			}
 		}
 		errno = errno_buff;
-		if (!isallspace(input))
+		if (!is_all_space(input))
 		{
 			add_history(input);
 			root = tokenize(input);
