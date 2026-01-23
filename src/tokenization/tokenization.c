@@ -3,13 +3,12 @@
 
 #include "tokenization.h"
 
-#include <sys/errno.h>
 
 #include "error_codes.h"
 #include "utils.h"
 #include "../../libs/libft/libft.h"
 
-static t_ast_node	*construct_subshell_node(char *input, size_t *i, bool *is_iter_skippable)
+static t_ast_node	*construct_subshell_node(char *input, size_t *i, bool *is_iter_skippable, int *errnum)
 {
 	char		*sub_str;
 	t_ast_node *sub_tree;
@@ -23,7 +22,7 @@ static t_ast_node	*construct_subshell_node(char *input, size_t *i, bool *is_iter
 		free(sub_str);
 		return (NULL);
 	}
-	sub_tree = tokenize(sub_str);
+	sub_tree = tokenize(sub_str, errnum);
 	free(sub_str);
 	if (!sub_tree)
 	{
@@ -33,7 +32,7 @@ static t_ast_node	*construct_subshell_node(char *input, size_t *i, bool *is_iter
 	return (create_subshell_node(SUBSHELL_NODE, sub_tree));
 }
 
-static t_ast_node	*construct_node(char *input, size_t *i, t_node_type type, bool *is_iter_skippable)
+static t_ast_node	*construct_node(char *input, size_t *i, t_node_type type, bool *is_iter_skippable, int *errnum)
 {
 	t_ast_node	*node;
 
@@ -49,17 +48,17 @@ static t_ast_node	*construct_node(char *input, size_t *i, t_node_type type, bool
 			node = create_binary_node(type);
 	}
 	else if (type == SUBSHELL_NODE)
-		node = construct_subshell_node(input, i, is_iter_skippable);
+		node = construct_subshell_node(input, i, is_iter_skippable, errnum);
 	else if (type == ERROR_NODE)
 	{
 		print_error("minishell: parsing error near unexpected token `)'\n", true);
-		errno = SYNTAX_ERROR;
+		*errnum = SYNTAX_ERROR;
 		return (NULL);
 	}
 	return (node);
 }
 
-t_ast_node	*tokenize(char *input)
+t_ast_node	*tokenize(char *input, int *errnum)
 {
 	t_ast_node	*node;
 	size_t	i;
@@ -76,7 +75,7 @@ t_ast_node	*tokenize(char *input)
 		if (!input[i])
 			break ;
 		is_iter_skippable = false;
-		node = construct_node(input, &i, get_node_type(&(input[i])), &is_iter_skippable);
+		node = construct_node(input, &i, get_node_type(&(input[i])), &is_iter_skippable, errnum);
 		if (is_iter_skippable)
 			continue ;
 		if (node)
@@ -85,10 +84,7 @@ t_ast_node	*tokenize(char *input)
 			// print_ast_info(head_node, node);
 		}
 		else
-		{
-			// TODO: Clear the tree
 			return (NULL);
-		}
 	}
 	return (head_node);
 }

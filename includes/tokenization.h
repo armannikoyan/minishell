@@ -15,6 +15,6 @@ char	*extract_subshell_content(char *input, size_t *i);
 char	*substr_next(char *input, size_t *i);
 char	**get_argv(char *input, size_t *i);
 
-t_ast_node	*tokenize(char *input);
+t_ast_node	*tokenize(char *input, int *errnum);
 
 #endif

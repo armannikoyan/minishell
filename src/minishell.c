@@ -132,12 +132,10 @@ void	interactive_loop(char	**envp)
 		if (!is_all_space(input))
 		{
 			add_history(input);
-			root = tokenize(input);
-			if (root != NULL) {
-				if (syntax_check(root) != SYNTAX_ERROR)
+			root = tokenize(input, &errnum);
+			if (root != NULL && syntax_check(root) != SYNTAX_ERROR)
 					errnum = execute(root, ht, errnum);
-				ast_deletion(root);
-			}
+			ast_deletion(root);
 		}
 		if (ht_get(ht, "IGNOREEOF") == NULL)
 			eof_count = 0;

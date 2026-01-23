@@ -46,15 +46,20 @@ static size_t	get_expanded_strlen(char *str, t_hash_table *ht, int errnum)
         set_quote_char(str[i], &quote_char);
         if (str[i] == '$' && quote_char != '\'')
         {
-            // Check if the NEXT character is valid for expansion
+            // Case 1: Valid Variable Expansion ($VAR, $?, $_)
             if (str[i + 1] == '?' || ft_isalpha(str[i + 1]) || str[i + 1] == '_')
             {
                 ++i;
                 len += get_var_len(str, &i, ht, errnum);
             }
+            // Case 2: $ followed by quote while NOT in quotes ($"" or $'') -> Ignore $
+            else if (quote_char == 0 && (str[i + 1] == '\'' || str[i + 1] == '\"'))
+            {
+                ++i;
+            }
+            // Case 3: Literal $ (echo $, echo "42$")
             else
             {
-                // Treat $ as a literal char
                 ++len;
                 ++i;
             }
@@ -113,15 +118,20 @@ static void	fill_exp_str(char *new_str, char *str, t_hash_table *ht, int errnum)
         set_quote_char(str[i], &quote_char);
         if (str[i] == '$' && quote_char != '\'')
         {
-            // Check if the NEXT character is valid for expansion
+             // Case 1: Valid Variable Expansion
             if (str[i + 1] == '?' || ft_isalpha(str[i + 1]) || str[i + 1] == '_')
             {
                 ++i;
                 j += copy_var_val(new_str + j, str, &i, ht, errnum);
             }
+            // Case 2: $ followed by quote while NOT in quotes -> Ignore $
+            else if (quote_char == 0 && (str[i + 1] == '\'' || str[i + 1] == '\"'))
+            {
+                ++i;
+            }
+            // Case 3: Literal $
             else
             {
-                // Copy $ as a literal char
                 new_str[j++] = str[i++];
             }
         }
