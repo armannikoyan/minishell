@@ -6,13 +6,14 @@
 
 # define HEREDOC_TMP_FILE "/tmp/minishell_heredoc.tmp"
 
-void    handle_child_exit(pid_t pid);
+int  handle_child_exit(pid_t pid);
+char **expand_wildcards(char **old_argv);
 char    *remove_quotes(char *str);
 
-void    execute_command(t_ast_node *node, t_hash_table *ht);
-void    execute_binary(t_ast_node *node, t_hash_table *ht);
-void    execute_redir(t_ast_node *node, t_hash_table *ht);
+int    execute_command(t_ast_node *node, t_hash_table *ht, int errnum);
+int    execute_binary(t_ast_node *node, t_hash_table *ht, int errnum);
+int    execute_redir(t_ast_node *node, t_hash_table *ht, int errnum);
 
-void    execute(t_ast_node *node, t_hash_table *ht);
+int execute(t_ast_node *node, t_hash_table *ht, int errnum);
 
 #endif

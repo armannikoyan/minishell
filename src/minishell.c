@@ -4,8 +4,6 @@
 
 #include "minishell.h"
 
-#include <sys/errno.h>
-
 #include "error_codes.h"
 #include "hash_table.h"
 #include "utils.h"
@@ -95,9 +93,10 @@ void	interactive_loop(char	**envp)
 	t_hash_table	*ht;
 	char			*input;
 	t_ast_node	*root;
-	int	errno_buff;
+	int	errnum;
 	int	eof_count;
 
+	errnum = 0; //TODO: pass to the execution for parsing ?
 	ht = ht_create();
 	if (!ht)
 		exit(EXIT_FAILURE);
@@ -108,7 +107,6 @@ void	interactive_loop(char	**envp)
 		eof_count = ft_atoi(ht_get(ht, "IGNOREEOF")->val);
 	while (true)
 	{
-		errno_buff = errno;
 		if (isatty(STDIN_FILENO))
 			input = readline("minishell$ ");
 		else {
@@ -131,14 +129,14 @@ void	interactive_loop(char	**envp)
 				continue;
 			}
 		}
-		errno = errno_buff;
 		if (!is_all_space(input))
 		{
 			add_history(input);
 			root = tokenize(input);
 			if (root != NULL) {
 				if (syntax_check(root) != SYNTAX_ERROR)
-					execute(root, ht);
+					errnum = execute(root, ht, errnum);
+				ast_deletion(root);
 			}
 		}
 		if (ht_get(ht, "IGNOREEOF") == NULL)

@@ -12,7 +12,7 @@
 #include "utils.h"
 #include "../../libs/libft/libft.h"
 
-static void    execute_redir_helper(t_ast_node *node, t_hash_table *ht, int target_fd, int open_flags) {
+static int    execute_redir_helper(t_ast_node *node, t_hash_table *ht, int target_fd, int open_flags, int errnum) {
     int original_std_fileno;
     char *tmp;
 
@@ -20,13 +20,13 @@ static void    execute_redir_helper(t_ast_node *node, t_hash_table *ht, int targ
     if (original_std_fileno == -1) {
         // TODO: Write normal error
         print_error("minishell: dup", false);
-        return;
+        return (1);
     }
     tmp = node->u_data.redir.filename;
     node->u_data.redir.filename = remove_quotes(tmp);
     if (node->u_data.redir.filename == NULL) {
         print_error("minishell: malloc", false);
-        return ;
+        return (1);
     }
     free(tmp);
     node->u_data.redir.fd = open(node->u_data.redir.filename, open_flags, 0644);
@@ -37,26 +37,29 @@ static void    execute_redir_helper(t_ast_node *node, t_hash_table *ht, int targ
             // TODO: Write normal error
             print_error("minishell: close", false);
         }
-        return;
+        return (1);
     }
     if (dup2(node->u_data.redir.fd, target_fd) == -1) {
         print_error("minishell: dup2", false);
-        return;
+        return (1);
     }
     if (close(node->u_data.redir.fd) == -1) {
         print_error("minishell: close", false);
-        return;
+        return (1);
     }
-    execute(node->u_data.redir.child, ht);
+    execute(node->u_data.redir.child, ht, errnum);
     if (dup2(original_std_fileno, target_fd) == -1) {
         print_error("minishell: dup2", false);
-        return;
+        return (1);
     }
-    if (close(original_std_fileno) == -1)
+    if (close(original_std_fileno) == -1) {
         print_error("minishell: close", false);
+        return (1);
+    }
+    return (0);
 }
 
-void    execute_heredoc(t_ast_node *node, t_hash_table *ht) {
+static int    execute_heredoc(t_ast_node *node, t_hash_table *ht, int errnum) {
     int original_stdin_fileno;
     char *line;
     char *tmp;
@@ -67,7 +70,7 @@ void    execute_heredoc(t_ast_node *node, t_hash_table *ht) {
     if (original_stdin_fileno == -1) {
         // TODO: Write normal error
         print_error("minishell: dup", false);
-        return;
+        return (1);
     }
     node->u_data.redir.fd = open(HEREDOC_TMP_FILE, O_WRONLY | O_CREAT | O_TRUNC, 0644);
     if (node->u_data.redir.fd == -1) {
@@ -77,7 +80,7 @@ void    execute_heredoc(t_ast_node *node, t_hash_table *ht) {
             // TODO: Write normal error
             print_error("minishell: close", false);
         }
-        return;
+        return(1);
     }
     quote_char = 0;
     i = -1;
@@ -90,7 +93,7 @@ void    execute_heredoc(t_ast_node *node, t_hash_table *ht) {
     node->u_data.redir.filename = remove_quotes(tmp);
     if (node->u_data.redir.filename == NULL) {
         print_error("minishell: malloc", false);
-        return ;
+        return (1);
     }
     free(tmp);
     while (true)
@@ -103,33 +106,33 @@ void    execute_heredoc(t_ast_node *node, t_hash_table *ht) {
         }
         if (!quote_char) {
             tmp = line;
-            line = expand_dollar_sign(tmp, ht);
+            line = expand_dollar_sign(tmp, ht, errnum);
             free(tmp);
         }
         if (write(node->u_data.redir.fd, line, ft_strlen(line)) == -1) {
             free(line);
             if (close(node->u_data.redir.fd) == -1) {
                 print_error("minishell: close", false);
-                return;
+                return (1);
             }
             print_error("minishell: write", false);
-            return;
+            return (1);
         }
         if (write(node->u_data.redir.fd, "\n", 1) == -1)
         {
             free(line);
             if (close(node->u_data.redir.fd) == -1) {
                 print_error("minishell: close", false);
-                return;
+                return (1);
             }
             print_error("minishell: write", false);
-            return;
+            return (1);
         }
         free(line);
     }
     if (close(node->u_data.redir.fd) == -1) {
         print_error("minishell: close", false);
-        return;
+        return (1);
     }
     node->u_data.redir.fd = open(HEREDOC_TMP_FILE, O_RDONLY, 0644);
     if (node->u_data.redir.fd == -1) {
@@ -139,35 +142,40 @@ void    execute_heredoc(t_ast_node *node, t_hash_table *ht) {
             // TODO: Write normal error
             print_error("minishell: close", false);
         }
-        return;
+        return (1);
     }
     if (dup2(node->u_data.redir.fd, STDIN_FILENO) == -1) {
         print_error("minishell: dup2", false);
-        return;
+        return (1);
     }
     if (close(node->u_data.redir.fd) == -1) {
         print_error("minishell: close", false);
-        return;
+        return (1);
     }
-    execute(node->u_data.redir.child, ht);
+    execute(node->u_data.redir.child, ht, errnum);
     if (unlink(HEREDOC_TMP_FILE) == -1) {
         print_error("minishell: unlink", false);
+        return(1);
     }
     if (dup2(original_stdin_fileno, STDIN_FILENO) == -1) {
         print_error("minishell: dup2", false);
-        return;
+        return(1);
     }
-    if (close(original_stdin_fileno) == -1)
+    if (close(original_stdin_fileno) == -1) {
         print_error("minishell: close", false);
+        return(1);
+    }
+    return (0);
 }
 
-void    execute_redir(t_ast_node *node, t_hash_table *ht) {
+int    execute_redir(t_ast_node *node, t_hash_table *ht, int errnum) {
     if (node->type == REDIRECT_IN_NODE)
-        execute_redir_helper(node, ht, STDIN_FILENO, O_RDONLY);
-    else if (node->type == REDIRECT_OUT_NODE)
-        execute_redir_helper(node, ht, STDOUT_FILENO, O_WRONLY | O_CREAT | O_TRUNC);
-    else if (node->type == REDIRECT_APPEND_NODE)
-        execute_redir_helper(node, ht, STDOUT_FILENO, O_WRONLY | O_CREAT | O_APPEND);
-    else if (node->type == HEREDOC_NODE)
-        execute_heredoc(node, ht);
+        return (execute_redir_helper(node, ht, STDIN_FILENO, O_RDONLY, errnum));
+    if (node->type == REDIRECT_OUT_NODE)
+        return (execute_redir_helper(node, ht, STDOUT_FILENO, O_WRONLY | O_CREAT | O_TRUNC, errnum));
+    if (node->type == REDIRECT_APPEND_NODE)
+        return (execute_redir_helper(node, ht, STDOUT_FILENO, O_WRONLY | O_CREAT | O_APPEND, errnum));
+    if (node->type == HEREDOC_NODE)
+        return (execute_heredoc(node, ht, errnum));
+    return (1);
 }

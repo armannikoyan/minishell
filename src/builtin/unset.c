@@ -26,6 +26,7 @@ int ft_unset(int argc, char **argv, t_hash_table *ht) {
             ht_delete(ht, argv[i]);
         else
             is_err = true;
+        ++i;
     }
     return BUILTIN_ERROR * is_err;
 }

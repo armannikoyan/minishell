@@ -64,6 +64,8 @@ t_ast_node *create_subshell_node(t_node_type type, t_ast_node *root);
 
 t_ast_node *ast_build(t_ast_node *new_node, t_ast_node *root);
 
+void ast_deletion(t_ast_node *root);
+
 int syntax_check(t_ast_node *node);
 
 void print_ast(t_ast_node *root);

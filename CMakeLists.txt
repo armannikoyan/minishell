@@ -66,6 +66,8 @@ set(SOURCES
         src/execution/expansion/dollar_sign_expansion_utils.c
         includes/error_codes.h
         src/ast/ast_syntax_check.c
+        src/ast/ast_node_deletion.c
+        src/execution/expansion/wildcard.c
 )
 
 # ===============================

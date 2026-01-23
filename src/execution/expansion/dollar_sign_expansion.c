@@ -1,5 +1,4 @@
 #include <unistd.h>
-#include <errno.h>
 #include <stdio.h>
 
 #include "expansion.h"
@@ -8,7 +7,7 @@
 #include "utils.h"
 #include "../../../libs/libft/libft.h"
 
-static size_t	get_var_len(char *str, size_t *i, t_hash_table *ht)
+static size_t	get_var_len(char *str, size_t *i, t_hash_table *ht, int errnum)
 {
     size_t	len;
     char	*tmp;
@@ -17,7 +16,7 @@ static size_t	get_var_len(char *str, size_t *i, t_hash_table *ht)
     len = 0;
     if (str[*i] == '?')
     {
-        tmp = ft_itoa(errno);
+        tmp = ft_itoa(errnum);
         if (tmp)
             len = ft_strlen(tmp);
         free(tmp);
@@ -33,7 +32,7 @@ static size_t	get_var_len(char *str, size_t *i, t_hash_table *ht)
     return (len);
 }
 
-static size_t	get_expanded_strlen(char *str, t_hash_table *ht)
+static size_t	get_expanded_strlen(char *str, t_hash_table *ht, int errnum)
 {
     size_t	i;
     size_t	len;
@@ -47,8 +46,18 @@ static size_t	get_expanded_strlen(char *str, t_hash_table *ht)
         set_quote_char(str[i], &quote_char);
         if (str[i] == '$' && quote_char != '\'')
         {
-            ++i;
-            len += get_var_len(str, &i, ht);
+            // Check if the NEXT character is valid for expansion
+            if (str[i + 1] == '?' || ft_isalpha(str[i + 1]) || str[i + 1] == '_')
+            {
+                ++i;
+                len += get_var_len(str, &i, ht, errnum);
+            }
+            else
+            {
+                // Treat $ as a literal char
+                ++len;
+                ++i;
+            }
         }
         else
         {
@@ -59,7 +68,7 @@ static size_t	get_expanded_strlen(char *str, t_hash_table *ht)
     return (len);
 }
 
-static size_t	copy_var_val(char *dst, char *str, size_t *i, t_hash_table *ht)
+static size_t	copy_var_val(char *dst, char *str, size_t *i, t_hash_table *ht, int errnum)
 {
     size_t	len;
     char	*tmp;
@@ -68,7 +77,7 @@ static size_t	copy_var_val(char *dst, char *str, size_t *i, t_hash_table *ht)
     len = 0;
     if (str[*i] == '?')
     {
-        tmp = ft_itoa(errno);
+        tmp = ft_itoa(errnum);
         if (tmp)
         {
             len = ft_strlen(tmp);
@@ -90,7 +99,7 @@ static size_t	copy_var_val(char *dst, char *str, size_t *i, t_hash_table *ht)
     return (len);
 }
 
-static void	fill_exp_str(char *new_str, char *str, t_hash_table *ht)
+static void	fill_exp_str(char *new_str, char *str, t_hash_table *ht, int errnum)
 {
     size_t	i;
     size_t	j;
@@ -104,8 +113,17 @@ static void	fill_exp_str(char *new_str, char *str, t_hash_table *ht)
         set_quote_char(str[i], &quote_char);
         if (str[i] == '$' && quote_char != '\'')
         {
-            ++i;
-            j += copy_var_val(new_str + j, str, &i, ht);
+            // Check if the NEXT character is valid for expansion
+            if (str[i + 1] == '?' || ft_isalpha(str[i + 1]) || str[i + 1] == '_')
+            {
+                ++i;
+                j += copy_var_val(new_str + j, str, &i, ht, errnum);
+            }
+            else
+            {
+                // Copy $ as a literal char
+                new_str[j++] = str[i++];
+            }
         }
         else
             new_str[j++] = str[i++];
@@ -113,12 +131,12 @@ static void	fill_exp_str(char *new_str, char *str, t_hash_table *ht)
     new_str[j] = '\0';
 }
 
-char    *expand_dollar_sign(char *str, t_hash_table *ht)
+char	*expand_dollar_sign(char *str, t_hash_table *ht, int errnum)
 {
     char    *new_str;
     size_t	len;
 
-    len = get_expanded_strlen(str, ht);
+    len = get_expanded_strlen(str, ht, errnum);
     if (len == 0)
         return (ft_strdup(""));
     new_str = (char *)ft_calloc(sizeof(char), len + 1);
@@ -127,6 +145,6 @@ char    *expand_dollar_sign(char *str, t_hash_table *ht)
         free(str);
         return (NULL);
     }
-    fill_exp_str(new_str, str, ht);
+    fill_exp_str(new_str, str, ht, errnum);
     return (new_str);
 }

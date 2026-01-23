@@ -98,20 +98,30 @@ static char *resolve_cmd_path(char *cmd, t_hash_table *ht)
     return (cmd_path);
 }
 
-static int run_expansion(t_ast_node *node, t_hash_table *ht)
+static int run_expansion(t_ast_node *node, t_hash_table *ht, int errnum)
 {
     size_t  i;
     char    *tmp;
+    char    **new_argv;
 
     i = 0;
     while (node->u_data.cmd.argv[i])
     {
         tmp = node->u_data.cmd.argv[i];
-        node->u_data.cmd.argv[i] = expand_dollar_sign(tmp, ht);
+        node->u_data.cmd.argv[i] = expand_dollar_sign(tmp, ht, errnum);
         free(tmp);
         if (!node->u_data.cmd.argv[i])
             return (print_error("minishell: malloc", false), 1);
-
+        i++;
+    }
+    new_argv = expand_wildcards(node->u_data.cmd.argv);
+    if (!new_argv)
+        return (print_error("minishell: malloc", false), 1);
+    free_split(node->u_data.cmd.argv);
+    node->u_data.cmd.argv = new_argv;
+    i = 0;
+    while (node->u_data.cmd.argv[i])
+    {
         tmp = node->u_data.cmd.argv[i];
         node->u_data.cmd.argv[i] = remove_quotes(tmp);
         free(tmp);
@@ -132,63 +142,54 @@ static int count_args(char **argv)
     return (i);
 }
 
-static bool run_builtin(char **argv, t_hash_table *ht)
+static int run_builtin(char **argv, t_hash_table *ht, int errnum)
 {
     int     argc;
-    int     status;
     char    *cmd;
-    bool    is_builtin;
 
     if (!argv || !argv[0])
         return (false);
 
     cmd = argv[0];
     argc = count_args(argv);
-    status = 0;
-    is_builtin = true;
 
     if (ft_strcmp(cmd, "echo") == 0)
     {
         update_underscore(ht, cmd);
-        status = ft_echo(argc, argv, ht);
+        return (ft_echo(argc, argv, ht));
     }
-    else if (ft_strcmp(cmd, "cd") == 0)
+    if (ft_strcmp(cmd, "cd") == 0)
     {
         update_underscore(ht, cmd);
-        status = ft_cd(argc, argv, ht);
+        return (ft_cd(argc, argv, ht));
     }
-    else if (ft_strcmp(cmd, "pwd") == 0)
+    if (ft_strcmp(cmd, "pwd") == 0)
     {
         update_underscore(ht, cmd);
-        status = ft_pwd(argc, argv, ht);
+        return (ft_pwd(argc, argv, ht));
     }
-    else if (ft_strcmp(cmd, "export") == 0)
+    if (ft_strcmp(cmd, "export") == 0)
     {
         update_underscore(ht, cmd);
-        status = ft_export(argc, argv, ht);
+       return (ft_export(argc, argv, ht));
     }
-    else if (ft_strcmp(cmd, "unset") == 0)
+    if (ft_strcmp(cmd, "unset") == 0)
     {
         update_underscore(ht, cmd);
-        status = ft_unset(argc, argv, ht);
+        return (ft_unset(argc, argv, ht));
     }
-    else if (ft_strcmp(cmd, "env") == 0)
+    if (ft_strcmp(cmd, "env") == 0)
     {
         update_underscore(ht, cmd);
-        status = ft_env(argc, argv, ht);
+        return (ft_env(argc, argv, ht));
     }
-    else if (ft_strcmp(cmd, "exit") == 0)
+    if (ft_strcmp(cmd, "exit") == 0)
     {
         update_underscore(ht, cmd);
-        status = ft_exit(argc, argv, ht);
+        errno = errnum;
+        return (ft_exit(argc, argv, ht));
     }
-    else
-        is_builtin = false;
-
-    if (is_builtin)
-        errno = status;
-
-    return (is_builtin);
+    return (-1);
 }
 
 static int validate_executable(char *path)
@@ -248,36 +249,42 @@ static void execute_child(char *cmd_path, char **argv, t_hash_table *ht)
     }
 }
 
-void execute_command(t_ast_node *node, t_hash_table *ht)
+int execute_command(t_ast_node *node, t_hash_table *ht, int errnum)
 {
     char    *cmd_path;
     int     err_code;
     pid_t   pid;
 
-    if (run_expansion(node, ht) != 0 || run_builtin(node->u_data.cmd.argv, ht))
-        return ;
+    if (run_expansion(node, ht, errnum) != 0)
+        return (1);
+    err_code = run_builtin(node->u_data.cmd.argv, ht, errnum);
+    if (err_code != -1)
+        return (err_code);
     cmd_path = resolve_cmd_path(node->u_data.cmd.argv[0], ht);
     if (!cmd_path)
-        return ;
+        return (1);
     update_underscore(ht, cmd_path);
     err_code = validate_executable(cmd_path);
     if (err_code != 0)
     {
-        errno = err_code;
         free(cmd_path);
-        return ;
+        return (err_code);
     }
     pid = fork();
-    if (pid == -1)
+    if (pid == -1) {
         print_error("minishell: fork", false);
-    else if (pid == 0)
+        return (1);
+    }
+    if (pid == 0)
         execute_child(cmd_path, node->u_data.cmd.argv, ht);
     else
     {
         free(cmd_path);
         signal(SIGINT, SIG_IGN);
         signal(SIGQUIT, SIG_IGN);
-        handle_child_exit(pid);
+        err_code = handle_child_exit(pid);
         psig_set();
+        return (err_code);
     }
+    return (1);
 }

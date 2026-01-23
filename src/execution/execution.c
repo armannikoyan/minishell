@@ -10,34 +10,37 @@
 
 #include "term_settings.h"
 
-void    execute_subshell(t_ast_node *node, t_hash_table *ht) {
+int    execute_subshell(t_ast_node *node, t_hash_table *ht, int errnum) {
     pid_t pid;
+    int status;
 
     pid = fork();
     if (pid == -1) {
         // TODO: write normal error
         print_error("minishell: fork", false);
-        return ;
+        return (1);
     }
     if (pid) {
         signal(SIGINT, SIG_IGN);
         signal(SIGQUIT, SIG_IGN);
-        handle_child_exit(pid);
+        status = handle_child_exit(pid);
         psig_set();
+        return (status);
     }
-    else {
-        execute(node->u_data.subshell.root, ht);
-        exit(errno);
-    }
+    else
+        exit(execute(node->u_data.subshell.root, ht, errnum));
 }
 
-void    execute(t_ast_node *node, t_hash_table *ht) {
+int execute(t_ast_node *node, t_hash_table *ht, int errnum) {
+    if (!node)
+        return (0);
     if (node->abstract_type == CMD_NODE && node->type == COMMAND_NODE)
-        execute_command(node, ht);
-    else if (node->abstract_type == BIN_NODE)
-        execute_binary(node, ht);
-    else if (node->abstract_type == REDIR_NODE)
-        execute_redir(node, ht);
-    else if (node->type == SUBSHELL_NODE)
-        execute_subshell(node, ht);
+        return (execute_command(node, ht, errnum));
+    if (node->abstract_type == BIN_NODE)
+        return (execute_binary(node, ht, errnum));
+    if (node->abstract_type == REDIR_NODE)
+        return (execute_redir(node, ht, errnum));
+    if (node->type == SUBSHELL_NODE)
+        return (execute_subshell(node, ht, errnum));
+    return (0);
 }

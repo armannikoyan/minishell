@@ -58,24 +58,25 @@ char    *remove_quotes(char *str)
     return (new_str);
 }
 
-void handle_child_exit(pid_t pid) {
+int handle_child_exit(pid_t pid) {
     int status;
 
     if (waitpid(pid, &status, 0) == -1) {
         if (errno != ECHILD)
             print_error("minishell: waitpid", false);
-        return;
+        return (1);
     }
     if (WIFEXITED(status)) {
-        errno = WEXITSTATUS(status);
+         return (WEXITSTATUS(status));
     }
-    else if (WIFSIGNALED(status)) {
+    if (WIFSIGNALED(status)) {
         int sig = WTERMSIG(status);
-        errno = RESERVED_ERROR_CODES + sig;
 
         if (sig == SIGINT || sig == SIGPIPE)
             printf("^C\n");
         else if (sig == SIGQUIT)
             printf("^\\Quit: signum: %d\n", sig);
+        return (RESERVED_ERROR_CODES + sig);
     }
+    return (1);
 }
