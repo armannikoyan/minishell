@@ -11,20 +11,26 @@ int	ft_echo(int argc, char **argv, t_hash_table *ht)
 {
 	int		i;
 	bool	n_flag;
+	bool is_first_print;
 
 	(void) ht;
 	i = 1;
 	n_flag = false;
 
-	if (ft_strcmp(argv[i], "-n") == 0) {
+	if (ft_strcmp(argv[i], "-n") == 0)
+		{
 		n_flag = true;
 		i++;
 	}
-	while (i < argc) {
-		printf("%s", argv[i]);
-		if (i != argc - 1)
+	is_first_print = false;
+	while (i < argc)
+		{
+		if (ft_strcmp(argv[i++], "-n") == 0 && !is_first_print)
+			continue;
+		is_first_print = true;
+		printf("%s", argv[--i]);
+		if (i++ != argc - 1)
 			printf(" ");
-		i++;
 	}
 	if (!n_flag)
 		printf("\n");
