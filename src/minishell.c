@@ -133,8 +133,12 @@ void	interactive_loop(char	**envp)
 		{
 			add_history(input);
 			root = tokenize(input, &errnum);
-			if (root != NULL && syntax_check(root) != SYNTAX_ERROR)
-					errnum = execute(root, ht, errnum);
+			int heredoc_counter = 0;
+			if (root != NULL && syntax_check(root, &errnum) != SYNTAX_ERROR &&
+				scan_and_process_heredocs(root, ht, &heredoc_counter) == 0) {
+				errnum = execute(root, ht, errnum);
+			}
+			cleanup_heredoc_files(heredoc_counter);
 			ast_deletion(root);
 		}
 		if (ht_get(ht, "IGNOREEOF") == NULL)

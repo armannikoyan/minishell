@@ -1,5 +1,5 @@
 #include <unistd.h>
-#include <stdio.h>
+#include <stdlib.h> // Required for getenv
 
 #include "expansion.h"
 #include "hash_table.h"
@@ -32,11 +32,27 @@ static size_t	get_var_len(char *str, size_t *i, t_hash_table *ht, int errnum)
     return (len);
 }
 
+static int	is_tilde_expandable(char *str, size_t i, char quote_char)
+{
+    // Tilde expands if:
+    // 1. Not in quotes
+    // 2. It is at the start OR preceded by a space
+    // 3. It is at the end OR followed by a '/'
+    if (str[i] == '~' && quote_char == 0)
+    {
+        if ((i == 0 || str[i - 1] == ' ') &&
+            (str[i + 1] == '\0' || str[i + 1] == '/'))
+            return (1);
+    }
+    return (0);
+}
+
 static size_t	get_expanded_strlen(char *str, t_hash_table *ht, int errnum)
 {
     size_t	i;
     size_t	len;
     char	quote_char;
+    char    *home_val;
 
     i = 0;
     len = 0;
@@ -46,23 +62,27 @@ static size_t	get_expanded_strlen(char *str, t_hash_table *ht, int errnum)
         set_quote_char(str[i], &quote_char);
         if (str[i] == '$' && quote_char != '\'')
         {
-            // Case 1: Valid Variable Expansion ($VAR, $?, $_)
             if (str[i + 1] == '?' || ft_isalpha(str[i + 1]) || str[i + 1] == '_')
             {
                 ++i;
                 len += get_var_len(str, &i, ht, errnum);
             }
-            // Case 2: $ followed by quote while NOT in quotes ($"" or $'') -> Ignore $
             else if (quote_char == 0 && (str[i + 1] == '\'' || str[i + 1] == '\"'))
-            {
                 ++i;
-            }
-            // Case 3: Literal $ (echo $, echo "42$")
             else
             {
                 ++len;
                 ++i;
             }
+        }
+        else if (is_tilde_expandable(str, i, quote_char))
+        {
+            home_val = getenv("HOME");
+            if (home_val)
+                len += ft_strlen(home_val);
+            else
+                len += 1; // If HOME is unset, keep ~ as literal
+            ++i;
         }
         else
         {
@@ -109,6 +129,8 @@ static void	fill_exp_str(char *new_str, char *str, t_hash_table *ht, int errnum)
     size_t	i;
     size_t	j;
     char	quote_char;
+    char    *home_val;
+    size_t  home_len;
 
     i = 0;
     j = 0;
@@ -118,22 +140,28 @@ static void	fill_exp_str(char *new_str, char *str, t_hash_table *ht, int errnum)
         set_quote_char(str[i], &quote_char);
         if (str[i] == '$' && quote_char != '\'')
         {
-             // Case 1: Valid Variable Expansion
             if (str[i + 1] == '?' || ft_isalpha(str[i + 1]) || str[i + 1] == '_')
             {
                 ++i;
                 j += copy_var_val(new_str + j, str, &i, ht, errnum);
             }
-            // Case 2: $ followed by quote while NOT in quotes -> Ignore $
             else if (quote_char == 0 && (str[i + 1] == '\'' || str[i + 1] == '\"'))
-            {
                 ++i;
-            }
-            // Case 3: Literal $
             else
-            {
                 new_str[j++] = str[i++];
+        }
+        else if (is_tilde_expandable(str, i, quote_char))
+        {
+            home_val = getenv("HOME");
+            if (home_val)
+            {
+                home_len = ft_strlen(home_val);
+                ft_memcpy(new_str + j, home_val, home_len);
+                j += home_len;
+                i++;
             }
+            else
+                new_str[j++] = str[i++];
         }
         else
             new_str[j++] = str[i++];

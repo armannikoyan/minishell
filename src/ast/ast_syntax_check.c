@@ -7,7 +7,7 @@
 
 #include "../../libs/libft/libft.h"
 
-int syntax_check(t_ast_node *node)
+int syntax_check(t_ast_node *node, int *errnum)
 {
     if (!node)
         return (0);
@@ -15,13 +15,13 @@ int syntax_check(t_ast_node *node)
     {
         if (node->u_data.binary.left == NULL || node->u_data.binary.right == NULL)
         {
-            print_syntax_error(node);
-            errno = SYNTAX_ERROR;
+            print_syntax_error(node, errnum);
+            *errnum = SYNTAX_ERROR;
             return (SYNTAX_ERROR);
         }
-        if (syntax_check(node->u_data.binary.left) != 0)
+        if (syntax_check(node->u_data.binary.left, errnum) != 0)
             return (SYNTAX_ERROR);
-        if (syntax_check(node->u_data.binary.right) != 0)
+        if (syntax_check(node->u_data.binary.right, errnum) != 0)
             return (SYNTAX_ERROR);
     }
     else if (node->abstract_type == REDIR_NODE)
@@ -34,12 +34,12 @@ int syntax_check(t_ast_node *node)
                 print_error("\': No EOL presented\n", true);
             else
                 print_error("\': No filename presented\n", true);
-            errno = SYNTAX_ERROR;
+            *errnum = SYNTAX_ERROR;
             return (SYNTAX_ERROR);
         }
         if (node->u_data.redir.child)
         {
-            if (syntax_check(node->u_data.redir.child) != 0)
+            if (syntax_check(node->u_data.redir.child, errnum) != 0)
                 return (SYNTAX_ERROR);
         }
     }
@@ -47,11 +47,11 @@ int syntax_check(t_ast_node *node)
     {
         if (node->u_data.subshell.root == NULL)
         {
-            print_syntax_error(node);
-            errno = SYNTAX_ERROR;
+            print_syntax_error(node, errnum);
+            *errnum = SYNTAX_ERROR;
             return (SYNTAX_ERROR);
         }
-        if (syntax_check(node->u_data.subshell.root) != 0)
+        if (syntax_check(node->u_data.subshell.root, errnum) != 0)
             return (SYNTAX_ERROR);
     }
     return (0);

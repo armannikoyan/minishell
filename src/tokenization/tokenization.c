@@ -13,7 +13,7 @@ static t_ast_node	*construct_subshell_node(char *input, size_t *i, bool *is_iter
 	char		*sub_str;
 	t_ast_node *sub_tree;
 
-	sub_str = extract_subshell_content(input, i);
+	sub_str = extract_subshell_content(input, i, errnum);
 	if (!sub_str)
 		return (NULL);
 	if (ft_strlen(sub_str) == 0)
@@ -80,7 +80,7 @@ t_ast_node	*tokenize(char *input, int *errnum)
 			continue ;
 		if (node)
 		{
-			head_node = ast_build(node, head_node);
+			head_node = ast_build(node, head_node, errnum);
 			// print_ast_info(head_node, node);
 		}
 		else

@@ -1,5 +1,6 @@
 #include <stddef.h>
 
+#include "error_codes.h"
 #include "../../includes/tokenization.h"
 #include "../../includes/utils.h"
 #include "../../libs/libft/libft.h"
@@ -55,7 +56,7 @@ static void get_subshell_nesting_info(char *input, size_t *i, int *nested_level)
     }
 }
 
-char	*extract_subshell_content(char *input, size_t *i)
+char	*extract_subshell_content(char *input, size_t *i, int *errnum)
 {
     size_t	start;
     char	*tmp;
@@ -67,6 +68,7 @@ char	*extract_subshell_content(char *input, size_t *i)
     if (nested_level != 0)
     {
         print_error("minishell: parsing error near unexpected token `('\n", true);
+        *errnum = SYNTAX_ERROR;
         return (NULL);
     }
     tmp = ft_substr(input, start, *i - start);

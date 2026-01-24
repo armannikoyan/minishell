@@ -3,111 +3,163 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <signal.h>
+#include <sys/wait.h>
 
 #include "ast.h"
 #include "execution.h"
 #include "hash_table.h"
 #include "term_settings.h"
 #include "utils.h"
+#include "../../libs/libft/libft.h"
 
-static int execute_pipe_helper(int *filedes, pid_t *pid, t_ast_node *node, t_hash_table *ht, int errnum) {
-    int err_code;
-
-    if (pid[0] == 0) {
-        signal(SIGINT, SIG_DFL);
-        signal(SIGQUIT, SIG_DFL);
-        if (close(filedes[0]) == -1) {
-            print_error("minishell: close", false);
-            return (1);
-        }
-        if (dup2(filedes[1], STDOUT_FILENO) == -1) {
-            print_error("minishell: dup2", false);
-            return (1);
-        }
-        if (close(filedes[1]) == -1) {
-            print_error("minishell: close", false);
-            return (1);
-        }
-        exit(execute(node->u_data.binary.left, ht, errnum));
+/*
+** CLEANUP HANDLER
+** If fork fails, we must close open FDs to trigger SIGPIPE
+*/
+static int abort_pipeline(int prev_fd, int *pipefd)
+{
+    if (prev_fd != -1)
+        close(prev_fd);
+    if (pipefd)
+    {
+        close(pipefd[0]);
+        close(pipefd[1]);
     }
-    if (pid[0] && pid[1]) {
-        signal(SIGINT, SIG_IGN);
-        signal(SIGQUIT, SIG_IGN);
-        if (close(filedes[0]) == -1) {
-            print_error("minishell: close", false);
-            return (1);
-        }
-        if (close(filedes[1]) == -1) {
-            print_error("minishell: close", false);
-            return (1);
-        }
-        handle_child_exit(pid[0]);
-        err_code = handle_child_exit(pid[1]);
-        psig_set();
-        return (err_code);
-    }
-    else {
-        signal(SIGINT, SIG_DFL);
-        signal(SIGQUIT, SIG_DFL);
-        if (close(filedes[1]) == -1) {
-            print_error("minishell: close", false);
-            return (1);
-        }
-        if (dup2(filedes[0], STDIN_FILENO) == -1) {
-            print_error("minishell: dup2", false);
-            return (1);
-        }
-        if (close(filedes[0]) == -1) {
-            print_error("minishell: close", false);
-            return (1);
-        }
-        exit(execute(node->u_data.binary.right, ht, errnum));
-    }
+    return (1);
 }
 
-static int    execute_pipe(t_ast_node *node, t_hash_table *ht, int errnum) {
-    int filedes[2];
-    pid_t pid[2];
+/*
+** Pipeline execution the bash way:
+** - Fork each process in sequence
+** - Don't track all PIDs, only the last one matters for exit status
+** - The pipeline works through pipe chaining, not waiting
+*/
+int execute_pipeline(t_ast_node *node, t_hash_table *ht, int errnum)
+{
+    int         pipefd[2];
+    int         prev_fd;
+    t_ast_node  *curr;
+    pid_t       pid;
+    pid_t       last_pid;
+    int         status;
 
-    if (pipe(filedes) == -1) {
-        // TODO: Write Normal Error
-        print_error("minishell: pipe", false);
-        return (1);
-    }
-    pid[0] = fork();
-    if (pid[0] == -1) {
-        // TODO: write normal error
-        print_error("minishell: fork", false);
-        return (1);
-    }
-    if (pid[0]) {
-        pid[1] = fork();
-        if (pid[1] == -1) {
-            // TODO: write normal error
+    prev_fd = -1;
+    curr = node;
+    last_pid = -1;
+
+    // 1. Iterate over the chain of PIPE_NODES
+    while (curr->type == PIPE_NODE)
+    {
+        if (pipe(pipefd) == -1)
+        {
+            print_error("minishell: pipe", false);
+            return (abort_pipeline(prev_fd, NULL));
+        }
+
+        pid = fork();
+        if (pid == -1)
+        {
             print_error("minishell: fork", false);
-            return (1);
+            return (abort_pipeline(prev_fd, pipefd));
         }
-    }
-    return (execute_pipe_helper(filedes, pid, node, ht, errnum));
-}
 
-int    execute_binary(t_ast_node *node, t_hash_table *ht, int errnum) {
-    int err_code;
+        if (pid == 0) // Child (Left Command)
+        {
+            if (prev_fd != -1)
+            {
+                dup2(prev_fd, STDIN_FILENO);
+                close(prev_fd);
+            }
+            dup2(pipefd[1], STDOUT_FILENO);
+            close(pipefd[1]);
+            close(pipefd[0]);
 
-    err_code = 0;
-    if (node->type == OR_NODE) {
-        err_code = execute(node->u_data.binary.left, ht, errnum);
-        if (err_code != 0) {
-            return (execute(node->u_data.binary.right, ht, errnum));
+            // Execute command. If execute returns, exit with that status.
+            exit(execute(curr->u_data.binary.left, ht, errnum));
+        }
+
+        // Parent
+        if (prev_fd != -1)
+            close(prev_fd);
+        close(pipefd[1]);       // Close write end
+        prev_fd = pipefd[0];    // Keep read end for next command
+
+        curr = curr->u_data.binary.right;
+    }
+
+    // 2. Execute the very last command (Rightmost child)
+    pid = fork();
+    if (pid == -1)
+    {
+        print_error("minishell: fork", false);
+        return (abort_pipeline(prev_fd, NULL));
+    }
+    if (pid == 0)
+    {
+        if (prev_fd != -1)
+        {
+            dup2(prev_fd, STDIN_FILENO);
+            close(prev_fd);
+        }
+        exit(execute(curr, ht, errnum));
+    }
+
+    // This is the last process - we need its exit status
+    last_pid = pid;
+
+    // 3. Cleanup Parent
+    if (prev_fd != -1)
+        close(prev_fd);
+
+    // 4. Wait for all processes
+    // The key: wait for ANY child, not in a specific order
+    // All intermediate processes will be reaped, preventing zombies
+    signal(SIGINT, SIG_IGN);
+    signal(SIGQUIT, SIG_IGN);
+
+    int exit_code = 0;
+
+    while (1)
+    {
+        pid = waitpid(-1, &status, 0);
+
+        if (pid == -1)
+        {
+            if (errno == ECHILD)
+                break;
+            print_error("minishell: waitpid", false);
+            break;
+        }
+
+        // Only update exit_code if this is the last_pid
+        if (pid == last_pid)
+        {
+            if (WIFEXITED(status))
+                exit_code = WEXITSTATUS(status);
+            else if (WIFSIGNALED(status))
+            {
+                int sig = WTERMSIG(status);
+                if (sig == SIGINT)
+                    write(STDOUT_FILENO, "^C\n", 3);
+                else if (sig == SIGQUIT)
+                {
+                    char buf[50];
+                    int len;
+
+                    len = 0;
+                    ft_memcpy(buf, "^\\Quit: signum: ", 16);
+                    len = 16;
+                    if (sig >= 10)
+                        buf[len++] = '0' + (sig / 10);
+                    buf[len++] = '0' + (sig % 10);
+                    buf[len++] = '\n';
+                    write(STDOUT_FILENO, buf, len);
+                }
+                exit_code = 128 + sig;
+            }
         }
     }
-    else if (node->type == AND_NODE) {
-        err_code = execute(node->u_data.binary.left, ht, errnum);
-        if (err_code == 0) {
-            return (execute(node->u_data.binary.right, ht, errnum));
-        }
-    }
-    else if (node->type == PIPE_NODE)
-        return (execute_pipe(node, ht, errnum));
-    return (err_code);
+
+    psig_set();
+    return (exit_code); // Return the saved variable, not 'status'
 }
