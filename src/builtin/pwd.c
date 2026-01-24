@@ -14,7 +14,7 @@ int ft_pwd(int argc, char **argv, t_hash_table *ht) {
 
     (void) argv;
     (void) ht;
-    if (argc > 1)
+    if (argc > 1 && argv[1][0] == '-')
         return BUILTIN_ERROR;
     if (getcwd(cwd, sizeof(cwd)) == NULL) {
         //TODO: make normal error
