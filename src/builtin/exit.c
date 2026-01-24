@@ -1,11 +1,9 @@
-#include <ctype.h>
 #include <errno.h>
 #include <stdlib.h>
 
 #include "hash_table.h"
 #include "builtin.h"
 #include "error_codes.h"
-#include "utils.h"
 
 
 static int get_error_status(const char *s) {
@@ -15,12 +13,8 @@ static int get_error_status(const char *s) {
 
     len = 0;
     while (s[len]) {
-        if (!isdigit(s[len])) {
-            print_error("exit: ", true);
-            print_error(s, true);
-            print_error(": numeric argument required\n", true);
+        if (s[len] < '0' || s[len] > '9')
             return -1;
-        }
         len++;
     }
 
