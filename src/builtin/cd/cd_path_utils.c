@@ -38,12 +38,12 @@ int check_path(const char *path) {
 void set_oldpwd_and_pwd(const char *oldpwd, const char *pwd, t_hash_table *ht) {
     int res;
 
-    res = ht_update_value(ht, "OLDPWD", pwd);
+    res = ht_update_value(ht, "OLDPWD", oldpwd);
     if (res == 1)
-        ht_create_bucket(ht, "OLDPWD", pwd, false);
-    res = ht_update_value(ht, "PWD", oldpwd);
+        ht_create_bucket(ht, "OLDPWD", oldpwd, false);
+    res = ht_update_value(ht, "PWD", pwd);
     if (res == 1)
-        ht_create_bucket(ht, "PWD", oldpwd, false);
+        ht_create_bucket(ht, "PWD", pwd, false);
 }
 
 int try_change_dir(const char *path, t_hash_table *ht, const char *cwd) {

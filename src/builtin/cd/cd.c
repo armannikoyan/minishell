@@ -105,7 +105,8 @@ static int solve_env_var(char *target, bool should_print, t_hash_table *ht) {
 int ft_cd(int argc, char **argv, t_hash_table *ht) {
     char *target;
 
-    if (argc == 1) {
+    if (argc == 1)
+        {
         //TODO: make normal error
         if (ht_get(ht, "HOME") == NULL)
             return (print_error("cd: environment variable 'HOME' doesn't exist\n", true), 2);
@@ -115,8 +116,10 @@ int ft_cd(int argc, char **argv, t_hash_table *ht) {
             return (print_error("cd: environment variable 'HOME' is empty\n", true), 2);
         return solve_env_var(target, false, ht);
     }
-    if (argc == 2 && argv[1][0] != '\0') {
-        if (strcmp("-", argv[1]) == 0) {
+    if (argc == 2 && argv[1][0] != '\0')
+        {
+        if (strcmp("-", argv[1]) == 0)
+            {
             //TODO: make normal error
             if (ht_get(ht, "OLDPWD") == NULL)
                 return (print_error("cd: environment variable 'OLDPWD' doesn't exist\n", true), 2);
@@ -128,5 +131,5 @@ int ft_cd(int argc, char **argv, t_hash_table *ht) {
         }
         return analyse_path(argv, ht);
     }
-    return BUILTIN_ERROR;
+    return (print_error("cd: too many arguments", true), BUILTIN_ERROR);
 }
