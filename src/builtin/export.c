@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 
 #include "error_codes.h"
 #include "../../libs/libft/libft.h"
@@ -9,7 +10,7 @@ static bool is_ev_correct(const char *str, size_t *len) {
     if (!str || !(ft_isalpha(str[0]) || str[0] == '_'))
         return false;
     (*len)++;
-    while (str[*len] && (ft_isalpha(str[*len]) || str[*len] == '_'))
+    while (str[*len] && (ft_isalnum(str[*len]) || str[*len] == '_'))
         (*len)++;
     return true;
 }
@@ -74,7 +75,7 @@ static void print_exported(t_hash_table *ht) {
     while (i < ht->size) {
         entry = ht->buckets[i];
         while (entry) {
-            if (entry->is_local == false) {
+            if (entry->is_local == false && strcmp("_", entry->key) != 0) {
                 if (entry->val == NULL)
                     printf("declare -x %s\n", entry->key);
                 else if (entry->val[0] == '\0')

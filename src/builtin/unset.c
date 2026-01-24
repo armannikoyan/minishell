@@ -8,7 +8,7 @@ static bool is_ev_correct(const char *str) {
     if (!str || !(ft_isalpha(str[0]) || str[0] == '_'))
         return false;
     len = 1;
-    while (str[len] && (ft_isalpha(str[len]) || str[len] == '_'))
+    while (str[len] && (ft_isalnum(str[len]) || str[len] == '_'))
         len++;
     return true;
 }
