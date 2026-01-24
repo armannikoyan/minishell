@@ -51,13 +51,17 @@ static bool insert(char *key, size_t i, t_hash_table *ht, char **argv) {
     is_err = false;
     while (argv[i]) {
         len = 0;
-        if (is_ev_correct(argv[i], &len) == false) {
+        if (is_ev_correct(argv[i], &len) == false)
+            {
             is_err = true;
             (print_error("export: `", true), print_error(argv[i], true));
             print_error("': not a valid identifier\n", true);
+            i++;
+            continue;
         }
         fantastic_25_lines(key, len, ht, argv[i]);
-        if (argv[i][len] != '\0' && argv[i][len] != '=') {
+        if (argv[i][len] != '\0' && argv[i][len] != '=')
+            {
             is_err = true;
             (print_error("export: `", true), print_error(argv[i], true));
             print_error("': not a valid identifier\n", true);
