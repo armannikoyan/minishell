@@ -14,11 +14,8 @@ int ft_pwd(int argc, char **argv, t_hash_table *ht) {
 
     (void) argv;
     (void) ht;
-    if (argc > 1) {
-        //TODO: make normal error
-        print_error("pwd: too many arguments\n", true);
+    if (argc > 1)
         return BUILTIN_ERROR;
-    }
     if (getcwd(cwd, sizeof(cwd)) == NULL) {
         //TODO: make normal error
         print_error("pwd: getcwd", false);
