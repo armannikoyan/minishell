@@ -120,28 +120,29 @@ static int process_components(char *res, size_t *res_len, const char *p) {
 // - pointer `p` to position in original path where first ".." starts
 // - NULL on validation failure (caller must free `res`)
 static const char *copy_until_dotdot(char *res, size_t *res_len, const char *p) {
-    const char *dir_start;
-    size_t dir_len;
+    const char *start;
 
-    while (*p) {
+    while (*p)
+        {
         while (*p == '/')
             p++;
         if (*p == '\0')
             break;
 
-        dir_start = p;
+        start = p;
         while (*p && *p != '/')
             p++;
 
-        dir_len = (size_t) (p - dir_start);
-
-        if (dir_len == 1 && dir_start[0] == '.')
+        if ((p - start) == 1 && start[0] == '.')
             continue;
 
-        if (dir_len == 2 && dir_start[0] == '.' && dir_start[1] == '.')
+        if ((p - start) == 2 && start[0] == '.' && start[1] == '.')
+            {
+            p -= 2;
             break; // Stop and return pointer to ".."
+        }
 
-        if (append_and_validate(res, res_len, dir_start, dir_len))
+        if (append_and_validate(res, res_len, start, (p - start)))
             return NULL;
     }
     return p;
