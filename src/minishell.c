@@ -4,6 +4,7 @@
 
 #include "minishell.h"
 
+#include "builtin.h"
 #include "error_codes.h"
 #include "hash_table.h"
 #include "utils.h"
@@ -118,12 +119,8 @@ void	interactive_loop(char	**envp)
 		if (!input)
 		{
 			eof_count--;
-			if (eof_count < 0) {
-				// Можно заменить на ft_exit. Будет также, но меньше строк
-				input = ft_strdup("exit");
-				if (!input)
-					print_error("minishell: malloc", false);
-			}
+			if (eof_count < 0)
+				ft_exit(1, &(char*){"exit"}, ht, errnum);
 			else {
 				printf("Use \"exit\" to leave the shell.\n");
 				continue;
@@ -134,8 +131,8 @@ void	interactive_loop(char	**envp)
 			add_history(input);
 			root = tokenize(input, &errnum);
 			int heredoc_counter = 0;
-			if (root != NULL && syntax_check(root, &errnum) != SYNTAX_ERROR &&
-				scan_and_process_heredocs(root, ht, &heredoc_counter) == 0) {
+			if (root != NULL && scan_and_process_heredocs(root, ht, &heredoc_counter) == 0 &&
+				syntax_check(root, &errnum) != SYNTAX_ERROR) {
 				errnum = execute(root, ht, errnum);
 			}
 			cleanup_heredoc_files(heredoc_counter);

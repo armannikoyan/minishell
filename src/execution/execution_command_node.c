@@ -260,8 +260,6 @@ int execute_command(t_ast_node *node, t_hash_table *ht, int errnum)
     if (err_code != -1)
         return (err_code);
     cmd_path = resolve_cmd_path(node->u_data.cmd.argv[0], ht);
-    if (!cmd_path)
-        return (1);
     update_underscore(ht, cmd_path);
     err_code = validate_executable(cmd_path);
     if (err_code != 0)
