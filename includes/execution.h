@@ -1,6 +1,8 @@
 #ifndef EXECUTION_H
 # define EXECUTION_H
 
+#include <sys/types.h>
+
 #include "ast.h"
 #include "hash_table.h"
 
