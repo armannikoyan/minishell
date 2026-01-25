@@ -47,9 +47,13 @@ int ft_exit(int argc, char **argv, t_hash_table *ht) {
 
     (void) ht;
     if (argc == 2) {
+        if (argv[1][0] == '\0') {
+            print_error("exit: numeric argument required\n", true);
+            return 2;
+        }
         error_number = get_error_status(argv[1]);
         if (error_number < 0)
-            exit(2);
+            return (2);
         exit(error_number);
     }
     if (argc == 1) {
