@@ -19,6 +19,7 @@ static t_ast_node	*construct_subshell_node(char *input, size_t *i, bool *is_iter
 	if (ft_strlen(sub_str) == 0)
 	{
 		print_error("minishell: parsing error near unexpected token `)'\n", true);
+		*errnum = SYNTAX_ERROR;
 		free(sub_str);
 		return (NULL);
 	}

@@ -65,7 +65,34 @@ static bool match_pattern(char *pattern, int *mask, char *string)
     return (false);
 }
 
-// Requires your t_list functions
+static void sort_ascii(t_list *lst)
+{
+    t_list  *head;
+    t_list  *node;
+    char    *tmp_content;
+
+    if (!lst)
+        return ;
+    head = lst;
+    while (head)
+    {
+        node = head->next;
+        while (node)
+        {
+            // Swap content if the current node is "greater" than the next node
+            if (ft_strcmp(head->content, node->content) > 0)
+            {
+                tmp_content = head->content;
+                head->content = node->content;
+                node->content = tmp_content;
+            }
+            node = node->next;
+        }
+        head = head->next;
+    }
+}
+
+// [UPDATED] Now sorts the list before returning
 static t_list *get_matches(char *raw_token)
 {
     DIR             *dir;
@@ -83,7 +110,6 @@ static t_list *get_matches(char *raw_token)
         return (free(clean_pattern), free(mask), NULL);
     while ((entry = readdir(dir)) != NULL)
     {
-        // Handle hidden files: Only match if pattern specifically starts with '.'
         if (entry->d_name[0] == '.' && clean_pattern[0] != '.')
             continue ;
 
@@ -93,6 +119,10 @@ static t_list *get_matches(char *raw_token)
     closedir(dir);
     free(clean_pattern);
     free(mask);
+
+    // --> NEW: Sort the gathered matches by ASCII <--
+    sort_ascii(matches);
+
     return (matches);
 }
 

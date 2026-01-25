@@ -12,8 +12,17 @@ static int get_error_status(const char *s) {
     int len;
     int start;
     int value;
+    int sign;
 
+    start = 0;
     len = 0;
+    sign = 1;
+    if (s[len] == '+' || s[len] == '-') {
+        if (s[len] == '-')
+            sign = -1;
+        ++start;
+        ++len;
+    }
     while (s[len]) {
         if (!isdigit(s[len])) {
             print_error("exit: ", true);
@@ -24,16 +33,11 @@ static int get_error_status(const char *s) {
         len++;
     }
 
-    start = len - 3;
-    if (start < 0)
-        start = 0;
-
     value = 0;
     while (start < len)
         value = value * 10 + (s[start++] - '0');
 
-    if (value > 255)
-        return -1;
+    value = (value * sign) & 0xFF;
 
     return value;
 }
@@ -42,22 +46,23 @@ static int get_error_status(const char *s) {
 // If status passed as an argument checks is all the symbols are digits and is last three of them in 0-255 interval.
 // If passed more than 1 argument or status not in interval terminates a program with status 2.
 // If no arguments passed terminates a program with status of the last command executed (takes status from errno)
-int ft_exit(int argc, char **argv, t_hash_table *ht) {
+int ft_exit(int argc, char **argv, t_hash_table *ht, int errnum) {
     int error_number;
 
     (void) ht;
     if (argc == 2) {
         if (argv[1][0] == '\0') {
             print_error("exit: numeric argument required\n", true);
-            return 2;
+            return (BUILTIN_ERROR);
         }
         error_number = get_error_status(argv[1]);
         if (error_number < 0)
-            return (2);
+            return (BUILTIN_ERROR);
         exit(error_number);
     }
     if (argc == 1) {
-        exit(errno);
+        exit(errnum);
     }
-    exit(BUILTIN_ERROR);
+    print_error("exit: too many arguments\n", true);
+    return (BUILTIN_ERROR);
 }

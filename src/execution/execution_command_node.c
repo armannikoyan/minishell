@@ -186,8 +186,7 @@ static int run_builtin(char **argv, t_hash_table *ht, int errnum)
     if (ft_strcmp(cmd, "exit") == 0)
     {
         update_underscore(ht, cmd);
-        errno = errnum;
-        return (ft_exit(argc, argv, ht));
+        return (ft_exit(argc, argv, ht, errnum));
     }
     return (-1);
 }

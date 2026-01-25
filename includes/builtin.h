@@ -9,7 +9,7 @@ int ft_echo(int argc, char **argv, t_hash_table *ht);
 
 int ft_env(int argc, char **argv, t_hash_table *ht);
 
-int ft_exit(int argc, char **argv, t_hash_table *ht);
+int ft_exit(int argc, char **argv, t_hash_table *ht, int errnum);
 
 int ft_export(int argc, char **argv, t_hash_table *ht);
 
