@@ -1,24 +1,37 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   tokenization.c                                     :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: lvarnach <lvarnach@student.42yerevan.am>   +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/01/26 23:55:24 by lvarnach          #+#    #+#             */
+/*   Updated: 2026/01/27 00:08:09 by lvarnach         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include <stddef.h>
 #include <stdlib.h>
 
 #include "tokenization.h"
 
-
 #include "error_codes.h"
 #include "utils.h"
 #include "../../libs/libft/libft.h"
 
-static t_ast_node	*construct_subshell_node(char *input, size_t *i, bool *is_iter_skippable, int *errnum)
+static t_ast_node	*construct_subshell_node(char *input, size_t *i,
+		bool *is_iter_skippable, int *errnum)
 {
 	char		*sub_str;
-	t_ast_node *sub_tree;
+	t_ast_node	*sub_tree;
 
 	sub_str = extract_subshell_content(input, i, errnum);
 	if (!sub_str)
 		return (NULL);
 	if (ft_strlen(sub_str) == 0)
 	{
-		print_error("minishell: parsing error near unexpected token `)'\n", true);
+		print_error("minishell: parsing error near unexpected token `)'\n",
+			true);
 		*errnum = SYNTAX_ERROR;
 		free(sub_str);
 		return (NULL);
@@ -33,10 +46,13 @@ static t_ast_node	*construct_subshell_node(char *input, size_t *i, bool *is_iter
 	return (create_subshell_node(SUBSHELL_NODE, sub_tree));
 }
 
-static t_ast_node	*construct_node(char *input, size_t *i, t_node_type type, bool *is_iter_skippable, int *errnum)
+static t_ast_node	*construct_node(char *input, size_t *i,
+	bool *is_iter_skippable, int *errnum)
 {
 	t_ast_node	*node;
+	t_node_type	type;
 
+	type = get_node_type(&(input[*i]));
 	node = NULL;
 	if (type == COMMAND_NODE)
 		node = create_cmd_node(COMMAND_NODE, get_argv(input, i));
@@ -52,7 +68,8 @@ static t_ast_node	*construct_node(char *input, size_t *i, t_node_type type, bool
 		node = construct_subshell_node(input, i, is_iter_skippable, errnum);
 	else if (type == ERROR_NODE)
 	{
-		print_error("minishell: parsing error near unexpected token `)'\n", true);
+		print_error("minishell: parsing error near unexpected token `)'\n",
+			true);
 		*errnum = SYNTAX_ERROR;
 		return (NULL);
 	}
@@ -61,14 +78,14 @@ static t_ast_node	*construct_node(char *input, size_t *i, t_node_type type, bool
 
 t_ast_node	*tokenize(char *input, int *errnum)
 {
-	t_ast_node	*node;
-	size_t	i;
-    t_ast_node *head_node;
+	size_t		i;
 	bool		is_iter_skippable;
+	t_ast_node	*node;
+	t_ast_node	*head_node;
 
 	i = 0;
 	node = NULL;
-    head_node = NULL;
+	head_node = NULL;
 	while (input[i])
 	{
 		while (input[i] == ' ' || input[i] == '\t')
@@ -76,14 +93,11 @@ t_ast_node	*tokenize(char *input, int *errnum)
 		if (!input[i])
 			break ;
 		is_iter_skippable = false;
-		node = construct_node(input, &i, get_node_type(&(input[i])), &is_iter_skippable, errnum);
+		node = construct_node(input, &i, &is_iter_skippable, errnum);
 		if (is_iter_skippable)
 			continue ;
 		if (node)
-		{
 			head_node = ast_build(node, head_node, errnum);
-			// print_ast_info(head_node, node);
-		}
 		else
 			return (NULL);
 	}

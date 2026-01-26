@@ -37,13 +37,13 @@ set(SOURCES
         src/hash_table/hash_table_utils.c
 
         src/ast/ast.c
-        src/ast/ast_node_utils.c
+        src/ast/ast_node_creation.c
         src/ast/ast_print_module.c
         src/ast/ast_print_module_utils.c
 
         src/tokenization/tokenization.c
         src/tokenization/tokenization_utils.c
-        src/tokenization/tokenization_node_creation_module.c
+        src/tokenization/tokenization_node_creation_helper.c
 
         src/builtin/pwd.c
         src/builtin/exit.c
@@ -69,6 +69,7 @@ set(SOURCES
         src/ast/ast_node_deletion.c
         src/execution/expansion/wildcard.c
         src/utils/insert_env.c
+        src/tokenization/tokenization_node_creation.c
 )
 
 # ===============================

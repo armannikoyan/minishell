@@ -6,7 +6,7 @@
 /*   By: lvarnach <lvarnach@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/26 17:26:37 by lvarnach          #+#    #+#             */
-/*   Updated: 2026/01/26 19:03:37 by lvarnach         ###   ########.fr       */
+/*   Updated: 2026/01/27 01:11:49 by lvarnach         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,7 +66,6 @@ static char	*get_input(int *eof_count, t_hash_table *ht, int errnum)
 		*eof_count = ft_atoi(ht_get(ht, "IGNOREEOF")->val);
 	return (input);
 }
-
 
 t_hash_table	*ht_create(void)
 {
