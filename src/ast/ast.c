@@ -81,7 +81,7 @@ static t_ast_node *root_is_redir_node(t_ast_node *node, t_ast_node *root, int *e
             return root;
         }
         node->u_data.redir.child = iter->u_data.redir.child;
-        iter->u_data.redir.child = node->u_data.redir.child;
+        iter->u_data.redir.child = node;
         return root;
     }
     if (node->abstract_type == BIN_NODE) {
