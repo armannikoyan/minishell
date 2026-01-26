@@ -72,15 +72,22 @@ static t_ast_node *root_is_binary_node(t_ast_node *node, t_ast_node *root, int *
 static t_ast_node *root_is_redir_node(t_ast_node *node, t_ast_node *root, int *errnum) {
     t_ast_node *iter;
 
+    iter = root;
     if (node->abstract_type == REDIR_NODE) {
-        node->u_data.redir.child = root;
-        return node;
+        while (iter->u_data.redir.child != NULL && iter->u_data.redir.child->abstract_type == REDIR_NODE)
+            iter = iter->u_data.redir.child;
+        if (iter->u_data.redir.child == NULL) {
+            iter->u_data.redir.child = node;
+            return root;
+        }
+        node->u_data.redir.child = iter->u_data.redir.child;
+        iter->u_data.redir.child = node->u_data.redir.child;
+        return root;
     }
     if (node->abstract_type == BIN_NODE) {
         node->u_data.binary.left = root;
         return node;
     }
-    iter = root;
     if (node->abstract_type == CMD_NODE) {
         while (iter->u_data.redir.child != NULL && iter->u_data.redir.child->abstract_type == REDIR_NODE)
             iter = iter->u_data.redir.child;
