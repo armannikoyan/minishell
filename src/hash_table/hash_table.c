@@ -1,32 +1,21 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   hash_table.c                                       :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: lvarnach <lvarnach@student.42yerevan.am>   +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/01/26 19:47:09 by lvarnach          #+#    #+#             */
+/*   Updated: 2026/01/26 19:59:59 by lvarnach         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include <stdio.h>
 #include <stdlib.h>
 
 #include "hash_table.h"
 #include "utils.h"
 #include "../../libs/libft/libft.h"
-
-t_hash_table	*ht_create(void)
-{
-	t_hash_table	*ht;
-
-	ht = (t_hash_table *)malloc(sizeof(t_hash_table));
-	if (!ht)
-	{
-		//TODO: make normal error
-		print_error("minishell: ht_create: malloc", false);
-		return (NULL);
-	}
-	ht->size = INITIAL_SIZE;
-	ht->count = 0;
-	ht->buckets = ft_calloc(ht->size, sizeof(t_entry *));
-	if (!ht->buckets)
-	{
-		//TODO: make normal error
-		print_error("minishell: ht_create: ft_calloc", false);
-		return (NULL);
-	}
-	return (ht);
-}
 
 void	ht_destroy(t_hash_table *ht)
 {
@@ -70,17 +59,18 @@ t_entry	*ht_get(t_hash_table *ht, const char *key)
 	return (NULL);
 }
 
-int	ht_create_bucket(t_hash_table *ht, const char *key, const char *value, bool is_local) {
-	t_entry	*new_entry;
-	unsigned long	hash;
+int	ht_create_bucket(t_hash_table *ht, const char *key, const char *value,
+		bool is_local)
+{
 	int				index;
+	unsigned long	hash;
+	t_entry			*new_entry;
 
 	if ((float)ht->count / ht->size >= MAX_LOAD_FACTOR)
 		ht_resize(ht, next_prime(ht->size));
 	hash = hash_func(key);
 	index = hash % ht->size;
 	new_entry = (t_entry *)malloc(sizeof(t_entry));
-	//TODO: make normal error
 	if (!new_entry)
 		return (print_error("minishell: ht_create_bucket: malloc", false), -1);
 	new_entry->key = ft_strdup(key);
@@ -106,12 +96,12 @@ int	ht_update_value(t_hash_table *ht, const char *key, const char *value)
 	entry = ht_get(ht, key);
 	if (!entry)
 		return (1);
-	if (value != NULL) {
+	if (value != NULL)
+	{
 		new_value = ft_strdup(value);
-		if (new_value == NULL) {
-			// TODO: make normal error
+		if (new_value == NULL)
+		{
 			print_error("minishell: ht_update_value: ft_strdup", false);
-			// print_error("minishell: malloc", false);
 			return (2);
 		}
 	}
@@ -126,11 +116,9 @@ void	ht_delete(t_hash_table *ht, const char *key)
 {
 	t_entry			*entry;
 	t_entry			*prev;
-	unsigned long	hash;
 	int				index;
 
-	hash = hash_func(key);
-	index = hash % ht->size;
+	index = hash_func(key) % ht->size;
 	prev = NULL;
 	entry = ht->buckets[index];
 	while (entry)
@@ -141,14 +129,11 @@ void	ht_delete(t_hash_table *ht, const char *key)
 				prev->next = entry->next;
 			else
 				ht->buckets[index] = entry->next;
-			free(entry->key);
-			free(entry->val);
-			free(entry);
+			(free(entry->key), free(entry->val), free(entry));
 			ht->count--;
 			if (ht->size > MIN_SIZE
 				&& (float)ht->count / ht->size <= MIN_LOAD_FACTOR)
-				ht_resize(ht, prev_prime(ht->size));
-			return ;
+				return (ht_resize(ht, prev_prime(ht->size)));
 		}
 		prev = entry;
 		entry = entry->next;

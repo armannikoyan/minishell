@@ -1,5 +1,17 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   error_codes.h                                      :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: lvarnach <lvarnach@student.42yerevan.am>   +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/01/26 17:23:30 by lvarnach          #+#    #+#             */
+/*   Updated: 2026/01/26 17:23:36 by lvarnach         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #ifndef ERROR_CODES_H
-#define ERROR_CODES_H
+# define ERROR_CODES_H
 
 # define SYNTAX_OK 0
 # define SYNTAX_ERROR 2

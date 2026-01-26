@@ -1,7 +1,21 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   signals.c                                          :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: lvarnach <lvarnach@student.42yerevan.am>   +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/01/26 19:06:36 by lvarnach          #+#    #+#             */
+/*   Updated: 2026/01/26 19:06:36 by lvarnach         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include <signal.h>
 #include <stdio.h>
 #include <unistd.h>
 #include <readline/readline.h>
+
+#include "builtin.h"
 
 void	psig_handler(int signo)
 {

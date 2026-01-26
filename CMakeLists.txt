@@ -68,6 +68,7 @@ set(SOURCES
         src/ast/ast_syntax_check.c
         src/ast/ast_node_deletion.c
         src/execution/expansion/wildcard.c
+        src/utils/insert_env.c
 )
 
 # ===============================

@@ -1,79 +1,98 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   ast.h                                              :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: lvarnach <lvarnach@student.42yerevan.am>   +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/01/26 16:56:46 by lvarnach          #+#    #+#             */
+/*   Updated: 2026/01/26 17:02:48 by lvarnach         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #ifndef AST_H
 # define AST_H
 
-typedef enum node_type {
-    COMMAND_NODE,
-    PIPE_NODE,
-    AND_NODE,
-    OR_NODE,
-    REDIRECT_IN_NODE,
-    REDIRECT_OUT_NODE,
-    REDIRECT_APPEND_NODE,
-    HEREDOC_NODE,
-    SUBSHELL_NODE,
-    ERROR_NODE
-} t_node_type;
+typedef enum node_type
+{
+	COMMAND_NODE,
+	PIPE_NODE,
+	AND_NODE,
+	OR_NODE,
+	REDIRECT_IN_NODE,
+	REDIRECT_OUT_NODE,
+	REDIRECT_APPEND_NODE,
+	HEREDOC_NODE,
+	SUBSHELL_NODE,
+	ERROR_NODE
+}	t_node_type;
 
-typedef enum node_abstract_type {
-    CMD_NODE,
-    BIN_NODE,
-    REDIR_NODE,
-    UNDEF_NODE,
-} t_node_abstract_type;
+typedef enum node_abstract_type
+{
+	CMD_NODE,
+	BIN_NODE,
+	REDIR_NODE,
+	UNDEF_NODE,
+}	t_node_abstract_type;
 
-struct s_ast_node;
+struct	s_ast_node;
 
-struct s_command {
-    char **argv;
+struct s_command
+{
+	char	**argv;
 };
 
-struct s_binary_op {
-    struct s_ast_node *left;
-    struct s_ast_node *right;
+struct s_binary_op
+{
+	struct s_ast_node	*left;
+	struct s_ast_node	*right;
 };
 
-struct s_redirection {
-    struct s_ast_node *child;
-    char *filename;
-    int fd;
+struct s_redirection
+{
+	int					fd;
+	char				*filename;
+	struct s_ast_node	*child;
 };
 
-struct s_subshell {
-    struct s_ast_node *root;
+struct s_subshell
+{
+	struct s_ast_node	*root;
 };
 
-typedef struct s_ast_node {
-    t_node_type type;
-    t_node_abstract_type abstract_type;
+typedef struct s_ast_node
+{
+	t_node_type				type;
+	t_node_abstract_type	abstract_type;
+	union
+	{
+		struct s_command		cmd;
+		struct s_binary_op		binary;
+		struct s_redirection	redir;
+		struct s_subshell		subshell;
+	}	u_data;
+}	t_ast_node;
 
-    union {
-        struct s_command cmd;
-        struct s_binary_op binary;
-        struct s_redirection redir;
-        struct s_subshell subshell;
-    } u_data;
-} t_ast_node;
+const char	*get_type(t_node_type type);
 
-t_ast_node *create_cmd_node(t_node_type type, char **argv);
+t_ast_node	*create_cmd_node(t_node_type type, char **argv);
 
-t_ast_node *create_binary_node(t_node_type type);
+t_ast_node	*create_binary_node(t_node_type type);
 
-t_ast_node *create_redir_node(t_node_type type, char *filename);
+t_ast_node	*create_redir_node(t_node_type type, char *filename);
 
-t_ast_node *create_subshell_node(t_node_type type, t_ast_node *root);
+t_ast_node	*create_subshell_node(t_node_type type, t_ast_node *root);
 
-t_ast_node *ast_build(t_ast_node *new_node, t_ast_node *root, int *errnum);
+t_ast_node	*ast_build(t_ast_node *new_node, t_ast_node *root, int *errnum);
 
-void ast_deletion(t_ast_node *root);
+void		ast_deletion(t_ast_node *root);
 
-int syntax_check(t_ast_node *node, int *errnum);
+void		print_ast(t_ast_node *root);
 
-void print_ast(t_ast_node *root);
+void		print_ast_info(t_ast_node *root, t_ast_node *curr_node);
 
-void print_ast_info(t_ast_node *root, t_ast_node *curr_node);
+void		print_syntax_error(t_ast_node *node, int *errnum);
 
-void print_syntax_error(t_ast_node *node, int *errnum);
-
-const char *get_type(t_node_type type);
+int			syntax_check(t_ast_node *node, int *errnum);
 
 #endif
