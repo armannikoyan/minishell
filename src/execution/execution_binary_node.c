@@ -149,9 +149,7 @@ int execute_pipeline(t_ast_node *node, t_hash_table *ht, int errnum)
                     len = 0;
                     ft_memcpy(buf, "^\\Quit: signum: ", 16);
                     len = 16;
-                    if (sig >= 10)
-                        buf[len++] = '0' + (sig / 10);
-                    buf[len++] = '0' + (sig % 10);
+                    buf[len++] = sig - '0';
                     buf[len++] = '\n';
                     write(STDOUT_FILENO, buf, len);
                 }

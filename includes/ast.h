@@ -93,6 +93,8 @@ void		print_ast_info(t_ast_node *root, t_ast_node *curr_node);
 
 void		print_syntax_error(t_ast_node *node, int *errnum);
 
+int			get_precedence(t_node_type type);
+
 int			syntax_check(t_ast_node *node, int *errnum);
 
 #endif

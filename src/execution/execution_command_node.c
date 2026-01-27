@@ -119,16 +119,6 @@ static int run_expansion(t_ast_node *node, t_hash_table *ht, int errnum)
         return (print_error("minishell: malloc", false), 1);
     free_split(node->u_data.cmd.argv);
     node->u_data.cmd.argv = new_argv;
-    // i = 0;
-    // while (node->u_data.cmd.argv[i])
-    // {
-    //     tmp = node->u_data.cmd.argv[i];
-    //     node->u_data.cmd.argv[i] = remove_quotes(tmp);
-    //     free(tmp);
-    //     if (!node->u_data.cmd.argv[i])
-    //         return (print_error("minishell: malloc", false), 1);
-    //     i++;
-    // }
     return (0);
 }
 
