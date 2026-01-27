@@ -6,7 +6,7 @@
 /*   By: lvarnach <lvarnach@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/26 16:32:47 by lvarnach          #+#    #+#             */
-/*   Updated: 2026/01/26 16:32:50 by lvarnach         ###   ########.fr       */
+/*   Updated: 2026/01/28 02:22:31 by lvarnach         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,12 +20,20 @@
 
 # define HEREDOC_TMP_FILE "/tmp/minishell_heredoc.tmp"
 
+typedef struct s_exec_frame
+{
+	t_ast_node	*node;
+	int			state;
+	int			saved_fd;
+	int			target_fd;
+}	t_exec_frame;
+
 void	cleanup_heredoc_files(int count);
 int		handle_child_exit(pid_t pid);
 int		execute_command(t_ast_node *node, t_hash_table *ht, int errnum);
 int		execute_pipeline(t_ast_node *node, t_hash_table *ht, int errnum);
 int		setup_redirection(t_ast_node *node, t_hash_table *ht, int *saved_fd,
-			int *target_fd, int errnum);
+			int	*target_fd, int errnum);
 int		cleanup_redirection(t_ast_node *node, int saved_fd, int target_fd);
 int		scan_and_process_heredocs(t_ast_node *node, t_hash_table *ht,
 			int *counter);
