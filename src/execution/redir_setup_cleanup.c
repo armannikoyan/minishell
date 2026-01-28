@@ -11,7 +11,7 @@
 /* ************************************************************************** */
 
 #include <sys/fcntl.h>
-#include <sys/syslimits.h>
+#include <limits.h>
 
 #include "ast.h"
 #include "execution.h"
