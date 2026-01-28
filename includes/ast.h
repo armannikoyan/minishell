@@ -13,6 +13,8 @@
 #ifndef AST_H
 # define AST_H
 
+# include "hash_table.h"
+
 typedef enum node_type
 {
 	COMMAND_NODE,
@@ -72,6 +74,15 @@ typedef struct s_ast_node
 		struct s_subshell		subshell;
 	}	u_data;
 }	t_ast_node;
+
+typedef struct s_doc_ctx
+{
+	int				fd;
+	char			*limiter;
+	int				quoted;
+	t_hash_table	*ht;
+	int				errnum;
+}	t_doc_ctx;
 
 const char	*get_type(t_node_type type);
 

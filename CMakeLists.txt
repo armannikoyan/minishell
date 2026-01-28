@@ -72,6 +72,12 @@ set(SOURCES
         src/utils/insert_env.c
         src/tokenization/tokenization_node_creation.c
         src/execution/expansion/wildcard_utils.c
+        src/execution/redir_utils.c
+        src/execution/redir_setup_cleanup.c
+        src/execution/execution_helper.c
+        src/execution/command_env_utils.c
+        src/execution/command_path_utils.c
+        src/execution/command_helper.c
 )
 
 # ===============================
