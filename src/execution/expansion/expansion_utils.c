@@ -41,7 +41,10 @@ char	*get_env_val(char *str, t_hash_table *ht)
 	if (!key)
 		return (NULL);
 	if (ht_get(ht, key) == NULL)
+	{
+		free(key);
 		return (NULL);
+	}
 	val = ht_get(ht, key)->val;
 	free(key);
 	return (val);
