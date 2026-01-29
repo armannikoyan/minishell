@@ -29,11 +29,11 @@ void	pop_frame(t_list **stack)
 	ft_lstdelone(temp, del_frame);
 }
 
-void	handle_state_zero(t_exec_frame *curr, t_exec_ctx *d)
+void	handle_state_zero(t_exec_frame *curr, t_exec_ctx *d, t_ast_node *root)
 {
 	if (curr->node->type == PIPE_NODE)
 	{
-		*d->status = execute_pipeline(curr->node, d->ht, *d->status);
+		*d->status = execute_pipeline(curr->node, d->ht, *d->status, root);
 		pop_frame(d->stack);
 	}
 	else if (curr->node->abstract_type == BIN_NODE)
@@ -46,9 +46,9 @@ void	handle_state_zero(t_exec_frame *curr, t_exec_ctx *d)
 	else
 	{
 		if (curr->node->type == SUBSHELL_NODE)
-			*d->status = execute_subshell(curr->node, d->ht, *d->status);
+			*d->status = execute_subshell(curr->node, d->ht, *d->status, root);
 		else if (curr->node->abstract_type == CMD_NODE)
-			*d->status = execute_command(curr->node, d->ht, *d->status);
+			*d->status = execute_command(curr->node, d->ht, *d->status, root);
 		pop_frame(d->stack);
 	}
 }

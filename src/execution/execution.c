@@ -21,7 +21,7 @@
 #include "term_settings.h"
 #include "../../libs/libft/libft.h"
 
-int	execute_subshell(t_ast_node *node, t_hash_table *ht, int errnum)
+int	execute_subshell(t_ast_node *node, t_hash_table *ht, int errnum, t_ast_node *root)
 {
 	pid_t	pid;
 	int		status;
@@ -37,7 +37,7 @@ int	execute_subshell(t_ast_node *node, t_hash_table *ht, int errnum)
 		psig_set();
 		return (status);
 	}
-	exit(execute(node->u_data.subshell.root, ht, errnum));
+	exit(execute(node->u_data.subshell.root, ht, errnum, root));
 }
 
 int	push_new_frame(t_list **stack, t_ast_node *node)
@@ -76,16 +76,16 @@ void	handle_redir_init(t_exec_frame *frame, t_exec_ctx *ctx)
 	}
 }
 
-int	execute(t_ast_node *root, t_hash_table *ht, int errnum)
+int	execute(t_ast_node *node, t_hash_table *ht, int errnum, t_ast_node *root)
 {
 	t_list			*stack;
 	t_exec_ctx		ctx;
 	t_exec_frame	*curr;
 
-	if (!root)
+	if (!node)
 		return (0);
 	stack = NULL;
-	if (push_new_frame(&stack, root))
+	if (push_new_frame(&stack, node))
 		return (1);
 	ctx.stack = &stack;
 	ctx.ht = ht;
@@ -94,7 +94,7 @@ int	execute(t_ast_node *root, t_hash_table *ht, int errnum)
 	{
 		curr = (t_exec_frame *)stack->content;
 		if (curr->state == 0)
-			handle_state_zero(curr, &ctx);
+			handle_state_zero(curr, &ctx, root);
 		else if (curr->state == 1)
 			handle_state_one(curr, &ctx);
 		else if (curr->state == 2)

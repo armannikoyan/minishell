@@ -14,6 +14,7 @@
 #include <errno.h>
 #include <stdlib.h>
 
+#include "ast.h"
 #include "hash_table.h"
 #include "builtin.h"
 #include "error_codes.h"
@@ -47,11 +48,13 @@ static int	get_error_status(const char *s)
 // terminates a program with status 2.
 // If no arguments passed terminates a program with
 // status of the last command executed (takes status from errno)
-int	ft_exit(int argc, char **argv, t_hash_table *ht, int errnum)
+int	ft_exit(char **argv, t_hash_table *ht, int errnum, t_ast_node *root)
 {
-	int	error_number;
+	int	argc;
 
-	(void) ht;
+	argc = 0;
+	while (argv[argc])
+		argc++;
 	if (argc == 2)
 	{
 		if (argv[1][0] == '\0')
@@ -59,13 +62,15 @@ int	ft_exit(int argc, char **argv, t_hash_table *ht, int errnum)
 			print_error("exit: numeric argument required\n", true);
 			return (BUILTIN_ERROR);
 		}
-		error_number = get_error_status(argv[1]);
-		if (error_number < 0)
+		errnum = get_error_status(argv[1]);
+		if (errnum < 0)
 			return (BUILTIN_ERROR);
-		exit(error_number);
 	}
-	if (argc == 1)
+	if (argc == 1 || argc == 2) {
+		ast_deletion(root);
+		ht_destroy(ht);
 		exit(errnum);
+	}
 	print_error("exit: too many arguments\n", true);
 	return (BUILTIN_ERROR);
 }

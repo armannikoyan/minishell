@@ -96,7 +96,7 @@ static int	handle_parent_process(pid_t pid, char *cmd_path)
 /* MAIN EXECUTE COMMAND                                                       */
 /* -------------------------------------------------------------------------- */
 
-int	execute_command(t_ast_node *node, t_hash_table *ht, int errnum)
+int	execute_command(t_ast_node *node, t_hash_table *ht, int errnum, t_ast_node *root)
 {
 	char	*path;
 	int		code;
@@ -104,7 +104,7 @@ int	execute_command(t_ast_node *node, t_hash_table *ht, int errnum)
 
 	if (run_expansion(node, ht, errnum) != 0)
 		return (1);
-	code = run_builtin(node->u_data.cmd.argv, ht, errnum);
+	code = run_builtin(node->u_data.cmd.argv, ht, errnum, root);
 	if (code != -1)
 		return (code);
 	path = resolve_cmd_path(node->u_data.cmd.argv[0], ht);

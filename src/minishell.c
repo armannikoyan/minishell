@@ -55,7 +55,7 @@ static char	*get_input(int *eof_count, t_hash_table *ht, int errnum)
 	{
 		(*eof_count)--;
 		if (*eof_count < 0)
-			ft_exit(1, &(char *){"exit"}, ht, errnum);
+			ft_exit(&(char *){"exit"}, ht, errnum, NULL);
 		else
 			printf("Use \"exit\" to leave the shell.\n");
 		return (NULL);
@@ -124,7 +124,7 @@ void	interactive_loop(char	**envp, int errnum)
 			heredoc_counter = 0;
 			if (root != NULL && syntax_check(root, &errnum) != SYNTAX_ERROR
 				&& scan_and_process_heredocs(root, ht, &heredoc_counter) == 0)
-				errnum = execute(root, ht, errnum);
+				errnum = execute(root, ht, errnum, root);
 			cleanup_heredoc_files(heredoc_counter);
 			ast_deletion(root);
 		}

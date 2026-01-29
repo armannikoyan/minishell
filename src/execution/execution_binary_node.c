@@ -40,7 +40,7 @@ static int	abort_pipeline(int prev_fd, int *pipefd)
 	return (1);
 }
 
-static void	exec_child_process(t_ast_node *node, t_p_ctx *ctx, int *pipefd)
+static void	exec_child_process(t_ast_node *node, t_p_ctx *ctx, int *pipefd, t_ast_node *root)
 {
 	if (ctx->prev_fd != -1)
 	{
@@ -53,14 +53,14 @@ static void	exec_child_process(t_ast_node *node, t_p_ctx *ctx, int *pipefd)
 		close(pipefd[1]);
 		close(pipefd[0]);
 	}
-	exit(execute(node, ctx->ht, ctx->errnum));
+	exit(execute(node, ctx->ht, ctx->errnum, root));
 }
 
 /* -------------------------------------------------------------------------- */
 /* PIPELINE EXECUTION STEPS                                                   */
 /* -------------------------------------------------------------------------- */
 
-static int	run_pipe_step(t_ast_node *node, t_p_ctx *ctx)
+static int	run_pipe_step(t_ast_node *node, t_p_ctx *ctx, t_ast_node *root)
 {
 	int		pipefd[2];
 	pid_t	pid;
@@ -73,7 +73,7 @@ static int	run_pipe_step(t_ast_node *node, t_p_ctx *ctx)
 		return (print_error("minishell: fork", false),
 			abort_pipeline(ctx->prev_fd, pipefd));
 	if (pid == 0)
-		exec_child_process(node->u_data.binary.left, ctx, pipefd);
+		exec_child_process(node->u_data.binary.left, ctx, pipefd, root);
 	if (ctx->prev_fd != -1)
 		close(ctx->prev_fd);
 	close(pipefd[1]);
@@ -81,7 +81,7 @@ static int	run_pipe_step(t_ast_node *node, t_p_ctx *ctx)
 	return (0);
 }
 
-static int	run_last_step(t_ast_node *node, t_p_ctx *ctx)
+static int	run_last_step(t_ast_node *node, t_p_ctx *ctx, t_ast_node *root)
 {
 	pid_t	pid;
 
@@ -90,7 +90,7 @@ static int	run_last_step(t_ast_node *node, t_p_ctx *ctx)
 		return (print_error("minishell: fork", false),
 			abort_pipeline(ctx->prev_fd, NULL));
 	if (pid == 0)
-		exec_child_process(node, ctx, NULL);
+		exec_child_process(node, ctx, NULL, root);
 	ctx->last_pid = pid;
 	if (ctx->prev_fd != -1)
 		close(ctx->prev_fd);
@@ -162,7 +162,7 @@ static int	wait_for_children(t_p_ctx *ctx)
 /* MAIN ENTRY POINT                                                           */
 /* -------------------------------------------------------------------------- */
 
-int	execute_pipeline(t_ast_node *node, t_hash_table *ht, int errnum)
+int	execute_pipeline(t_ast_node *node, t_hash_table *ht, int errnum, t_ast_node *root)
 {
 	t_p_ctx		ctx;
 	t_ast_node	*curr;
@@ -174,11 +174,11 @@ int	execute_pipeline(t_ast_node *node, t_hash_table *ht, int errnum)
 	curr = node;
 	while (curr->type == PIPE_NODE)
 	{
-		if (run_pipe_step(curr, &ctx))
+		if (run_pipe_step(curr, &ctx, root))
 			return (1);
 		curr = curr->u_data.binary.right;
 	}
-	if (run_last_step(curr, &ctx))
+	if (run_last_step(curr, &ctx, root))
 		return (1);
 	return (wait_for_children(&ctx));
 }
