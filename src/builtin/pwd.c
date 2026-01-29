@@ -24,15 +24,19 @@
 int	ft_pwd(int argc, char **argv, t_hash_table *ht)
 {
 	char	cwd[PATH_MAX];
+	t_entry	*entry;
 
-	(void) argv;
-	(void) ht;
 	if (argc > 1 && argv[1][0] == '-')
 		return (BUILTIN_ERROR);
 	if (getcwd(cwd, sizeof(cwd)) == NULL)
 	{
-		print_error("pwd: getcwd", false);
-		return (BUILTIN_ERROR);
+		entry = ht_get(ht, "PWD");
+		if (entry == NULL) {
+			print_error("pwd: getcwd", false);
+			return (BUILTIN_ERROR);
+		}
+		printf("%s\n", ht_get(ht, "PWD")->val);
+		return (0);
 	}
 	printf("%s\n", cwd);
 	return (0);

@@ -78,9 +78,9 @@ static int	analyse_path(char **argv, t_hash_table *ht)
 	char	**cd;
 	char	*target;
 	char	*tmp;
+	char	*check;
 
-	if (getcwd(cwd, sizeof(cwd)) == NULL)
-		return (print_error("cd: getcwd", false), BUILTIN_ERROR);
+	check = getcwd(cwd, sizeof(cwd));
 	if (argv[1][0] == '/')
 	{
 		target = normalize_and_resolve_path(argv[1]);
@@ -91,9 +91,13 @@ static int	analyse_path(char **argv, t_hash_table *ht)
 	i = 0;
 	if (ht_get(ht, M1) == NULL || split_ev(ht_get(ht, M1)->val, &cd) == NULL)
 	{
+
 		target = concat_path(cwd, argv[1]);
+		if (target == NULL)
+			target = argv[1];
 		tmp = normalize_and_resolve_path(target);
-		free(target);
+		if (check != NULL)
+			free(target);
 		i = try_change_dir(tmp, ht, cwd);
 		return (free(tmp), i);
 	}
@@ -105,14 +109,16 @@ static int	solve_env_var(char *target, bool should_print, t_hash_table *ht)
 	int		res;
 	char	cwd[PATH_MAX];
 	char	*tmp;
+	char	*check;
 
-	if (getcwd(cwd, sizeof(cwd)) == NULL)
-		return (print_error("cd: getcwd", false), BUILTIN_ERROR);
+	check = getcwd(cwd, sizeof(cwd));
 	if (target[0] != '/')
 	{
-		target = concat_path(cwd, target);
+		if (check != NULL)
+			target = concat_path(cwd, target);
 		tmp = normalize_and_resolve_path(target);
-		free(target);
+		if (check != NULL)
+			free(target);
 		res = try_change_dir(tmp, ht, cwd);
 		return (free(tmp), res);
 	}

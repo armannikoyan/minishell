@@ -55,7 +55,7 @@ static char	*get_input(int *eof_count, t_hash_table *ht, int errnum)
 	{
 		(*eof_count)--;
 		if (*eof_count < 0)
-			ft_exit(&(char *){"exit"}, ht, errnum, NULL);
+			ft_exit((char*[]){"exit", NULL}, ht, errnum, NULL);
 		else
 			printf("Use \"exit\" to leave the shell.\n");
 		return (NULL);

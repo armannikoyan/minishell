@@ -66,7 +66,8 @@ int	ft_exit(char **argv, t_hash_table *ht, int errnum, t_ast_node *root)
 		if (errnum < 0)
 			return (BUILTIN_ERROR);
 	}
-	if (argc == 1 || argc == 2) {
+	if (argc == 1 || argc == 2)
+	{
 		ast_deletion(root);
 		ht_destroy(ht);
 		exit(errnum);
