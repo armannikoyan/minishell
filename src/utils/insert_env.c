@@ -47,9 +47,7 @@ static void	replace_incorrect_env(t_hash_table *ht)
 	update_shlvl(ht);
 	if (getcwd(str, sizeof(str)) == NULL)
 		print_error("minishell: replace_incorrect_env: getcwd", false);
-	if (ht_get(ht, "PWD") == NULL)
-		ht_create_bucket(ht, "PWD", str, false);
-	else
+	if (ht_get(ht, "PWD") != NULL)
 		ht_update_value(ht, "PWD", str);
 	if (ht_get(ht, "OLDPWD") == NULL)
 		ht_create_bucket(ht, "OLDPWD", NULL, false);
