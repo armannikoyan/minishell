@@ -38,7 +38,7 @@ static bool	is_all_space(const char *str)
 	return (true);
 }
 
-static char	*get_input(int *eof_count, t_hash_table *ht, int errnum)
+static char	*get_input(int *eof_count, t_hash_table *ht)
 {
 	char	*input;
 	char	*line;
@@ -55,10 +55,9 @@ static char	*get_input(int *eof_count, t_hash_table *ht, int errnum)
 	{
 		(*eof_count)--;
 		if (*eof_count < 0)
-			ft_exit((char*[]){"exit", NULL}, ht, errnum, NULL);
+			return ("exit");
 		else
 			printf("Use \"exit\" to leave the shell.\n");
-		return (NULL);
 	}
 	if (ht_get(ht, "IGNOREEOF") == NULL)
 		*eof_count = 0;
@@ -114,7 +113,7 @@ void	interactive_loop(char	**envp, int errnum)
 	ht = setup_ht(envp, &eof_count);
 	while (true)
 	{
-		input = get_input(&eof_count, ht, errnum);
+		input = get_input(&eof_count, ht);
 		if (!input)
 			continue ;
 		if (!is_all_space(input))
@@ -129,6 +128,5 @@ void	interactive_loop(char	**envp, int errnum)
 			cleanup_heredoc_files(heredoc_counter);
 			ast_deletion(root);
 		}
-		free(input);
 	}
 }

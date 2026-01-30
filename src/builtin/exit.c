@@ -48,7 +48,7 @@ static int	get_error_status(const char *s)
 // terminates a program with status 2.
 // If no arguments passed terminates a program with
 // status of the last command executed (takes status from errno)
-int	ft_exit(char **argv, t_hash_table *ht, int errnum, t_ast_node *root)
+int	ft_exit(char **argv, t_garbage *g, int errnum)
 {
 	int	argc;
 
@@ -68,8 +68,11 @@ int	ft_exit(char **argv, t_hash_table *ht, int errnum, t_ast_node *root)
 	}
 	if (argc == 1 || argc == 2)
 	{
-		ast_deletion(root);
-		ht_destroy(ht);
+		if (g){
+			ft_lstclear(&g->stack, free);
+			ast_deletion(g->root);
+			ht_destroy(g->ht);
+		}
 		exit(errnum);
 	}
 	print_error("exit: too many arguments\n", true);

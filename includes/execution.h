@@ -90,6 +90,6 @@ char	*resolve_cmd_path(char *cmd, t_hash_table *ht);
 char	*check_path_entry(char *dir, char *cmd);
 char	*search_in_path_env(char *cmd, t_hash_table *ht);
 int		handle_child_exit(pid_t pid);
-int		run_builtin(char **argv, t_hash_table *ht, int e, t_ast_node *root);
+int		run_builtin(char **argv, t_garbage *g, int e);
 
 #endif

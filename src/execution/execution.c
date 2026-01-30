@@ -40,7 +40,6 @@ int	execute_subshell(t_ast_node *node, int errnum, t_garbage *g)
 	// Child process execution
 	status = execute(node->u_data.subshell.root, g->ht, errnum, g->root);
 
-	// Full Cleanup
 	ft_lstclear(&g->stack, free);
 	ast_deletion(g->root);
 	ht_destroy(g->ht);
@@ -110,5 +109,6 @@ int	execute(t_ast_node *node, t_hash_table *ht, int errnum, t_ast_node *root)
 			(cleanup_redirection(curr->node, curr->saved_fd,
 					curr->target_fd), pop_frame(&stack));
 	}
+	ft_lstclear(&stack, free);
 	return (errnum);
 }

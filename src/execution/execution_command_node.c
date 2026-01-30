@@ -94,7 +94,7 @@ int	execute_command(t_ast_node *node, int errnum, t_garbage *g)
 
 	if (run_expansion(node, g->ht, errnum) != 0)
 		return (1);
-	code = run_builtin(node->u_data.cmd.argv, g->ht, errnum, g->root);
+	code = run_builtin(node->u_data.cmd.argv, g, errnum);
 	if (code != -1)
 		return (code);
 

@@ -66,7 +66,7 @@ int	check_basic_builtins(char *cmd, char **av, t_hash_table *ht)
 	return (-1);
 }
 
-int	check_extra_builtins(char **av, t_hash_table *ht, int e, t_ast_node *root)
+int	check_extra_builtins(char **av, t_garbage *g, int e)
 {
 	int	ac;
 
@@ -74,23 +74,23 @@ int	check_extra_builtins(char **av, t_hash_table *ht, int e, t_ast_node *root)
 	while (av[ac])
 		ac++;
 	if (ft_strcmp(av[0], "unset") == 0)
-		return (update_underscore(ht, av[0]), ft_unset(ac, av, ht));
+		return (update_underscore(g->ht, av[0]), ft_unset(ac, av, g->ht));
 	if (ft_strcmp(av[0], "env") == 0)
-		return (update_underscore(ht, av[0]), ft_env(ac, av, ht));
+		return (update_underscore(g->ht, av[0]), ft_env(ac, av, g->ht));
 	if (ft_strcmp(av[0], "exit") == 0)
-		return (update_underscore(ht, av[0]), ft_exit(av, ht, e, root));
+		return (update_underscore(g->ht, av[0]), ft_exit(av, g, e));
 	return (-1);
 }
 
-int	run_builtin(char **argv, t_hash_table *ht, int errnum, t_ast_node *root)
+int	run_builtin(char **argv, t_garbage *g, int errnum)
 {
 	int	res;
 
 	if (!argv || !argv[0])
 		return (false);
-	res = check_basic_builtins(argv[0], argv, ht);
+	res = check_basic_builtins(argv[0], argv, g->ht);
 	if (res != -1)
 		return (res);
-	res = check_extra_builtins(argv, ht, errnum, root);
+	res = check_extra_builtins(argv, g, errnum);
 	return (res);
 }
