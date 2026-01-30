@@ -26,6 +26,7 @@ typedef struct s_garbage
 	t_list			*stack;
 	t_ast_node		*root;
 	t_hash_table	*ht;
+	struct s_garbage *next;
 }	t_garbage;
 
 typedef struct s_exec_frame
@@ -41,6 +42,7 @@ typedef struct s_exec_ctx
 	t_list			**stack;
 	t_hash_table	*ht;
 	int				*status;
+	t_garbage		*garbage;
 }	t_exec_ctx;
 
 typedef struct s_p_ctx
@@ -51,12 +53,8 @@ typedef struct s_p_ctx
 	int				errnum;
 }	t_p_ctx;
 
-char	*remove_quotes(char *str);
-void	cleanup_redirection(t_ast_node *node, int saved_fd, int target_fd);
-void	cleanup_heredoc_files(int count);
-
 /* EXECUTION FUNCTIONS */
-int		execute(t_ast_node *node, t_hash_table *ht, int errnum, t_ast_node *root);
+int		execute(t_ast_node *node, t_hash_table *ht, int errnum, t_garbage *g);
 int		execute_command(t_ast_node *node, int errnum, t_garbage *g);
 int		execute_pipeline(t_ast_node *node, int errnum, t_garbage *g);
 int		execute_subshell(t_ast_node *node, int errnum, t_garbage *g);
@@ -66,9 +64,12 @@ void	handle_state_zero(t_exec_frame *curr, t_exec_ctx *d, t_ast_node *root);
 void	handle_state_one(t_exec_frame *curr, t_exec_ctx *d);
 int		push_new_frame(t_list **stack, t_ast_node *node);
 void	pop_frame(t_list **stack);
+char	*remove_quotes(char *str);
+void	cleanup_redirection(t_ast_node *node, int saved_fd, int target_fd);
+void	cleanup_heredoc_files(int count);
+void	clean_all_stacks(t_garbage *g);
 
 /* REDIRECTION HANDLING */
-int		scan_and_process_heredocs(t_ast_node *node, t_hash_table *ht, t_ast_node *root);
 void	handle_redir_init(t_exec_frame *frame, t_exec_ctx *ctx, t_garbage *g);
 int		setup_redirection(t_ast_node *node, t_hash_table *ht,
 			int *saved_fd, int *target_fd, t_garbage *g);
@@ -77,10 +78,10 @@ int		prepare_filename(t_ast_node *node, int *saved_fd);
 int		setup_file_redir(t_ast_node *node, int flags, int std_fd, int *save);
 
 /* HEREDOCS */
+int		scan_and_process_heredocs(t_ast_node *node, t_hash_table *ht, t_ast_node *root);
 int		handle_heredoc_line(char *line, t_doc_ctx *ctx);
 int		process_heredoc_loop(t_doc_ctx *ctx);
 void	prepare_limiter(t_ast_node *node, t_doc_ctx *ctx);
-// Updated: s_fd, e, and garbage
 int		setup_heredoc(t_ast_node *node, t_hash_table *ht, int *s_fd, int e);
 
 /* UTILS */

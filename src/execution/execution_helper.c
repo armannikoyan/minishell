@@ -10,8 +10,12 @@
 /*                                                                            */
 /* ************************************************************************** */
 
+#include <sys/errno.h>
+
 #include "ast.h"
 #include "execution.h"
+#include "term_settings.h"
+#include "utils.h"
 
 static void	del_frame(void *content)
 {
@@ -33,9 +37,11 @@ void	handle_state_zero(t_exec_frame *curr, t_exec_ctx *d, t_ast_node *root)
 {
 	t_garbage	g;
 
+	// FIX: Chain the current stack to the previous garbage context
 	g.stack = *d->stack;
 	g.ht = d->ht;
 	g.root = root;
+	g.next = d->garbage; // Link to parent's garbage
 
 	if (curr->node->type == PIPE_NODE)
 	{
@@ -48,7 +54,9 @@ void	handle_state_zero(t_exec_frame *curr, t_exec_ctx *d, t_ast_node *root)
 		push_new_frame(d->stack, curr->node->u_data.binary.left);
 	}
 	else if (curr->node->abstract_type == REDIR_NODE)
+	{
 		handle_redir_init(curr, d, &g);
+	}
 	else
 	{
 		if (curr->node->type == SUBSHELL_NODE)

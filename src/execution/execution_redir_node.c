@@ -59,20 +59,19 @@ static int	write_heredoc_to_file(int fd, char *limiter)
 }
 
 // Child process: Writes input and CLEANS UP MEMORY
-static void	run_heredoc_child(int fd, char *limiter, t_ast_node *root, t_hash_table *ht)
+static void	run_heredoc_child(int fd, char *limiter, t_garbage *g)
 {
 	signal(SIGINT, SIG_DFL);
 	write_heredoc_to_file(fd, limiter);
 	close(fd);
 	free(limiter);
-
-	// CLEANUP: Free AST and Hash Table before exit
-	ast_deletion(root);
-	ht_destroy(ht);
+	clean_all_stacks(g);
+	ast_deletion(g->root);
+	ht_destroy(g->ht);
 	exit(0);
 }
 
-static int	process_single_heredoc(t_ast_node *node, int *counter, t_ast_node *root, t_hash_table *ht)
+static int	process_single_heredoc(t_ast_node *node, int *counter, t_garbage *g)
 {
 	char	filename[PATH_MAX];
 	int		fd;
@@ -90,7 +89,7 @@ static int	process_single_heredoc(t_ast_node *node, int *counter, t_ast_node *ro
 	if (pid == -1)
 		return (close(fd), free(limiter), print_error("minishell: fork", false), 1);
 	if (pid == 0)
-		run_heredoc_child(fd, limiter, root, ht);
+		run_heredoc_child(fd, limiter, g);
 
 	signal(SIGINT, SIG_IGN);
 	waitpid(pid, &status, 0);
@@ -112,13 +111,18 @@ static int	process_single_heredoc(t_ast_node *node, int *counter, t_ast_node *ro
 int	scan_and_process_heredocs(t_ast_node *node, t_hash_table *ht, t_ast_node *root)
 {
 	static int	counter = 0;
+	t_garbage	g;
 
 	if (!node)
 		return (0);
 
 	if (node->type == HEREDOC_NODE)
 	{
-		if (process_single_heredoc(node, &counter, root, ht))
+		g.ht = ht;
+		g.root = root;
+		g.stack = NULL;
+		g.next = NULL;
+		if (process_single_heredoc(node, &counter, &g))
 			return (1);
 	}
 

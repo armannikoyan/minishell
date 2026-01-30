@@ -62,7 +62,7 @@ static int	handle_child_exec(char *cmd_path, char **argv, t_garbage *g)
 	envp = ht_to_envp(g->ht);
 	if (!envp)
 	{
-		ft_lstclear(&g->stack, free);
+		clean_all_stacks(g);
 		ast_deletion(g->root);
 		ht_destroy(g->ht);
 		exit(EXIT_FAILURE);
@@ -73,14 +73,15 @@ static int	handle_child_exec(char *cmd_path, char **argv, t_garbage *g)
 		print_error(argv[0], true);
 		print_error(": ", false);
 		free_split(envp);
-		// Cleanup inherited memory before exit
-		ft_lstclear(&g->stack, free);
+		clean_all_stacks(g);
 		ast_deletion(g->root);
 		ht_destroy(g->ht);
 		if (errno == ENOENT)
 			exit(COMMAND_NOT_FOUND);
 		if (errno == EACCES)
 			exit(PERMISSION_DENIED);
+		if (errno == EISDIR)
+			exit(IS_A_DIRECTORY);
 		exit(1);
 	}
 	return (0);

@@ -61,7 +61,7 @@ static void	exec_child_process(t_ast_node *node, t_p_ctx *ctx,
 		close(pipefd[1]);
 		close(pipefd[0]);
 	}
-	status = execute(node, g->ht, ctx->errnum, g->root);
+	status = execute(node, g->ht, ctx->errnum, g);
 
 	// CLEANUP
 	ft_lstclear(&g->stack, free);

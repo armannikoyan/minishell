@@ -21,6 +21,18 @@
 #include "term_settings.h"
 #include "../../libs/libft/libft.h"
 
+void	clean_all_stacks(t_garbage *g)
+{
+	t_garbage	*curr;
+
+	curr = g;
+	while (curr)
+	{
+		ft_lstclear(&curr->stack, free);
+		curr = curr->next;
+	}
+}
+
 int	execute_subshell(t_ast_node *node, int errnum, t_garbage *g)
 {
 	pid_t	pid;
@@ -37,11 +49,9 @@ int	execute_subshell(t_ast_node *node, int errnum, t_garbage *g)
 		psig_set();
 		return (status);
 	}
-	// Child process execution
-	status = execute(node->u_data.subshell.root, g->ht, errnum, g->root);
+	status = execute(node->u_data.subshell.root, g->ht, errnum, g);
 
-	// Full Cleanup
-	ft_lstclear(&g->stack, free);
+	clean_all_stacks(g);
 	ast_deletion(g->root);
 	ht_destroy(g->ht);
 
@@ -71,7 +81,6 @@ int	push_new_frame(t_list **stack, t_ast_node *node)
 
 void	handle_redir_init(t_exec_frame *frame, t_exec_ctx *ctx, t_garbage *g)
 {
-	// We pass 'g' to setup_redirection in case it needs to fork (HereDoc)
 	if (setup_redirection(frame->node, ctx->ht,
 			&frame->saved_fd, &frame->target_fd, g))
 	{
@@ -85,7 +94,7 @@ void	handle_redir_init(t_exec_frame *frame, t_exec_ctx *ctx, t_garbage *g)
 	}
 }
 
-int	execute(t_ast_node *node, t_hash_table *ht, int errnum, t_ast_node *root)
+int	execute(t_ast_node *node, t_hash_table *ht, int errnum, t_garbage *g)
 {
 	t_list			*stack;
 	t_exec_ctx		ctx;
@@ -99,11 +108,12 @@ int	execute(t_ast_node *node, t_hash_table *ht, int errnum, t_ast_node *root)
 	ctx.stack = &stack;
 	ctx.ht = ht;
 	ctx.status = &errnum;
+	ctx.garbage = g;
 	while (stack)
 	{
 		curr = (t_exec_frame *)stack->content;
 		if (curr->state == 0)
-			handle_state_zero(curr, &ctx, root);
+			handle_state_zero(curr, &ctx, g->root);
 		else if (curr->state == 1)
 			handle_state_one(curr, &ctx);
 		else if (curr->state == 2)

@@ -110,6 +110,7 @@ void	interactive_loop(char	**envp, int errnum)
 	t_hash_table				*ht;
 	t_ast_node					*root;
 	char						*input;
+	t_garbage					g;
 
 	ht = setup_ht(envp, &eof_count);
 	while (true)
@@ -123,8 +124,13 @@ void	interactive_loop(char	**envp, int errnum)
 			root = tokenize(input, &errnum);
 			if (root != NULL && syntax_check(root, &errnum) != SYNTAX_ERROR) {
 				heredoc_counter = scan_and_process_heredocs(root, ht, root);
-				if (heredoc_counter == 0)
-					errnum = execute(root, ht, errnum, root);
+				if (heredoc_counter == 0) {
+					g.stack = NULL;
+					g.root = root;
+					g.ht = ht;
+					g.next = NULL;
+					errnum = execute(root, g.ht, errnum, &g);
+				}
 			}
 			cleanup_heredoc_files(heredoc_counter);
 			ast_deletion(root);
