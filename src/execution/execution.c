@@ -21,7 +21,7 @@
 #include "term_settings.h"
 #include "../../libs/libft/libft.h"
 
-int	execute_subshell(t_ast_node *node, t_hash_table *ht, int errnum, t_ast_node *root)
+int	execute_subshell(t_ast_node *node, int errnum, t_garbage *g)
 {
 	pid_t	pid;
 	int		status;
@@ -37,7 +37,15 @@ int	execute_subshell(t_ast_node *node, t_hash_table *ht, int errnum, t_ast_node 
 		psig_set();
 		return (status);
 	}
-	exit(execute(node->u_data.subshell.root, ht, errnum, root));
+	// Child process execution
+	status = execute(node->u_data.subshell.root, g->ht, errnum, g->root);
+
+	// Full Cleanup
+	ft_lstclear(&g->stack, free);
+	ast_deletion(g->root);
+	ht_destroy(g->ht);
+
+	exit(status);
 }
 
 int	push_new_frame(t_list **stack, t_ast_node *node)
@@ -61,10 +69,11 @@ int	push_new_frame(t_list **stack, t_ast_node *node)
 	return (0);
 }
 
-void	handle_redir_init(t_exec_frame *frame, t_exec_ctx *ctx)
+void	handle_redir_init(t_exec_frame *frame, t_exec_ctx *ctx, t_garbage *g)
 {
+	// We pass 'g' to setup_redirection in case it needs to fork (HereDoc)
 	if (setup_redirection(frame->node, ctx->ht,
-			&frame->saved_fd, &frame->target_fd))
+			&frame->saved_fd, &frame->target_fd, g))
 	{
 		*ctx->status = 1;
 		pop_frame(ctx->stack);

@@ -24,10 +24,6 @@
 #include "utils.h"
 #include "../../libs/libft/libft.h"
 
-/* -------------------------------------------------------------------------- */
-/* PIPELINE HELPERS: CLEANUP & CHILD                                          */
-/* -------------------------------------------------------------------------- */
-
 static int	abort_pipeline(int prev_fd, int *pipefd)
 {
 	if (prev_fd != -1)
@@ -40,8 +36,11 @@ static int	abort_pipeline(int prev_fd, int *pipefd)
 	return (1);
 }
 
-static void	exec_child_process(t_ast_node *node, t_p_ctx *ctx, int *pipefd, t_ast_node *root)
+static void	exec_child_process(t_ast_node *node, t_p_ctx *ctx,
+			int *pipefd, t_garbage *g)
 {
+	int	status;
+
 	if (ctx->prev_fd != -1)
 	{
 		dup2(ctx->prev_fd, STDIN_FILENO);
@@ -49,18 +48,29 @@ static void	exec_child_process(t_ast_node *node, t_p_ctx *ctx, int *pipefd, t_as
 	}
 	if (pipefd)
 	{
-		dup2(pipefd[1], STDOUT_FILENO);
+		if (dup2(pipefd[1], STDOUT_FILENO) == -1)
+		{
+			print_error("minishell: dup2", false);
+			close(pipefd[1]);
+			close(pipefd[0]);
+			ft_lstclear(&g->stack, free);
+			ast_deletion(g->root);
+			ht_destroy(g->ht);
+			exit(1);
+		}
 		close(pipefd[1]);
 		close(pipefd[0]);
 	}
-	exit(execute(node, ctx->ht, ctx->errnum, root));
+	status = execute(node, g->ht, ctx->errnum, g->root);
+
+	// CLEANUP
+	ft_lstclear(&g->stack, free);
+	ast_deletion(g->root);
+	ht_destroy(g->ht);
+	exit(status);
 }
 
-/* -------------------------------------------------------------------------- */
-/* PIPELINE EXECUTION STEPS                                                   */
-/* -------------------------------------------------------------------------- */
-
-static int	run_pipe_step(t_ast_node *node, t_p_ctx *ctx, t_ast_node *root)
+static int	run_pipe_step(t_ast_node *node, t_p_ctx *ctx, t_garbage *g)
 {
 	int		pipefd[2];
 	pid_t	pid;
@@ -73,7 +83,7 @@ static int	run_pipe_step(t_ast_node *node, t_p_ctx *ctx, t_ast_node *root)
 		return (print_error("minishell: fork", false),
 			abort_pipeline(ctx->prev_fd, pipefd));
 	if (pid == 0)
-		exec_child_process(node->u_data.binary.left, ctx, pipefd, root);
+		exec_child_process(node->u_data.binary.left, ctx, pipefd, g);
 	if (ctx->prev_fd != -1)
 		close(ctx->prev_fd);
 	close(pipefd[1]);
@@ -81,7 +91,7 @@ static int	run_pipe_step(t_ast_node *node, t_p_ctx *ctx, t_ast_node *root)
 	return (0);
 }
 
-static int	run_last_step(t_ast_node *node, t_p_ctx *ctx, t_ast_node *root)
+static int	run_last_step(t_ast_node *node, t_p_ctx *ctx, t_garbage *g)
 {
 	pid_t	pid;
 
@@ -90,34 +100,11 @@ static int	run_last_step(t_ast_node *node, t_p_ctx *ctx, t_ast_node *root)
 		return (print_error("minishell: fork", false),
 			abort_pipeline(ctx->prev_fd, NULL));
 	if (pid == 0)
-		exec_child_process(node, ctx, NULL, root);
+		exec_child_process(node, ctx, NULL, g);
 	ctx->last_pid = pid;
 	if (ctx->prev_fd != -1)
 		close(ctx->prev_fd);
 	return (0);
-}
-
-/* -------------------------------------------------------------------------- */
-/* SIGNAL & WAIT HANDLING                                                     */
-/* -------------------------------------------------------------------------- */
-
-static void	print_signal_msg(int sig)
-{
-	char	buf[50];
-	int		len;
-
-	if (sig == SIGINT)
-		write(STDOUT_FILENO, "^C\n", 3);
-	else if (sig == SIGQUIT)
-	{
-		ft_memcpy(buf, "^\\Quit: signum: ", 16);
-		len = 16;
-		buf[len] = sig - '0';
-		len++;
-		buf[len] = '\n';
-		len++;
-		write(STDOUT_FILENO, buf, len);
-	}
 }
 
 static int	handle_wait_status(int status, int *exit_code)
@@ -126,7 +113,10 @@ static int	handle_wait_status(int status, int *exit_code)
 		*exit_code = WEXITSTATUS(status);
 	else if (WIFSIGNALED(status))
 	{
-		print_signal_msg(WTERMSIG(status));
+		if (WTERMSIG(status) == SIGINT)
+			write(STDOUT_FILENO, "^C\n", 3);
+		else if (WTERMSIG(status) == SIGQUIT)
+			write(STDOUT_FILENO, "^\\Quit: 3\n", 10);
 		*exit_code = 128 + WTERMSIG(status);
 	}
 	return (0);
@@ -158,27 +148,23 @@ static int	wait_for_children(t_p_ctx *ctx)
 	return (exit_code);
 }
 
-/* -------------------------------------------------------------------------- */
-/* MAIN ENTRY POINT                                                           */
-/* -------------------------------------------------------------------------- */
-
-int	execute_pipeline(t_ast_node *node, t_hash_table *ht, int errnum, t_ast_node *root)
+int	execute_pipeline(t_ast_node *node, int errnum, t_garbage *g)
 {
 	t_p_ctx		ctx;
 	t_ast_node	*curr;
 
 	ctx.prev_fd = -1;
 	ctx.last_pid = -1;
-	ctx.ht = ht;
+	ctx.ht = g->ht;
 	ctx.errnum = errnum;
 	curr = node;
 	while (curr->type == PIPE_NODE)
 	{
-		if (run_pipe_step(curr, &ctx, root))
+		if (run_pipe_step(curr, &ctx, g))
 			return (1);
 		curr = curr->u_data.binary.right;
 	}
-	if (run_last_step(curr, &ctx, root))
+	if (run_last_step(curr, &ctx, g))
 		return (1);
 	return (wait_for_children(&ctx));
 }

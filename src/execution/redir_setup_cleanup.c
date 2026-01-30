@@ -84,43 +84,50 @@ int	setup_heredoc(t_ast_node *node, t_hash_table *ht, int *s_fd, int e)
 	return (close(fd), 0);
 }
 
-int	setup_redirection(t_ast_node *node, t_hash_table *ht, int *save, int *tgt)
+// Dispatcher for execution (Heredocs should already be processed)
+int	setup_redirection(t_ast_node *node, t_hash_table *ht,
+	int *saved_fd, int *target_fd, t_garbage *g)
 {
+	int	flags;
+	int	std_fd;
+
+	(void)ht;
+	(void)g;
+
 	if (node->type == REDIRECT_IN_NODE)
 	{
-		*tgt = STDIN_FILENO;
-		return (setup_file_redir(node, O_RDONLY, STDIN_FILENO, save));
+		flags = O_RDONLY;
+		std_fd = STDIN_FILENO;
 	}
-	if (node->type == REDIRECT_OUT_NODE)
+	else if (node->type == REDIRECT_OUT_NODE)
 	{
-		*tgt = STDOUT_FILENO;
-		return (setup_file_redir(node, O_WRONLY | O_CREAT | O_TRUNC,
-				STDOUT_FILENO, save));
+		flags = O_WRONLY | O_CREAT | O_TRUNC;
+		std_fd = STDOUT_FILENO;
 	}
-	if (node->type == REDIRECT_APPEND_NODE)
+	else if (node->type == REDIRECT_APPEND_NODE)
 	{
-		*tgt = STDOUT_FILENO;
-		return (setup_file_redir(node, O_WRONLY | O_CREAT | O_APPEND,
-				STDOUT_FILENO, save));
+		flags = O_WRONLY | O_CREAT | O_APPEND;
+		std_fd = STDOUT_FILENO;
 	}
-	if (node->type == HEREDOC_NODE)
-	{
-		*tgt = STDIN_FILENO;
-		return (setup_heredoc(node, ht, save, 0));
-	}
-	return (1);
+	else
+		return (0);
+
+	// --- FIX START ---
+	// We MUST save which FD we are replacing (0, 1, or 2)
+	// so cleanup_redirection knows where to restore the saved_fd to.
+	*target_fd = std_fd;
+	// --- FIX END ---
+
+	return (setup_file_redir(node, flags, std_fd, saved_fd));
 }
 
-int	cleanup_redirection(t_ast_node *node, int saved_fd, int target_fd)
+void cleanup_redirection(t_ast_node *node, int saved_fd, int target_fd)
 {
-	if (node->type == HEREDOC_NODE)
-		unlink(HEREDOC_TMP_FILE);
-	if (dup2(saved_fd, target_fd) == -1)
+	(void)node; // might be unused
+	if (saved_fd != -1)
 	{
-		print_error("minishell: dup2", false);
+		// Restore the original FD (e.g., puts stdout back to terminal)
+		dup2(saved_fd, target_fd);
 		close(saved_fd);
-		return (1);
 	}
-	close(saved_fd);
-	return (0);
 }

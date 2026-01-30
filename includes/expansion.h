@@ -16,6 +16,7 @@
 # include <dirent.h>
 # include <stddef.h>
 
+#include "ast.h"
 # include "hash_table.h"
 # include "../libs/libft/libft.h"
 
@@ -25,6 +26,9 @@ char	*get_env_val(char *str, t_hash_table *ht);
 
 char	**list_to_argv(t_list *lst);
 t_list	*get_matches(char *raw_token, DIR *dir);
+char	**expand_wildcards(char **old_argv);
+
+int     run_expansion(t_ast_node *node, t_hash_table *ht, int errnum);
 
 char	*expand_dollar_sign(char *str, t_hash_table *ht, int errnum);
 

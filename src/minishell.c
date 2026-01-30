@@ -121,10 +121,11 @@ void	interactive_loop(char	**envp, int errnum)
 		{
 			add_history(input);
 			root = tokenize(input, &errnum);
-			heredoc_counter = 0;
-			if (root != NULL && syntax_check(root, &errnum) != SYNTAX_ERROR
-				&& scan_and_process_heredocs(root, ht, &heredoc_counter) == 0)
-				errnum = execute(root, ht, errnum, root);
+			if (root != NULL && syntax_check(root, &errnum) != SYNTAX_ERROR) {
+				heredoc_counter = scan_and_process_heredocs(root, ht, root);
+				if (heredoc_counter == 0)
+					errnum = execute(root, ht, errnum, root);
+			}
 			cleanup_heredoc_files(heredoc_counter);
 			ast_deletion(root);
 		}

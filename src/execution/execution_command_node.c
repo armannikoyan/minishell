@@ -26,10 +26,6 @@
 #include "path_utils.h"
 #include "../../libs/libft/libft.h"
 
-/* -------------------------------------------------------------------------- */
-/* EXECUTION HELPERS                                                          */
-/* -------------------------------------------------------------------------- */
-
 static int	handle_exec_error(char *path, int err_code)
 {
 	print_error("minishell: ", true);
@@ -57,67 +53,65 @@ static int	validate_executable(char *path)
 	return (0);
 }
 
-static void	execute_child(char *cmd_path, char **argv, t_hash_table *ht)
+static int	handle_child_exec(char *cmd_path, char **argv, t_garbage *g)
 {
 	char	**envp;
 
 	signal(SIGINT, SIG_DFL);
 	signal(SIGQUIT, SIG_DFL);
-	envp = ht_to_envp(ht);
+	envp = ht_to_envp(g->ht);
 	if (!envp)
+	{
+		ft_lstclear(&g->stack, free);
+		ast_deletion(g->root);
+		ht_destroy(g->ht);
 		exit(EXIT_FAILURE);
+	}
 	if (execve(cmd_path, argv, envp) == -1)
 	{
 		print_error("minishell: ", true);
 		print_error(argv[0], true);
 		print_error(": ", false);
 		free_split(envp);
+		// Cleanup inherited memory before exit
+		ft_lstclear(&g->stack, free);
+		ast_deletion(g->root);
+		ht_destroy(g->ht);
 		if (errno == ENOENT)
 			exit(COMMAND_NOT_FOUND);
 		if (errno == EACCES)
 			exit(PERMISSION_DENIED);
 		exit(1);
 	}
+	return (0);
 }
 
-static int	handle_parent_process(pid_t pid, char *cmd_path)
-{
-	int	status;
-
-	free(cmd_path);
-	signal(SIGINT, SIG_IGN);
-	signal(SIGQUIT, SIG_IGN);
-	status = handle_child_exit(pid);
-	psig_set();
-	return (status);
-}
-
-/* -------------------------------------------------------------------------- */
-/* MAIN EXECUTE COMMAND                                                       */
-/* -------------------------------------------------------------------------- */
-
-int	execute_command(t_ast_node *node, t_hash_table *ht, int errnum, t_ast_node *root)
+int	execute_command(t_ast_node *node, int errnum, t_garbage *g)
 {
 	char	*path;
 	int		code;
 	pid_t	pid;
 
-	if (run_expansion(node, ht, errnum) != 0)
+	if (run_expansion(node, g->ht, errnum) != 0)
 		return (1);
-	code = run_builtin(node->u_data.cmd.argv, ht, errnum, root);
+	code = run_builtin(node->u_data.cmd.argv, g->ht, errnum, g->root);
 	if (code != -1)
 		return (code);
-	path = resolve_cmd_path(node->u_data.cmd.argv[0], ht);
-	update_underscore(ht, path);
+
+	path = resolve_cmd_path(node->u_data.cmd.argv[0], g->ht);
+	update_underscore(g->ht, path);
 	code = validate_executable(path);
 	if (code != 0)
 		return (free(path), code);
 	pid = fork();
 	if (pid == -1)
-		return (print_error("minishell: fork", false), 1);
+		return (free(path), print_error("minishell: fork", false), 1);
 	if (pid == 0)
-		execute_child(path, node->u_data.cmd.argv, ht);
-	else
-		return (handle_parent_process(pid, path));
-	return (1);
+		handle_child_exec(path, node->u_data.cmd.argv, g);
+	free(path);
+	signal(SIGINT, SIG_IGN);
+	signal(SIGQUIT, SIG_IGN);
+	code = handle_child_exit(pid);
+	psig_set();
+	return (code);
 }

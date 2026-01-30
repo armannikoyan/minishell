@@ -31,9 +31,15 @@ void	pop_frame(t_list **stack)
 
 void	handle_state_zero(t_exec_frame *curr, t_exec_ctx *d, t_ast_node *root)
 {
+	t_garbage	g;
+
+	g.stack = *d->stack;
+	g.ht = d->ht;
+	g.root = root;
+
 	if (curr->node->type == PIPE_NODE)
 	{
-		*d->status = execute_pipeline(curr->node, d->ht, *d->status, root);
+		*d->status = execute_pipeline(curr->node, *d->status, &g);
 		pop_frame(d->stack);
 	}
 	else if (curr->node->abstract_type == BIN_NODE)
@@ -42,13 +48,13 @@ void	handle_state_zero(t_exec_frame *curr, t_exec_ctx *d, t_ast_node *root)
 		push_new_frame(d->stack, curr->node->u_data.binary.left);
 	}
 	else if (curr->node->abstract_type == REDIR_NODE)
-		handle_redir_init(curr, d);
+		handle_redir_init(curr, d, &g);
 	else
 	{
 		if (curr->node->type == SUBSHELL_NODE)
-			*d->status = execute_subshell(curr->node, d->ht, *d->status, root);
+			*d->status = execute_subshell(curr->node, *d->status, &g);
 		else if (curr->node->abstract_type == CMD_NODE)
-			*d->status = execute_command(curr->node, d->ht, *d->status, root);
+			*d->status = execute_command(curr->node, *d->status, &g);
 		pop_frame(d->stack);
 	}
 }
