@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   execution_binary_node.c                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lvarnach <lvarnach@student.42yerevan.am>   +#+  +:+       +#+        */
+/*   By: lvarnach <lvarnach@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/28 02:14:27 by lvarnach          #+#    #+#             */
-/*   Updated: 2026/01/28 19:57:04 by lvarnach         ###   ########.fr       */
+/*   Updated: 2026/01/31 01:50:38 by lvarnach         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,7 +53,7 @@ static void	exec_child_process(t_ast_node *node, t_p_ctx *ctx,
 			print_error("minishell: dup2", false);
 			close(pipefd[1]);
 			close(pipefd[0]);
-			ft_lstclear(&g->stack, free);
+			clean_all_stacks(g);
 			ast_deletion(g->root);
 			ht_destroy(g->ht);
 			exit(1);
@@ -64,7 +64,7 @@ static void	exec_child_process(t_ast_node *node, t_p_ctx *ctx,
 	status = execute(node, g->ht, ctx->errnum, g);
 
 	// CLEANUP
-	ft_lstclear(&g->stack, free);
+	clean_all_stacks(g);
 	ast_deletion(g->root);
 	ht_destroy(g->ht);
 	exit(status);

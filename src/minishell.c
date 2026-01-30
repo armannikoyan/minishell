@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lvarnach <lvarnach@student.42yerevan.am>   +#+  +:+       +#+        */
+/*   By: lvarnach <lvarnach@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/26 17:26:37 by lvarnach          #+#    #+#             */
-/*   Updated: 2026/01/27 01:11:49 by lvarnach         ###   ########.fr       */
+/*   Updated: 2026/01/31 02:32:02 by lvarnach         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,7 +55,7 @@ static char	*get_input(int *eof_count, t_hash_table *ht)
 	{
 		(*eof_count)--;
 		if (*eof_count < 0)
-			return ("exit");
+			return ft_strdup("exit");
 		else
 			printf("Use \"exit\" to leave the shell.\n");
 	}
@@ -121,6 +121,7 @@ void	interactive_loop(char	**envp, int errnum)
 		{
 			add_history(input);
 			root = tokenize(input, &errnum);
+			free(input);
 			if (root != NULL && syntax_check(root, &errnum) != SYNTAX_ERROR) {
 				heredoc_counter = scan_and_process_heredocs(root, ht, root);
 				if (heredoc_counter == 0) {
@@ -134,5 +135,7 @@ void	interactive_loop(char	**envp, int errnum)
 			cleanup_heredoc_files(heredoc_counter);
 			ast_deletion(root);
 		}
+		else
+			free(input);
 	}
 }

@@ -3,16 +3,17 @@
 /*                                                        :::      ::::::::   */
 /*   exit.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lvarnach <lvarnach@student.42yerevan.am>   +#+  +:+       +#+        */
+/*   By: lvarnach <lvarnach@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/27 01:16:11 by lvarnach          #+#    #+#             */
-/*   Updated: 2026/01/27 01:30:54 by lvarnach         ###   ########.fr       */
+/*   Updated: 2026/01/31 01:50:46 by lvarnach         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <ctype.h>
 #include <errno.h>
 #include <stdlib.h>
+#include <readline/readline.h>
 
 #include "ast.h"
 #include "hash_table.h"
@@ -69,10 +70,11 @@ int	ft_exit(char **argv, t_garbage *g, int errnum)
 	if (argc == 1 || argc == 2)
 	{
 		if (g){
-			ft_lstclear(&g->stack, free);
+			clean_all_stacks(g);
 			ast_deletion(g->root);
 			ht_destroy(g->ht);
 		}
+		rl_clear_history();
 		exit(errnum);
 	}
 	print_error("exit: too many arguments\n", true);
