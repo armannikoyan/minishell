@@ -31,11 +31,11 @@ int	ft_pwd(int argc, char **argv, t_hash_table *ht)
 	if (getcwd(cwd, sizeof(cwd)) == NULL)
 	{
 		entry = ht_get(ht, "PWD");
-		if (entry == NULL) {
-			print_error("pwd: getcwd", false);
+		if (entry == NULL || entry->val == NULL) {
+			print_error("pwd: error retrieving current directory\n", true);
 			return (BUILTIN_ERROR);
 		}
-		printf("%s\n", ht_get(ht, "PWD")->val);
+		printf("%s\n", entry->val);
 		return (0);
 	}
 	printf("%s\n", cwd);

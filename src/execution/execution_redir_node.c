@@ -15,6 +15,8 @@
 #include <sys/fcntl.h>
 #include <stdio.h>
 #include <readline/readline.h>
+#include <signal.h>
+#include <sys/wait.h>
 
 #include "ast.h"
 #include "execution.h"
