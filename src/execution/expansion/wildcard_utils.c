@@ -103,8 +103,9 @@ t_list	*get_matches(char *raw_token, DIR *dir)
 	entry = readdir(dir);
 	while (entry != NULL)
 	{
-		if (ft_strcmp(entry->d_name, ".") && ft_strcmp(entry->d_name, "..")
-			&& (entry->d_name[0] != '.' || clean_pattern[0] == '.'))
+		// FIX: Removed explicit exclusion of "." and ".."
+		// Now we only check if the file is hidden and if the pattern allows it.
+		if (entry->d_name[0] != '.' || clean_pattern[0] == '.')
 		{
 			if (match_pattern(clean_pattern, mask, entry->d_name))
 				ft_lstadd_back(&matches, ft_lstnew(ft_strdup(entry->d_name)));
