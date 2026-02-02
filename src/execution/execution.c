@@ -6,7 +6,7 @@
 /*   By: lvarnach <lvarnach@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/28 17:09:17 by lvarnach          #+#    #+#             */
-/*   Updated: 2026/01/28 17:30:17 by lvarnach         ###   ########.fr       */
+/*   Updated: 2026/02/03 00:52:32 by lvarnach         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,11 +60,9 @@ int	execute_subshell(t_ast_node *node, int errnum, t_garbage *g)
 		return (status);
 	}
 	status = execute(node->u_data.subshell.root, g->ht, errnum, g);
-
 	clean_all_stacks(g);
 	ast_deletion(g->root);
 	ht_destroy(g->ht);
-
 	exit(status);
 }
 
@@ -87,21 +85,6 @@ int	push_new_frame(t_list **stack, t_ast_node *node)
 		return (free(frame), 1);
 	ft_lstadd_front(stack, new_node);
 	return (0);
-}
-
-void	handle_redir_init(t_exec_frame *frame, t_exec_ctx *ctx)
-{
-	// We pass 'g' to setup_redirection in case it needs to fork (HereDoc)
-	if (setup_redirection(frame->node, &frame->saved_fd, &frame->target_fd))
-	{
-		*ctx->status = 1;
-		pop_frame(ctx->stack);
-	}
-	else
-	{
-		frame->state = 2;
-		push_new_frame(ctx->stack, frame->node->u_data.redir.child);
-	}
 }
 
 int	execute(t_ast_node *node, t_hash_table *ht, int errnum, t_garbage *g)
@@ -127,7 +110,8 @@ int	execute(t_ast_node *node, t_hash_table *ht, int errnum, t_garbage *g)
 		else if (curr->state == 1)
 			handle_state_one(curr, &ctx);
 		else if (curr->state == 2)
-			(cleanup_redirection(curr->saved_fd, curr->target_fd), pop_frame(&stack));
+			(cleanup_redirection(curr->saved_fd, curr->target_fd),
+				pop_frame(&stack));
 	}
 	ft_lstclear(&stack, free);
 	return (errnum);

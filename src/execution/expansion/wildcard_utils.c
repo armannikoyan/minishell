@@ -6,7 +6,7 @@
 /*   By: lvarnach <lvarnach@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/28 00:48:20 by lvarnach          #+#    #+#             */
-/*   Updated: 2026/01/28 01:09:00 by lvarnach         ###   ########.fr       */
+/*   Updated: 2026/02/03 00:59:22 by lvarnach         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -103,8 +103,6 @@ t_list	*get_matches(char *raw_token, DIR *dir)
 	entry = readdir(dir);
 	while (entry != NULL)
 	{
-		// FIX: Removed explicit exclusion of "." and ".."
-		// Now we only check if the file is hidden and if the pattern allows it.
 		if (entry->d_name[0] != '.' || clean_pattern[0] == '.')
 		{
 			if (match_pattern(clean_pattern, mask, entry->d_name))

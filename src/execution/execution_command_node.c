@@ -6,7 +6,7 @@
 /*   By: lvarnach <lvarnach@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/28 01:31:06 by lvarnach          #+#    #+#             */
-/*   Updated: 2026/01/28 18:10:01 by lvarnach         ###   ########.fr       */
+/*   Updated: 2026/02/03 00:55:21 by lvarnach         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,14 +57,11 @@ static int	handle_child_exec(char *cmd_path, char **argv, t_garbage *g)
 {
 	char	**envp;
 
-	signal(SIGINT, SIG_DFL);
-	signal(SIGQUIT, SIG_DFL);
+	(signal(SIGINT, SIG_DFL), signal(SIGQUIT, SIG_DFL));
 	envp = ht_to_envp(g->ht);
 	if (!envp)
 	{
-		clean_all_stacks(g);
-		ast_deletion(g->root);
-		ht_destroy(g->ht);
+		(clean_all_stacks(g), ast_deletion(g->root), ht_destroy(g->ht));
 		exit(EXIT_FAILURE);
 	}
 	if (execve(cmd_path, argv, envp) == -1)
@@ -73,9 +70,7 @@ static int	handle_child_exec(char *cmd_path, char **argv, t_garbage *g)
 		print_error(argv[0], true);
 		print_error(": ", false);
 		free_split(envp);
-		clean_all_stacks(g);
-		ast_deletion(g->root);
-		ht_destroy(g->ht);
+		(clean_all_stacks(g), ast_deletion(g->root), ht_destroy(g->ht));
 		if (errno == ENOENT)
 			exit(COMMAND_NOT_FOUND);
 		if (errno == EACCES)
@@ -98,7 +93,6 @@ int	execute_command(t_ast_node *node, int errnum, t_garbage *g)
 	code = run_builtin(node->u_data.cmd.argv, g, errnum);
 	if (code != -1)
 		return (code);
-
 	path = resolve_cmd_path(node->u_data.cmd.argv[0], g->ht);
 	update_underscore(g->ht, path);
 	code = validate_executable(path);

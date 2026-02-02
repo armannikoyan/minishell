@@ -6,7 +6,7 @@
 /*   By: lvarnach <lvarnach@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/28 01:29:13 by lvarnach          #+#    #+#             */
-/*   Updated: 2026/01/28 02:14:07 by lvarnach         ###   ########.fr       */
+/*   Updated: 2026/02/03 00:50:32 by lvarnach         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@
 #include <sys/wait.h>
 
 #include "error_codes.h"
+#include "execution.h"
 #include "tokenization.h"
 #include "utils.h"
 
@@ -93,4 +94,18 @@ int	handle_child_exit(pid_t pid)
 		return (RESERVED_ERROR_CODES + sig);
 	}
 	return (1);
+}
+
+void	handle_redir_init(t_exec_frame *frame, t_exec_ctx *ctx)
+{
+	if (setup_redirection(frame->node, &frame->saved_fd, &frame->target_fd))
+	{
+		*ctx->status = 1;
+		pop_frame(ctx->stack);
+	}
+	else
+	{
+		frame->state = 2;
+		push_new_frame(ctx->stack, frame->node->u_data.redir.child);
+	}
 }

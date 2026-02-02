@@ -6,7 +6,7 @@
 /*   By: lvarnach <lvarnach@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/28 17:53:35 by lvarnach          #+#    #+#             */
-/*   Updated: 2026/01/28 17:53:38 by lvarnach         ###   ########.fr       */
+/*   Updated: 2026/02/03 00:56:26 by lvarnach         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,12 +37,10 @@ void	handle_state_zero(t_exec_frame *curr, t_exec_ctx *d, t_ast_node *root)
 {
 	t_garbage	g;
 
-	// FIX: Chain the current stack to the previous garbage context
 	g.stack = *d->stack;
 	g.ht = d->ht;
 	g.root = root;
-	g.next = d->garbage; // Link to parent's garbage
-
+	g.next = d->garbage;
 	if (curr->node->type == PIPE_NODE)
 	{
 		*d->status = execute_pipeline(curr->node, *d->status, &g);
@@ -54,9 +52,7 @@ void	handle_state_zero(t_exec_frame *curr, t_exec_ctx *d, t_ast_node *root)
 		push_new_frame(d->stack, curr->node->u_data.binary.left);
 	}
 	else if (curr->node->abstract_type == REDIR_NODE)
-	{
 		handle_redir_init(curr, d);
-	}
 	else
 	{
 		if (curr->node->type == SUBSHELL_NODE)
