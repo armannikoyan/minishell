@@ -131,8 +131,8 @@ void	interactive_loop(char	**envp, int errnum)
 					g.next = NULL;
 					errnum = execute(root, g.ht, errnum, &g);
 				}
+				cleanup_heredoc_files(heredoc_counter);
 			}
-			cleanup_heredoc_files(heredoc_counter);
 			ast_deletion(root);
 		}
 		else
