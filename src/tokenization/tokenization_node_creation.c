@@ -85,6 +85,8 @@ char	**get_argv(char *input, size_t *i)
 	bool	skip;
 
 	len = get_argv_len(input, i);
+	if (len == 0)
+		return (NULL);
 	argv = (char **)malloc(sizeof(char *) * (len + 1));
 	if (!argv)
 		return (NULL);

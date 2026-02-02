@@ -27,7 +27,7 @@ void	psig_handler(int signo)
 		rl_redisplay();
 	}
 	else if (signo == SIGQUIT)
-		rl_redisplay();
+		return ;
 }
 
 void	psig_set(void)
