@@ -6,7 +6,7 @@
 /*   By: lvarnach <lvarnach@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/27 01:35:20 by lvarnach          #+#    #+#             */
-/*   Updated: 2026/01/27 01:35:47 by lvarnach         ###   ########.fr       */
+/*   Updated: 2026/02/02 22:39:51 by lvarnach         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,8 @@ int	ft_pwd(int argc, char **argv, t_hash_table *ht)
 	if (getcwd(cwd, sizeof(cwd)) == NULL)
 	{
 		entry = ht_get(ht, "PWD");
-		if (entry == NULL || entry->val == NULL) {
+		if (entry == NULL || entry->val == NULL)
+		{
 			print_error("pwd: error retrieving current directory\n", true);
 			return (BUILTIN_ERROR);
 		}

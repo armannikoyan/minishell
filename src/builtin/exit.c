@@ -6,7 +6,7 @@
 /*   By: lvarnach <lvarnach@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/27 01:16:11 by lvarnach          #+#    #+#             */
-/*   Updated: 2026/01/31 01:50:46 by lvarnach         ###   ########.fr       */
+/*   Updated: 2026/02/02 22:39:27 by lvarnach         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,11 +69,8 @@ int	ft_exit(char **argv, t_garbage *g, int errnum)
 	}
 	if (argc == 1 || argc == 2)
 	{
-		if (g){
-			clean_all_stacks(g);
-			ast_deletion(g->root);
-			ht_destroy(g->ht);
-		}
+		if (g)
+			(clean_all_stacks(g), ast_deletion(g->root), ht_destroy(g->ht));
 		rl_clear_history();
 		exit(errnum);
 	}

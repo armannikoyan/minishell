@@ -6,7 +6,7 @@
 /*   By: lvarnach <lvarnach@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/26 19:06:36 by lvarnach          #+#    #+#             */
-/*   Updated: 2026/01/26 19:06:36 by lvarnach         ###   ########.fr       */
+/*   Updated: 2026/02/02 22:38:32 by lvarnach         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,8 +34,8 @@ void	psig_set(void)
 
 	sigemptyset(&sa.sa_mask);
 	sa.sa_flags = 0;
-    sa.sa_handler = psig_handler;
-    sigaction(SIGINT, &sa, NULL);
-    sa.sa_handler = SIG_IGN;
-    sigaction(SIGQUIT, &sa, NULL);
+	sa.sa_handler = psig_handler;
+	sigaction(SIGINT, &sa, NULL);
+	sa.sa_handler = SIG_IGN;
+	sigaction(SIGQUIT, &sa, NULL);
 }

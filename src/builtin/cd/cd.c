@@ -6,7 +6,7 @@
 /*   By: lvarnach <lvarnach@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/27 01:49:28 by lvarnach          #+#    #+#             */
-/*   Updated: 2026/01/27 02:13:26 by lvarnach         ###   ########.fr       */
+/*   Updated: 2026/02/02 22:42:39 by lvarnach         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,9 +71,8 @@ int	resolve_cd_path(int i, char **cd_path, const char *path, t_hash_table *ht)
 	return (BUILTIN_ERROR);
 }
 
-static int	analyse_path(char **argv, t_hash_table *ht)
+static int	analyse_path(char **argv, t_hash_table *ht, int i)
 {
-	int		i;
 	char	cwd[PATH_MAX];
 	char	**cd;
 	char	*target;
@@ -85,13 +84,10 @@ static int	analyse_path(char **argv, t_hash_table *ht)
 	{
 		target = normalize_and_resolve_path(argv[1]);
 		i = try_change_dir(target, ht, cwd);
-		free(target);
-		return (i);
+		return (free(target), i);
 	}
-	i = 0;
 	if (ht_get(ht, M1) == NULL || split_ev(ht_get(ht, M1)->val, &cd) == NULL)
 	{
-
 		target = concat_path(cwd, argv[1]);
 		if (target == NULL)
 			target = argv[1];
@@ -153,7 +149,7 @@ int	ft_cd(int argc, char **argv, t_hash_table *ht)
 				return (print_error("cd: 'OLDPWD' is empty\n", true), 2);
 			return (solve_env_var(target, true, ht));
 		}
-		return (analyse_path(argv, ht));
+		return (analyse_path(argv, ht, 0));
 	}
 	return (print_error("cd: too many arguments", true), BUILTIN_ERROR);
 }
