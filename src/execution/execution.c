@@ -6,7 +6,7 @@
 /*   By: lvarnach <lvarnach@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/28 17:09:17 by lvarnach          #+#    #+#             */
-/*   Updated: 2026/02/03 00:52:32 by lvarnach         ###   ########.fr       */
+/*   Updated: 2026/02/03 01:05:58 by lvarnach         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -113,6 +113,5 @@ int	execute(t_ast_node *node, t_hash_table *ht, int errnum, t_garbage *g)
 			(cleanup_redirection(curr->saved_fd, curr->target_fd),
 				pop_frame(&stack));
 	}
-	ft_lstclear(&stack, free);
-	return (errnum);
+	return (ft_lstclear(&stack, free), errnum);
 }

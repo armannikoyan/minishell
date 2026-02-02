@@ -6,7 +6,7 @@
 /*   By: lvarnach <lvarnach@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/28 17:53:35 by lvarnach          #+#    #+#             */
-/*   Updated: 2026/02/03 00:56:26 by lvarnach         ###   ########.fr       */
+/*   Updated: 2026/02/03 01:07:03 by lvarnach         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,10 +37,8 @@ void	handle_state_zero(t_exec_frame *curr, t_exec_ctx *d, t_ast_node *root)
 {
 	t_garbage	g;
 
-	g.stack = *d->stack;
-	g.ht = d->ht;
-	g.root = root;
-	g.next = d->garbage;
+	g = (t_garbage){.stack = *d->stack, .ht = d->ht,
+		.root = root, .next = d->garbage};
 	if (curr->node->type == PIPE_NODE)
 	{
 		*d->status = execute_pipeline(curr->node, *d->status, &g);

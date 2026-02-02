@@ -6,7 +6,7 @@
 /*   By: lvarnach <lvarnach@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/27 22:05:00 by lvarnach          #+#    #+#             */
-/*   Updated: 2026/01/28 00:43:44 by lvarnach         ###   ########.fr       */
+/*   Updated: 2026/02/03 01:08:36 by lvarnach         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,9 +15,9 @@
 
 #include "execution.h"
 #include "expansion.h"
+#include "tokenization.h"
 #include "../../../libs/libft/libft.h"
 
-/* Helper to process a single token: checks for wildcard or just removes quotes */
 static void	process_segment(t_list **final_list, char *segment)
 {
 	t_list	*matches;
@@ -39,46 +39,32 @@ static void	process_segment(t_list **final_list, char *segment)
 		unquoted_str = remove_quotes(segment);
 		ft_lstadd_back(final_list, ft_lstnew(unquoted_str));
 	}
+	free(segment);
 }
 
-/* ** Iterates through the string, splitting by spaces only if they are
-** NOT inside quotes.
-*/
 static void	tokenize_and_expand(t_list **final_list, char *str)
 {
 	int		i;
 	int		start;
 	char	quote;
-	char	*segment;
 
-	i = 0;
+	i = -1;
 	start = 0;
 	quote = 0;
-	while (str[i])
+	while (str[++i])
 	{
-		// Toggle quote state if we encounter a quote char
-		if ((str[i] == '\'' || str[i] == '"') && (quote == 0 || quote == str[i]))
-			quote = (quote == str[i]) ? 0 : str[i];
-
-		// If we find a space and we are NOT inside quotes, split the token
+		if ((str[i] == '\'' || str[i] == '"')
+			&& (quote == 0 || quote == str[i]))
+			set_quote_char(str[i], &quote);
 		if (!quote && str[i] == ' ')
 		{
-			if (i > start) // Found a word
-			{
-				segment = ft_substr(str, start, i - start);
-				process_segment(final_list, segment);
-				free(segment);
-			}
+			if (i > start)
+				process_segment(final_list, ft_substr(str, start, i - start));
 			start = i + 1;
 		}
-		i++;
 	}
-	if (i > start) // Handle the last word
-	{
-		segment = ft_substr(str, start, i - start);
-		process_segment(final_list, segment);
-		free(segment);
-	}
+	if (i > start)
+		process_segment(final_list, ft_substr(str, start, i - start));
 }
 
 char	**expand_wildcards(char **old_argv)
@@ -90,12 +76,7 @@ char	**expand_wildcards(char **old_argv)
 	final_list = NULL;
 	i = -1;
 	while (old_argv[++i])
-	{
-		// Pass each argument to the splitter.
-		// If it's a quoted string like "a b", it won't split.
-		// If it's an unquoted expansion like /bin/echo 42, it will split.
 		tokenize_and_expand(&final_list, old_argv[i]);
-	}
 	result = list_to_argv(final_list);
 	ft_lstclear(&final_list, free);
 	return (result);
