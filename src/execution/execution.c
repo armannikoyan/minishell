@@ -89,11 +89,10 @@ int	push_new_frame(t_list **stack, t_ast_node *node)
 	return (0);
 }
 
-void	handle_redir_init(t_exec_frame *frame, t_exec_ctx *ctx, t_garbage *g)
+void	handle_redir_init(t_exec_frame *frame, t_exec_ctx *ctx)
 {
 	// We pass 'g' to setup_redirection in case it needs to fork (HereDoc)
-	if (setup_redirection(frame->node, ctx->ht,
-			&frame->saved_fd, &frame->target_fd, g))
+	if (setup_redirection(frame->node, &frame->saved_fd, &frame->target_fd))
 	{
 		*ctx->status = 1;
 		pop_frame(ctx->stack);
@@ -128,8 +127,7 @@ int	execute(t_ast_node *node, t_hash_table *ht, int errnum, t_garbage *g)
 		else if (curr->state == 1)
 			handle_state_one(curr, &ctx);
 		else if (curr->state == 2)
-			(cleanup_redirection(curr->node, curr->saved_fd,
-					curr->target_fd), pop_frame(&stack));
+			(cleanup_redirection(curr->saved_fd, curr->target_fd), pop_frame(&stack));
 	}
 	ft_lstclear(&stack, free);
 	return (errnum);

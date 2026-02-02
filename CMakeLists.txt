@@ -78,6 +78,7 @@ set(SOURCES
         src/execution/command_env_utils.c
         src/execution/command_path_utils.c
         src/execution/command_helper.c
+        src/execution/binary_helper.c
 )
 
 # ===============================

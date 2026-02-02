@@ -6,7 +6,7 @@
 /*   By: lvarnach <lvarnach@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/26 16:32:47 by lvarnach          #+#    #+#             */
-/*   Updated: 2026/01/28 02:22:31 by lvarnach         ###   ########.fr       */
+/*   Updated: 2026/02/02 20:29:52 by lvarnach         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,10 +23,10 @@
 
 typedef struct s_garbage
 {
-	t_list			*stack;
-	t_ast_node		*root;
-	t_hash_table	*ht;
-	struct s_garbage *next;
+	t_list				*stack;
+	t_ast_node			*root;
+	t_hash_table		*ht;
+	struct s_garbage	*next;
 }	t_garbage;
 
 typedef struct s_exec_frame
@@ -65,20 +65,20 @@ void	handle_state_one(t_exec_frame *curr, t_exec_ctx *d);
 int		push_new_frame(t_list **stack, t_ast_node *node);
 void	pop_frame(t_list **stack);
 char	*remove_quotes(char *str);
-void	cleanup_redirection(t_ast_node *node, int saved_fd, int target_fd);
+void	cleanup_redirection(int saved_fd, int target_fd);
 void	cleanup_heredoc_files(int count);
 void	clean_all_stacks(t_garbage *g);
 
 /* REDIRECTION HANDLING */
-void	handle_redir_init(t_exec_frame *frame, t_exec_ctx *ctx, t_garbage *g);
-int		setup_redirection(t_ast_node *node, t_hash_table *ht,
-			int *saved_fd, int *target_fd, t_garbage *g);
+void	handle_redir_init(t_exec_frame *frame, t_exec_ctx *ctx);
+int		setup_redirection(t_ast_node *node, int *saved_fd, int *target_fd);
 int		apply_dup2(int fd, int target_fd, int *saved_fd);
 int		prepare_filename(t_ast_node *node, int *saved_fd);
 int		setup_file_redir(t_ast_node *node, int flags, int std_fd, int *save);
 
 /* HEREDOCS */
-int		scan_and_process_heredocs(t_ast_node *node, t_hash_table *ht, t_ast_node *root);
+int		scan_and_process_heredocs(t_ast_node *n, t_hash_table *ht,
+			t_ast_node *root, int *hc);
 int		handle_heredoc_line(char *line, t_doc_ctx *ctx);
 int		process_heredoc_loop(t_doc_ctx *ctx);
 void	prepare_limiter(t_ast_node *node, t_doc_ctx *ctx);
@@ -92,5 +92,12 @@ char	*check_path_entry(char *dir, char *cmd);
 char	*search_in_path_env(char *cmd, t_hash_table *ht);
 int		handle_child_exit(pid_t pid);
 int		run_builtin(char **argv, t_garbage *g, int e);
+int		wait_for_children(t_p_ctx *ctx);
+int		handle_wait_status(int status, int *exit_code);
+int		run_last_step(t_ast_node *node, t_p_ctx *ctx, t_garbage *g);
+int		run_pipe_step(t_ast_node *node, t_p_ctx *ctx, t_garbage *g);
+void	exec_child_process(t_ast_node *node, t_p_ctx *ctx,
+			int *pipefd, t_garbage *g);
+int		abort_pipeline(int prev_fd, int *pipefd);
 
 #endif

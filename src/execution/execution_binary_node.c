@@ -6,7 +6,7 @@
 /*   By: lvarnach <lvarnach@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/28 02:14:27 by lvarnach          #+#    #+#             */
-/*   Updated: 2026/01/31 01:50:38 by lvarnach         ###   ########.fr       */
+/*   Updated: 2026/02/02 21:26:29 by lvarnach         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,105 +24,7 @@
 #include "utils.h"
 #include "../../libs/libft/libft.h"
 
-static int	abort_pipeline(int prev_fd, int *pipefd)
-{
-	if (prev_fd != -1)
-		close(prev_fd);
-	if (pipefd)
-	{
-		close(pipefd[0]);
-		close(pipefd[1]);
-	}
-	return (1);
-}
-
-static void	exec_child_process(t_ast_node *node, t_p_ctx *ctx,
-			int *pipefd, t_garbage *g)
-{
-	int	status;
-
-	if (ctx->prev_fd != -1)
-	{
-		dup2(ctx->prev_fd, STDIN_FILENO);
-		close(ctx->prev_fd);
-	}
-	if (pipefd)
-	{
-		if (dup2(pipefd[1], STDOUT_FILENO) == -1)
-		{
-			print_error("minishell: dup2", false);
-			close(pipefd[1]);
-			close(pipefd[0]);
-			clean_all_stacks(g);
-			ast_deletion(g->root);
-			ht_destroy(g->ht);
-			exit(1);
-		}
-		close(pipefd[1]);
-		close(pipefd[0]);
-	}
-	status = execute(node, g->ht, ctx->errnum, g);
-
-	// CLEANUP
-	clean_all_stacks(g);
-	ast_deletion(g->root);
-	ht_destroy(g->ht);
-	exit(status);
-}
-
-static int	run_pipe_step(t_ast_node *node, t_p_ctx *ctx, t_garbage *g)
-{
-	int		pipefd[2];
-	pid_t	pid;
-
-	if (pipe(pipefd) == -1)
-		return (print_error("minishell: pipe", false),
-			abort_pipeline(ctx->prev_fd, NULL));
-	pid = fork();
-	if (pid == -1)
-		return (print_error("minishell: fork", false),
-			abort_pipeline(ctx->prev_fd, pipefd));
-	if (pid == 0)
-		exec_child_process(node->u_data.binary.left, ctx, pipefd, g);
-	if (ctx->prev_fd != -1)
-		close(ctx->prev_fd);
-	close(pipefd[1]);
-	ctx->prev_fd = pipefd[0];
-	return (0);
-}
-
-static int	run_last_step(t_ast_node *node, t_p_ctx *ctx, t_garbage *g)
-{
-	pid_t	pid;
-
-	pid = fork();
-	if (pid == -1)
-		return (print_error("minishell: fork", false),
-			abort_pipeline(ctx->prev_fd, NULL));
-	if (pid == 0)
-		exec_child_process(node, ctx, NULL, g);
-	ctx->last_pid = pid;
-	if (ctx->prev_fd != -1)
-		close(ctx->prev_fd);
-	return (0);
-}
-
-static int	handle_wait_status(int status, int *exit_code)
-{
-	if (WIFEXITED(status))
-		*exit_code = WEXITSTATUS(status);
-	else if (WIFSIGNALED(status))
-	{
-		if (WTERMSIG(status) == SIGINT)
-			write(STDOUT_FILENO, "^C\n", 3);
-		else if (WTERMSIG(status) == SIGQUIT)
-			write(STDOUT_FILENO, "^\\Quit: 3\n", 10);
-		*exit_code = 128 + WTERMSIG(status);
-	}
-	return (0);
-}
-
-static int	wait_for_children(t_p_ctx *ctx)
+int	wait_for_children(t_p_ctx *ctx)
 {
 	int		status;
 	int		exit_code;

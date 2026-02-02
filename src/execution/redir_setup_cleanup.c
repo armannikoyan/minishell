@@ -6,7 +6,7 @@
 /*   By: lvarnach <lvarnach@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/28 17:26:02 by lvarnach          #+#    #+#             */
-/*   Updated: 2026/01/28 17:26:25 by lvarnach         ###   ########.fr       */
+/*   Updated: 2026/02/02 21:25:53 by lvarnach         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,15 +84,11 @@ int	setup_heredoc(t_ast_node *node, t_hash_table *ht, int *s_fd, int e)
 	return (close(fd), 0);
 }
 
-// Dispatcher for execution (Heredocs should already be processed)
-int	setup_redirection(t_ast_node *node, t_hash_table *ht,
-	int *saved_fd, int *target_fd, t_garbage *g)
+int	setup_redirection(t_ast_node *node,
+		int *saved_fd, int *target_fd)
 {
 	int	flags;
 	int	std_fd;
-
-	(void)ht;
-	(void)g;
 
 	if (node->type == REDIRECT_IN_NODE)
 	{
@@ -111,22 +107,14 @@ int	setup_redirection(t_ast_node *node, t_hash_table *ht,
 	}
 	else
 		return (0);
-
-	// --- FIX START ---
-	// We MUST save which FD we are replacing (0, 1, or 2)
-	// so cleanup_redirection knows where to restore the saved_fd to.
 	*target_fd = std_fd;
-	// --- FIX END ---
-
 	return (setup_file_redir(node, flags, std_fd, saved_fd));
 }
 
-void cleanup_redirection(t_ast_node *node, int saved_fd, int target_fd)
+void	cleanup_redirection(int saved_fd, int target_fd)
 {
-	(void)node; // might be unused
 	if (saved_fd != -1)
 	{
-		// Restore the original FD (e.g., puts stdout back to terminal)
 		dup2(saved_fd, target_fd);
 		close(saved_fd);
 	}

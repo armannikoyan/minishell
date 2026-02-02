@@ -6,7 +6,7 @@
 /*   By: lvarnach <lvarnach@student.42yerevan.am>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/28 02:03:11 by lvarnach          #+#    #+#             */
-/*   Updated: 2026/01/28 17:13:24 by lvarnach         ###   ########.fr       */
+/*   Updated: 2026/02/02 21:38:59 by lvarnach         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,65 +86,47 @@ static int	process_single_heredoc(t_ast_node *node, int *counter, t_garbage *g)
 	if (fd == -1)
 		return (print_error("minishell: open heredoc", false), 1);
 	limiter = remove_quotes(node->u_data.redir.filename);
-
 	pid = fork();
 	if (pid == -1)
-		return (close(fd), free(limiter), print_error("minishell: fork", false), 1);
+		return (close(fd), free(limiter),
+			print_error("minishell: fork", false), 1);
 	if (pid == 0)
 		run_heredoc_child(fd, limiter, g);
-
 	signal(SIGINT, SIG_IGN);
-	waitpid(pid, &status, 0);
-	psig_set();
-	close(fd);
-	free(limiter);
-
+	(waitpid(pid, &status, 0), psig_set(), close(fd), free(limiter));
 	if (WIFSIGNALED(status))
-		return (1); // Interrupted by Ctrl+C
-
-	// Update node to be a normal input redirection
+		return (1);
 	free(node->u_data.redir.filename);
 	node->u_data.redir.filename = ft_strdup(filename);
 	node->type = REDIRECT_IN_NODE;
 	return (0);
 }
 
-// RECURSIVE SCANNER
-int	scan_and_process_heredocs(t_ast_node *node, t_hash_table *ht, t_ast_node *root)
+int	scan_and_process_heredocs(t_ast_node *n, t_hash_table *ht,
+		t_ast_node *root, int *hc)
 {
-	static int	counter = 0;
-	t_garbage	g;
+	int	status;
 
-	if (!node)
+	if (!n)
 		return (0);
-
-	if (node->type == HEREDOC_NODE)
+	if (n->type == HEREDOC_NODE)
 	{
-		g.ht = ht;
-		g.root = root;
-		g.stack = NULL;
-		g.next = NULL;
-		if (process_single_heredoc(node, &counter, &g))
+		status = process_single_heredoc(n, hc, &(t_garbage)
+			{.stack = NULL, .root = root, .ht = ht, .next = NULL});
+		if (status)
 			return (1);
 	}
-
-	// Traverse Children based on Node Type
-	if (node->type == PIPE_NODE || node->type == AND_NODE || node->type == OR_NODE)
+	if ((n->type == PIPE_NODE || n->type == AND_NODE || n->type == OR_NODE)
+		&& (scan_and_process_heredocs(n->u_data.binary.left, ht, root, hc)
+			|| scan_and_process_heredocs(n->u_data.binary.right, ht, root, hc)))
+		return (1);
+	else if (n->abstract_type == REDIR_NODE)
 	{
-		if (scan_and_process_heredocs(node->u_data.binary.left, ht, root))
-			return (1);
-		if (scan_and_process_heredocs(node->u_data.binary.right, ht, root))
+		if (scan_and_process_heredocs(n->u_data.redir.child, ht, root, hc))
 			return (1);
 	}
-	else if (node->abstract_type == REDIR_NODE)
-	{
-		if (scan_and_process_heredocs(node->u_data.redir.child, ht, root))
-			return (1);
-	}
-	else if (node->type == SUBSHELL_NODE)
-	{
-		if (scan_and_process_heredocs(node->u_data.subshell.root, ht, root))
-			return (1);
-	}
+	else if (n->type == SUBSHELL_NODE
+		&& scan_and_process_heredocs(n->u_data.subshell.root, ht, root, hc))
+		return (1);
 	return (0);
 }

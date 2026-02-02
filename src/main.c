@@ -21,6 +21,7 @@ int	main(int argc __attribute__((unused)),
 {
 	struct termios		original_termios;
 	int					is_tty;
+	int					eof_count;
 
 	is_tty = isatty(STDIN_FILENO);
 	if (is_tty)
@@ -28,7 +29,7 @@ int	main(int argc __attribute__((unused)),
 		set_term_config(&original_termios);
 		psig_set();
 	}
-	interactive_loop(envp, 0);
+	interactive_loop(setup_ht(envp, &eof_count), 0, eof_count);
 	if (is_tty)
 		restore_terminal_settings(&original_termios);
 	return (0);

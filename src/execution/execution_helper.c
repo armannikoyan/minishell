@@ -55,7 +55,7 @@ void	handle_state_zero(t_exec_frame *curr, t_exec_ctx *d, t_ast_node *root)
 	}
 	else if (curr->node->abstract_type == REDIR_NODE)
 	{
-		handle_redir_init(curr, d, &g);
+		handle_redir_init(curr, d);
 	}
 	else
 	{

@@ -6,7 +6,7 @@
 /*   By: lvarnach <lvarnach@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/26 17:26:37 by lvarnach          #+#    #+#             */
-/*   Updated: 2026/01/31 02:32:02 by lvarnach         ###   ########.fr       */
+/*   Updated: 2026/02/02 21:06:51 by lvarnach         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,6 +42,7 @@ static char	*get_input(int *eof_count, t_hash_table *ht)
 {
 	char	*input;
 	char	*line;
+	t_entry	*entry;
 
 	if (isatty(STDIN_FILENO))
 		input = readline("minishell$ ");
@@ -55,14 +56,14 @@ static char	*get_input(int *eof_count, t_hash_table *ht)
 	{
 		(*eof_count)--;
 		if (*eof_count < 0)
-			return ft_strdup("exit");
-		else
-			printf("Use \"exit\" to leave the shell.\n");
+			return (ft_strdup("exit"));
+		printf("Use \"exit\" to leave the shell.\n");
 	}
-	if (ht_get(ht, "IGNOREEOF") == NULL)
+	entry = ht_get(ht, "IGNOREEOF");
+	if (entry == NULL)
 		*eof_count = 0;
-	else
-		*eof_count = ft_atoi(ht_get(ht, "IGNOREEOF")->val);
+	else if (entry->val)
+		*eof_count = ft_atoi(entry->val);
 	return (input);
 }
 
@@ -87,31 +88,29 @@ t_hash_table	*ht_create(void)
 	return (ht);
 }
 
-static t_hash_table	*setup_ht(char **envp, int *eof_count)
+t_hash_table	*setup_ht(char **envp, int *eof_count)
 {
 	t_hash_table	*ht;
+	t_entry			*entry;
 
 	ht = ht_create();
 	if (!ht)
 		exit(EXIT_FAILURE);
 	insert_env(ht, envp);
-	if (ht_get(ht, "IGNOREEOF") == NULL)
+	entry = ht_get(ht, "IGNOREEOF");
+	if (entry == NULL)
 		*eof_count = 0;
-	else
-		*eof_count = ft_atoi(ht_get(ht, "IGNOREEOF")->val);
+	else if (entry->val)
+		*eof_count = ft_atoi(entry->val);
 	return (ht);
 }
 
-void	interactive_loop(char	**envp, int errnum)
+void	interactive_loop(t_hash_table *ht, int errnum, int eof_count)
 {
-	int							eof_count;
-	int							heredoc_counter;
-	t_hash_table				*ht;
+	int							hc;
 	t_ast_node					*root;
 	char						*input;
-	t_garbage					g;
 
-	ht = setup_ht(envp, &eof_count);
 	while (true)
 	{
 		input = get_input(&eof_count, ht);
@@ -121,21 +120,15 @@ void	interactive_loop(char	**envp, int errnum)
 		{
 			add_history(input);
 			root = tokenize(input, &errnum);
-			free(input);
-			if (root != NULL && syntax_check(root, &errnum) != SYNTAX_ERROR) {
-				heredoc_counter = scan_and_process_heredocs(root, ht, root);
-				if (heredoc_counter == 0) {
-					g.stack = NULL;
-					g.root = root;
-					g.ht = ht;
-					g.next = NULL;
-					errnum = execute(root, g.ht, errnum, &g);
-				}
-				cleanup_heredoc_files(heredoc_counter);
+			if (root != NULL && syntax_check(root, &errnum) != SYNTAX_ERROR)
+			{
+				if (!scan_and_process_heredocs(root, ht, root, &hc))
+					errnum = execute(root, ht, errnum, &(t_garbage)
+						{.stack = NULL, .root = root, .ht = ht, .next = NULL});
+				cleanup_heredoc_files(hc);
 			}
 			ast_deletion(root);
 		}
-		else
-			free(input);
+		free(input);
 	}
 }
