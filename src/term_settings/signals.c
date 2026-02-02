@@ -26,8 +26,6 @@ void	psig_handler(int signo)
 		rl_on_new_line();
 		rl_redisplay();
 	}
-	else if (signo == SIGQUIT)
-		return ;
 }
 
 void	psig_set(void)
@@ -36,7 +34,8 @@ void	psig_set(void)
 
 	sigemptyset(&sa.sa_mask);
 	sa.sa_flags = 0;
-	sa.sa_handler = psig_handler;
-	sigaction(SIGINT, &sa, NULL);
-	sigaction(SIGQUIT, &sa, NULL);
+    sa.sa_handler = psig_handler;
+    sigaction(SIGINT, &sa, NULL);
+    sa.sa_handler = SIG_IGN;
+    sigaction(SIGQUIT, &sa, NULL);
 }
