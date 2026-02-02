@@ -11,8 +11,8 @@
 /* ************************************************************************** */
 
 #include <ctype.h>
-#include <errno.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include <readline/readline.h>
 
 #include "ast.h"

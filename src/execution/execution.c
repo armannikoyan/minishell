@@ -21,6 +21,16 @@
 #include "term_settings.h"
 #include "../../libs/libft/libft.h"
 
+static void	free_exec_frame(void *content)
+{
+	t_exec_frame	*frame;
+
+	frame = (t_exec_frame *)content;
+	if (frame && frame->saved_fd != -1)
+		close(frame->saved_fd);
+	free(frame);
+}
+
 void	clean_all_stacks(t_garbage *g)
 {
 	t_garbage	*curr;
@@ -28,7 +38,7 @@ void	clean_all_stacks(t_garbage *g)
 	curr = g;
 	while (curr)
 	{
-		ft_lstclear(&curr->stack, free);
+		ft_lstclear(&curr->stack, free_exec_frame);
 		curr = curr->next;
 	}
 }
