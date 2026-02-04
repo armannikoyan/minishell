@@ -95,7 +95,7 @@ $(LIBFT):
 	make -C $(LIBFT_DIR) bonus
 
 clean:
-	$(RM) -r $(OBJ_DIR)
+	$(RM) -r $(OBJ_DIR) $(SUPP_FILE)
 	make -C $(LIBFT_DIR) clean
 
 fclean: clean
