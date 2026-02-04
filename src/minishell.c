@@ -22,7 +22,7 @@
 #include "../libs/libft/libft.h"
 #include "tokenization.h"
 #include "execution.h"
-#include "../get_next_line/get_next_line.h"
+#include "get_next_line/get_next_line.h"
 
 static bool	is_all_space(const char *str)
 {
