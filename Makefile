@@ -16,6 +16,7 @@ NAME = minishell
 SRC_DIR = src
 OBJ_DIR = obj
 LIBFT_DIR = libs/libft
+SUPP_FILE   = ignore_readline.supp
 
 CFLAGS := -Wall -Wextra -Werror -I$(LIBFT_DIR) -Iincludes
 
@@ -42,6 +43,18 @@ OBJ = $(SRC:%.c=$(OBJ_DIR)/%.o)
 
 CC = cc
 RM = rm -f
+
+$(SUPP_FILE):
+	@echo "{" > $(SUPP_FILE)
+	@echo "	ignore_libreadline_leaks" >> $(SUPP_FILE)
+	@echo "	Memcheck:Leak" >> $(SUPP_FILE)
+	@echo "	..." >> $(SUPP_FILE)
+	@echo "	obj:*/libreadline.so.*" >> $(SUPP_FILE)
+	@echo "}" >> $(SUPP_FILE)
+
+valgrind: all $(SUPP_FILE)
+	valgrind --track-origins=yes --leak-check=full --show-leak-kinds=all \
+	--track-fds=yes --suppressions=$(SUPP_FILE) ./$(NAME)
 
 all: $(NAME)
 
