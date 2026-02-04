@@ -16,6 +16,7 @@ NAME = minishell
 SRC_DIR = src
 OBJ_DIR = obj
 LIBFT_DIR = libs/libft
+SUPP_FILE   = ignore_readline.supp
 
 CFLAGS := -Wall -Wextra -Werror -I$(LIBFT_DIR) -Iincludes
 
