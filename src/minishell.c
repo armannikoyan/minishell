@@ -117,18 +117,17 @@ void	interactive_loop(t_hash_table *ht, int errnum, int eof_count)
 		if (!input)
 			continue ;
 		if (!is_all_space(input))
-		{
 			add_history(input);
-			root = tokenize(input, &errnum);
-			if (root != NULL && syntax_check(root, &errnum) != SYNTAX_ERROR)
-			{
-				if (!scan_and_process_heredocs(root, ht, root, &hc))
-					errnum = execute(root, ht, errnum, &(t_garbage)
-						{.stack = NULL, .root = root, .ht = ht, .next = NULL});
-				cleanup_heredoc_files(hc);
-			}
-			ast_deletion(root);
-		}
+		root = tokenize(input, &errnum);
 		free(input);
+		if (root != NULL && syntax_check(root, &errnum) != SYNTAX_ERROR)
+		{
+			hc = 0;
+			if (!scan_and_process_heredocs(root, ht, root, &hc))
+				errnum = execute(root, ht, errnum, &(t_garbage)
+					{.stack = NULL, .root = root, .ht = ht, .next = NULL});
+			cleanup_heredoc_files(hc);
+		}
+		ast_deletion(root);
 	}
 }

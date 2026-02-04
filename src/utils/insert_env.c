@@ -43,11 +43,15 @@ static void	update_shlvl(t_hash_table *ht)
 static void	replace_incorrect_env(t_hash_table *ht)
 {
 	char	str[PATH_MAX];
+	t_entry	*entry;
 
 	update_shlvl(ht);
 	if (getcwd(str, sizeof(str)) == NULL)
 		print_error("minishell: replace_incorrect_env: getcwd", false);
-	if (ht_get(ht, "PWD") != NULL)
+	entry = ht_get(ht, "PWD");
+	if (!entry)
+		ht_create_bucket(ht, "PWD", str, false);
+	else
 		ht_update_value(ht, "PWD", str);
 	if (ht_get(ht, "OLDPWD") == NULL)
 		ht_create_bucket(ht, "OLDPWD", NULL, false);
@@ -59,6 +63,8 @@ static size_t	max_env_len(char **envp)
 	size_t	i;
 	size_t	j;
 
+	if (!envp || !*envp)
+		return (0);
 	i = 0;
 	j = 0;
 	max_len = 0;
@@ -74,11 +80,14 @@ static size_t	max_env_len(char **envp)
 void	insert_env(t_hash_table *ht, char **envp)
 {
 	char		*str;
+	size_t		max_len;
 	size_t		i;
 	size_t		j;
 
-	i = -1;
-	str = (char *)ft_calloc(max_env_len(envp) + 1, sizeof(char));
+	max_len = max_env_len(envp);
+	if (max_len == 0)
+		return (replace_incorrect_env(ht));
+	str = (char *)ft_calloc(max_len + 1, sizeof(char));
 	if (!str)
 	{
 		print_error("minishell: insert_env: malloc", false);

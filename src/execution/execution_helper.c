@@ -13,6 +13,7 @@
 #include <sys/errno.h>
 
 #include "ast.h"
+#include "error_codes.h"
 #include "execution.h"
 #include "term_settings.h"
 #include "utils.h"
@@ -68,7 +69,8 @@ void	handle_state_one(t_exec_frame *curr, t_exec_ctx *d)
 	run_right = 0;
 	if (curr->node->type == AND_NODE && *d->status == 0)
 		run_right = 1;
-	else if (curr->node->type == OR_NODE && *d->status != 0)
+	else if (curr->node->type == OR_NODE && *d->status > 0
+		&& *d->status < RESERVED_ERROR_CODES)
 		run_right = 1;
 	if (run_right)
 	{
