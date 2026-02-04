@@ -1,40 +1,27 @@
 UNAME_S := $(shell uname -s)
 
-# ===============================
-# OS Specific Settings (Readline)
-# ===============================
-#
 ifeq ($(UNAME_S),Darwin)
 	READLINE_PREFIX := $(shell brew --prefix readline)
 	CPPFLAGS += -I$(READLINE_PREFIX)/include
 	LDFLAGS += -L$(READLINE_PREFIX)/lib
 endif
 
-#
 ifeq ($(UNAME_S),Linux)
 	LDFLAGS += -lncurses
 endif
 
 LDLIBS += -lreadline
 
-# ===============================
-# Project Settings
-# ===============================
 NAME = minishell
 SRC_DIR = src
 OBJ_DIR = obj
 LIBFT_DIR = libs/libft
 
-#  -Wall -Wextra -Werror, includes
 CFLAGS := -Wall -Wextra -Werror -I$(LIBFT_DIR) -Iincludes
 
 DEP = includes/minishell.h
 LIBFT = $(LIBFT_DIR)/libft.a
 
-# ===============================
-# Sources
-# ===============================
-# Mapped from CMakeLists.txt
 SRC = main.c minishell.c \
       $(addprefix get_next_line/, \
           get_next_line.c \
@@ -81,12 +68,8 @@ OBJ = $(SRC:%.c=$(OBJ_DIR)/%.o)
 CC = cc
 RM = rm -f
 
-# ===============================
-# Rules
-# ===============================
 all: $(NAME)
 
-# Compiles objects mirroring the source directory structure
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
 	@mkdir -p $(@D)
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
@@ -96,7 +79,7 @@ $(NAME): $(OBJ) $(LIBFT) $(DEP)
 
 $(LIBFT):
 	make -C $(LIBFT_DIR) all
-	# make -C $(LIBFT_DIR) bonus # Uncomment if your libft has a bonus rule
+	make -C $(LIBFT_DIR) bonus
 
 clean:
 	$(RM) -r $(OBJ_DIR)
