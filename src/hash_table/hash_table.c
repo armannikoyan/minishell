@@ -134,6 +134,7 @@ void	ht_delete(t_hash_table *ht, const char *key)
 			if (ht->size > MIN_SIZE
 				&& (float)ht->count / ht->size <= MIN_LOAD_FACTOR)
 				return (ht_resize(ht, prev_prime(ht->size)));
+			return ;
 		}
 		prev = entry;
 		entry = entry->next;
