@@ -68,6 +68,18 @@ OBJ = $(SRC:%.c=$(OBJ_DIR)/%.o)
 CC = cc
 RM = rm -f
 
+$(SUPP_FILE):
+	@echo "{" > $(SUPP_FILE)
+	@echo "	ignore_libreadline_leaks" >> $(SUPP_FILE)
+	@echo "	Memcheck:Leak" >> $(SUPP_FILE)
+	@echo "	..." >> $(SUPP_FILE)
+	@echo "	obj:*/libreadline.so.*" >> $(SUPP_FILE)
+	@echo "}" >> $(SUPP_FILE)
+
+valgrind: all $(SUPP_FILE)
+	valgrind --track-origins=yes --leak-check=full --show-leak-kinds=all \
+	--track-fds=yes --suppressions=$(SUPP_FILE) ./$(NAME)
+
 all: $(NAME)
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
