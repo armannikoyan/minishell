@@ -1,12 +1,12 @@
 #include <ctype.h>
 #include <errno.h>
 #include <stdlib.h>
+#include <readline/readline.h>
 
 #include "hash_table.h"
 #include "builtin.h"
 #include "error_codes.h"
 #include "utils.h"
-
 
 static int get_error_status(const char *s) {
     int len;
@@ -58,9 +58,11 @@ int ft_exit(int argc, char **argv, t_hash_table *ht, int errnum) {
         error_number = get_error_status(argv[1]);
         if (error_number < 0)
             return (BUILTIN_ERROR);
+        rl_clear_history();
         exit(error_number);
     }
     if (argc == 1) {
+        rl_clear_history();
         exit(errnum);
     }
     print_error("exit: too many arguments\n", true);

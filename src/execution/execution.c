@@ -8,7 +8,6 @@
 #include "utils.h"
 #include "execution.h"
 #include "term_settings.h"
-#include "../../libs/libft/libft.h"
 
 typedef struct s_exec_frame {
     t_ast_node  *node;

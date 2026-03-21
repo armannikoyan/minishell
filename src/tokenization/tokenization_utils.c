@@ -1,74 +1,73 @@
 #include <stdbool.h>
+#include <stddef.h>
 
-#include "../../libs/libft/libft.h"
-#include "../../includes/ast.h"
+#include "ast.h"
 
-bool	is_redir(char *str)
-{
-	if (!ft_strncmp(str, "<<", 2) || !ft_strncmp(str, ">>", 2))
-		return (true);
-	if (*str == '<' || *str == '>')
-		return (true);
-	return (false);
+bool is_redir(const char *str) {
+  if (!str)
+    return false;
+
+  return (str[0] == '<' || str[0] == '>');
 }
 
-bool	is_operator(char *str)
-{
-	if (!ft_strncmp(str, "||", 2) || !ft_strncmp(str, "&&", 2))
-		return (true);
-	if (*str == '|' || *str == '(' || *str == ')')
-		return (true);
-	return (false);
+bool is_operator(const char *str) {
+  if (!str)
+    return false;
+
+  return (str[0] == '|' || str[0] == '(' || str[0] == ')' ||
+          (str[0] == '&' && str[1] == '&'));
 }
 
-size_t	get_operator_len(t_node_type type)
-{
-	if (type == HEREDOC_NODE || type == REDIRECT_APPEND_NODE
-			|| type == OR_NODE || type == AND_NODE)
-		return (2);
-	else if (type == REDIRECT_IN_NODE || type == REDIRECT_OUT_NODE
-			|| type == PIPE_NODE)
-		return (1);
-	return (0);
+size_t get_operator_len(const t_node_type type) {
+  switch (type) {
+  case HEREDOC_NODE:
+  case REDIRECT_APPEND_NODE:
+  case OR_NODE:
+  case AND_NODE:
+    return 2;
+
+  case REDIRECT_IN_NODE:
+  case REDIRECT_OUT_NODE:
+  case PIPE_NODE:
+    return 1;
+
+  default:
+    return 0;
+  }
 }
 
-t_node_type	get_node_type(char *input)
-{
-	if (!ft_strncmp(input, "<<", 2))
-		return (HEREDOC_NODE);
-	else if (*input == '<')
-		return (REDIRECT_IN_NODE);
-	else if (!ft_strncmp(input, ">>", 2))
-		return (REDIRECT_APPEND_NODE);
-	else if (*input == '>')
-		return (REDIRECT_OUT_NODE);
-	else if (!ft_strncmp(input, "||", 2))
-		return (OR_NODE);
-	else if (*input == '|')
-		return (PIPE_NODE);
-	else if (!ft_strncmp(input, "&&", 2))
-		return (AND_NODE);
-	else if (*input == '(')
-		return (SUBSHELL_NODE);
-	else if (*input == ')')
-		return (ERROR_NODE);
-	return (COMMAND_NODE);
+t_node_type get_node_type(const char *input) {
+  if (!input)
+    return COMMAND_NODE;
+
+  if (input[0] == '<')
+    return (input[1] == '<') ? HEREDOC_NODE : REDIRECT_IN_NODE;
+
+  if (input[0] == '>')
+    return (input[1] == '>') ? REDIRECT_APPEND_NODE : REDIRECT_OUT_NODE;
+
+  if (input[0] == '|')
+    return (input[1] == '|') ? OR_NODE : PIPE_NODE;
+
+  if (input[0] == '&' && input[1] == '&')
+    return AND_NODE;
+
+  if (input[0] == '(')
+    return SUBSHELL_NODE;
+  if (input[0] == ')')
+    return ERROR_NODE;
+
+  return COMMAND_NODE;
 }
 
-void	set_quote_char(char c, char *quote_char)
-{
-	if (c == '"' && *quote_char != '\'')
-	{
-		if (*quote_char == '"')
-			*quote_char = 0;
-		else
-			*quote_char = '"';
-	}
-	else if (c == '\'' && *quote_char != '"')
-	{
-		if (*quote_char == '\'')
-			*quote_char = 0;
-		else
-			*quote_char = '\'';
-	}
+void set_quote_char(const char c, char *quote_char) {
+  if (!quote_char)
+    return;
+  if (c != '\"' && c != '\'')
+    return;
+
+  if (*quote_char == c)
+    *quote_char = 0;
+  else if (*quote_char == 0)
+    *quote_char = c;
 }

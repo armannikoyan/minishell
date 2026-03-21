@@ -1,7 +1,7 @@
 #ifndef BUILTIN_H
-#define BUILTIN_H
+# define BUILTIN_H
 
-#include "hash_table.h"
+# include "hash_table.h"
 
 int ft_cd(int argc, char **argv, t_hash_table *ht);
 

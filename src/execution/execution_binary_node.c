@@ -10,7 +10,6 @@
 #include "hash_table.h"
 #include "term_settings.h"
 #include "utils.h"
-#include "../../libs/libft/libft.h"
 
 /*
 ** CLEANUP HANDLER

@@ -1,91 +1,95 @@
+#include <ctype.h>
 #include <stddef.h>
 #include <stdlib.h>
 
-#include "tokenization.h"
-
-
 #include "error_codes.h"
+#include "tokenization.h"
 #include "utils.h"
-#include "../../libs/libft/libft.h"
 
-static t_ast_node	*construct_subshell_node(char *input, size_t *i, bool *is_iter_skippable, int *errnum)
-{
-	char		*sub_str;
-	t_ast_node *sub_tree;
+static t_ast_node *construct_subshell_node(const char *input, size_t *pos,
+                                           bool *skip_iteration, int *errnum) {
+  char *content = extract_subshell_content(input, pos, errnum);
+  if (!content)
+    return NULL;
 
-	sub_str = extract_subshell_content(input, i, errnum);
-	if (!sub_str)
-		return (NULL);
-	if (ft_strlen(sub_str) == 0)
-	{
-		print_error("minishell: parsing error near unexpected token `)'\n", true);
-		*errnum = SYNTAX_ERROR;
-		free(sub_str);
-		return (NULL);
-	}
-	sub_tree = tokenize(sub_str, errnum);
-	free(sub_str);
-	if (!sub_tree)
-	{
-		*is_iter_skippable = true;
-		return (NULL);
-	}
-	return (create_subshell_node(SUBSHELL_NODE, sub_tree));
+  if (content[0] == '\0') {
+    print_error("minishell: parsing error near unexpected token `)\'\n", true);
+    *errnum = SYNTAX_ERROR;
+    free(content);
+    return NULL;
+  }
+
+  t_ast_node *child_ast = tokenize(content, errnum);
+  free(content);
+
+  if (!child_ast) {
+    *skip_iteration = true;
+    return NULL;
+  }
+
+  return create_subshell_node(SUBSHELL_NODE, child_ast);
 }
 
-static t_ast_node	*construct_node(char *input, size_t *i, t_node_type type, bool *is_iter_skippable, int *errnum)
-{
-	t_ast_node	*node;
+static t_ast_node *construct_node(char *input, size_t *pos,
+                                  const t_node_type type, bool *skip_iteration,
+                                  int *errnum) {
+  switch (type) {
+  case COMMAND_NODE:
+    return create_cmd_node(type, get_argv(input, pos));
 
-	node = NULL;
-	if (type == COMMAND_NODE)
-		node = create_cmd_node(COMMAND_NODE, get_argv(input, i));
-	else if (type >= PIPE_NODE && type <= HEREDOC_NODE)
-	{
-		*i += get_operator_len(type);
-		if (type >= REDIRECT_IN_NODE)
-			node = create_redir_node(type, substr_next(input, i));
-		else
-			node = create_binary_node(type);
-	}
-	else if (type == SUBSHELL_NODE)
-		node = construct_subshell_node(input, i, is_iter_skippable, errnum);
-	else if (type == ERROR_NODE)
-	{
-		print_error("minishell: parsing error near unexpected token `)'\n", true);
-		*errnum = SYNTAX_ERROR;
-		return (NULL);
-	}
-	return (node);
+  case PIPE_NODE:
+  case AND_NODE:
+  case OR_NODE:
+    *pos += get_operator_len(type);
+    return create_binary_node(type);
+
+  case REDIRECT_IN_NODE:
+  case REDIRECT_OUT_NODE:
+  case REDIRECT_APPEND_NODE:
+  case HEREDOC_NODE:
+    *pos += get_operator_len(type);
+    return create_redir_node(type, substr_next(input, pos));
+
+  case SUBSHELL_NODE:
+    return construct_subshell_node(input, pos, skip_iteration, errnum);
+
+  case ERROR_NODE:
+  default:
+    print_error("minishell: parsing error near unexpected token `)\'\n", true);
+    *errnum = SYNTAX_ERROR;
+    return NULL;
+  }
 }
 
-t_ast_node	*tokenize(char *input, int *errnum)
-{
-	t_ast_node	*node;
-	size_t	i;
-    t_ast_node *head_node;
-	bool		is_iter_skippable;
+t_ast_node *tokenize(char *input, int *errnum) {
+  size_t pos = 0;
+  bool skip_iteration;
+  t_ast_node *node = NULL;
+  t_ast_node *head_node = NULL;
 
-	i = 0;
-	node = NULL;
-    head_node = NULL;
-	while (input[i])
-	{
-		while (input[i] == ' ' || input[i] == '\t')
-			++i;
-		if (!input[i])
-			break ;
-		is_iter_skippable = false;
-		node = construct_node(input, &i, get_node_type(&(input[i])), &is_iter_skippable, errnum);
-		if (is_iter_skippable)
-			continue ;
-		if (node)
-		{
-			head_node = ast_build(node, head_node, errnum);
-			// print_ast_info(head_node, node);
-		}
-		else
-			return (NULL);
-	}
-	return (head_node);
+  while (input[pos]) {
+    while (isspace((unsigned char)input[pos]))
+      pos++;
+
+    if (!input[pos])
+      break;
+
+    skip_iteration = false;
+    node = construct_node(input, &pos, get_node_type(input + pos),
+                          &skip_iteration, errnum);
+
+    if (skip_iteration)
+      continue;
+
+    if (node)
+      head_node = ast_build(node, head_node, errnum);
+    else {
+      if (head_node)
+        ast_deletion(head_node);
+
+      return NULL;
+    }
+  }
+
+  return head_node;
 }

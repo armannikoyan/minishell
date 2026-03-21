@@ -1,11 +1,10 @@
 #include <unistd.h>
-#include <stdlib.h> // Required for getenv
+#include <stdlib.h>
 
 #include "expansion.h"
 #include "hash_table.h"
 #include "tokenization.h"
 #include "utils.h"
-#include "../../../libs/libft/libft.h"
 
 static size_t	get_var_len(char *str, size_t *i, t_hash_table *ht, int errnum)
 {

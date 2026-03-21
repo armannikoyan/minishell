@@ -17,7 +17,6 @@ static t_ast_node	*create_node(t_node_type type)
 	}
 	node->type = type;
 	node->abstract_type = UNDEF_NODE;
-	node->u_data.redir.fd = -1;
 	return (node);
 }
 
@@ -49,6 +48,7 @@ t_ast_node	*create_redir_node(t_node_type type, char *filename)
 	node = create_node(type);
 	node->abstract_type = REDIR_NODE;
 	node->u_data.redir.filename = filename;
+	node->u_data.redir.fd = -1;
 	return (node);
 }
 

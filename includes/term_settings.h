@@ -4,13 +4,13 @@
 # include <termios.h>
 
 // --------- TERMINAL SETTINGS ---------
-void set_term_config(struct termios *original);
+void set_term_config(struct termios *);
 
-void restore_terminal_settings(struct termios *original);
+void restore_terminal_settings(const struct termios *);
 
 // --------- SIGNAL HANDLERS ---------
 void psig_set(void);
 
-void psig_handler(int signo);
+void psig_handler(int);
 
 #endif

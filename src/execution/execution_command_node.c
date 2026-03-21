@@ -12,7 +12,6 @@
 #include "term_settings.h"
 #include "utils.h"
 #include "path_utils.h"
-#include "../../libs/libft/libft.h"
 
 static void update_underscore(t_hash_table *ht, char *value)
 {

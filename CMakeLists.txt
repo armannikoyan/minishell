@@ -23,7 +23,7 @@ set(INCLUDE_DIR ${CMAKE_SOURCE_DIR}/includes)
 # Sources
 # ===============================
 set(SOURCES
-        get_next_line/get_next_line.c
+        src/get_next_line/get_next_line.c
 
         src/term_settings/signals.c
         src/term_settings/term_config.c
@@ -68,12 +68,8 @@ set(SOURCES
         src/ast/ast_syntax_check.c
         src/ast/ast_node_deletion.c
         src/execution/expansion/wildcard.c
+        src/utils/strtoi.c
 )
-
-# ===============================
-# libft (CMake-native)
-# ===============================
-add_subdirectory(libs/libft)
 
 # ===============================
 # Executable
@@ -91,7 +87,7 @@ target_link_libraries(minishell PRIVATE
 # ===============================
 # Readline & platform-specific
 # ===============================
-if(APPLE)
+if (APPLE)
     execute_process(
             COMMAND brew --prefix readline
             OUTPUT_VARIABLE READLINE_PREFIX
@@ -105,10 +101,10 @@ if(APPLE)
     target_link_directories(minishell PRIVATE
             ${READLINE_PREFIX}/lib
     )
-endif()
+endif ()
 
-if(UNIX AND NOT APPLE)
+if (UNIX AND NOT APPLE)
     target_link_libraries(minishell PRIVATE ncurses)
-endif()
+endif ()
 
 target_link_libraries(minishell PRIVATE readline)

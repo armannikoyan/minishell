@@ -1,7 +1,6 @@
 #include <stddef.h>
 
 #include "hash_table.h"
-#include "../../../libs/libft/libft.h"
 
 size_t   env_var_len(char *str)
 {

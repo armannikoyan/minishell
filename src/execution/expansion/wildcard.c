@@ -2,7 +2,6 @@
 #include <stdbool.h>
 
 #include "execution.h"
-#include "../../../libs/libft/libft.h"
 
 // [Unchanged] Generates mask: 1 = quoted, 0 = unquoted
 static char *get_pattern_mask(char *str, int **mask_out)

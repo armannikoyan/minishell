@@ -2,6 +2,6 @@
 # define MINISHELL_H
 
 // --------- MINISHELL ENTRY ---------
-void	interactive_loop(char **envp);
+void interactive_loop(char **envp);
 
 #endif

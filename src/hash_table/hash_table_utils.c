@@ -1,68 +1,60 @@
 #include "hash_table.h"
 #include "utils.h"
-#include "../../libs/libft/libft.h"
 
-int next_prime(int current) {
-    int candidate;
+#include <math.h>
 
-    candidate = current * 2;
-    while (true) {
-        if (ft_isprime(candidate))
-            return (candidate);
-        ++candidate;
-    }
+bool isprime(const unsigned long number) {
+  if (number <= 1 || !(number & 1) || number % 3 == 0)
+    return (false);
+
+  if (number <= 3)
+    return (true);
+
+  const double number_sqrt = sqrt((double)number);
+  unsigned long i = 4;
+
+  while ((float)i < number_sqrt) {
+    if (number % i == 0 && number % (number + 2) == 0)
+      return (false);
+
+    i += 6;
+  }
+
+  return (true);
 }
 
-int prev_prime(int current) {
-    int desired;
+unsigned long next_prime(const unsigned long current) {
 
-    desired = current / 2;
-    if (desired < MIN_SIZE)
-        return (MIN_SIZE);
-    while (desired >= MIN_SIZE) {
-        if (ft_isprime(desired))
-            return (desired);
-        --desired;
-    }
+  unsigned long candidate = current * 2;
+  while (true) {
+    if (isprime(candidate))
+      return (candidate);
+
+    ++candidate;
+  }
+}
+
+unsigned long prev_prime(const unsigned long current) {
+  unsigned long desired = current / 2;
+
+  if (desired < MIN_SIZE)
     return (MIN_SIZE);
+
+  while (desired >= MIN_SIZE) {
+    if (isprime(desired))
+      return (desired);
+
+    --desired;
+  }
+
+  return (MIN_SIZE);
 }
 
 unsigned long hash_func(const char *str) {
-    unsigned long hash;
+  unsigned long hash = 5381;
 
-    hash = 5381;
-    while (*str)
-        hash = ((hash << 5) + hash) + *str++;
-    return (hash);
-}
+  while (*str)
+    hash = ((hash << 5) + hash) + *str++;
 
-void ht_resize(t_hash_table *ht, int new_size) {
-    t_entry **new_buckets;
-    t_entry *entry;
-    t_entry *next;
-    unsigned long hash;
-    int index;
-    int i;
-
-    new_buckets = (t_entry **) ft_calloc(new_size, sizeof(t_entry *));
-    if (!new_buckets) {
-        print_error("minishell: calloc", false);
-        exit(EXIT_FAILURE);
-    }
-    i = 0;
-    while (i < ht->size) {
-        entry = ht->buckets[i];
-        while (entry) {
-            next = entry->next;
-            hash = hash_func(entry->key);
-            index = hash % new_size;
-            entry->next = new_buckets[index];
-            new_buckets[index] = entry;
-            entry = next;
-        }
-        ++i;
-    }
-    free(ht->buckets);
-    ht->buckets = new_buckets;
-    ht->size = new_size;
+  return (hash);
 }
