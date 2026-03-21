@@ -1,7 +1,7 @@
 #ifndef CD_PATH_UTILS_H
-# define CD_PATH_UTILS_H
+#define CD_PATH_UTILS_H
 
-# include "hash_table.h"
+#include "hash_table.h"
 
 #define M1 "CDPATH"
 

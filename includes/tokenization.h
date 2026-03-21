@@ -1,9 +1,9 @@
 #ifndef TOKENIZATION_H
-# define TOKENIZATION_H
+#define TOKENIZATION_H
 
-# include <stdbool.h>
+#include <stdbool.h>
 
-# include "ast.h"
+#include "ast.h"
 
 bool is_redir(const char *str);
 

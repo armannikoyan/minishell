@@ -1,7 +1,7 @@
 #ifndef EXPANSION_H
-# define EXPANSION_H
+#define EXPANSION_H
 
-# include "hash_table.h"
+#include "hash_table.h"
 
 size_t env_var_len(char *str);
 

@@ -1,7 +1,7 @@
 #ifndef TERM_SETTINGS_H
-# define TERM_SETTINGS_H
+#define TERM_SETTINGS_H
 
-# include <termios.h>
+#include <termios.h>
 
 // --------- TERMINAL SETTINGS ---------
 void set_term_config(struct termios *);

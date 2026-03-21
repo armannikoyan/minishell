@@ -1,10 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "hash_table.h"
 #include "utils.h"
-
-#include <string.h>
 
 t_hash_table *ht_create(void) {
   t_hash_table *ht = malloc(sizeof(t_hash_table));

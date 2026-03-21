@@ -1,7 +1,7 @@
+#include <math.h>
+
 #include "hash_table.h"
 #include "utils.h"
-
-#include <math.h>
 
 bool isprime(const unsigned long number) {
   if (number <= 1 || !(number & 1) || number % 3 == 0)
