@@ -37,9 +37,7 @@ set(SOURCES
         src/hash_table/hash_table_utils.c
 
         src/ast/ast.c
-        src/ast/ast_node_utils.c
-        src/ast/ast_print_module.c
-        src/ast/ast_print_module_utils.c
+        src/ast/ast_node_creation.c
 
         src/tokenization/tokenization.c
         src/tokenization/tokenization_utils.c
@@ -66,7 +64,7 @@ set(SOURCES
         src/execution/expansion/dollar_sign_expansion_utils.c
         includes/error_codes.h
         src/ast/ast_syntax_check.c
-        src/ast/ast_node_deletion.c
+        src/ast/ast_deletion.c
         src/execution/expansion/wildcard.c
         src/utils/strtoi.c
 )

@@ -70,7 +70,7 @@ int syntax_check(t_ast_node *node, int *errnum);
 
 void print_ast(t_ast_node *root);
 
-void print_ast_info(t_ast_node *root, t_ast_node *curr_node);
+void print_ast_info(t_ast_node *root, const t_ast_node *curr_node);
 
 void print_syntax_error(t_ast_node *node, int *errnum);
 
