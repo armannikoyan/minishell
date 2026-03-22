@@ -51,18 +51,19 @@ static void get_subshell_nesting_info(const char *input, size_t *pos,
                                       int *parens_depth) {
   char active_quote = 0;
 
-  while (input[*pos]) {
+  for (; input[*pos]; ++(*pos)) {
     set_quote_char(input[*pos], &active_quote);
-    if (active_quote == 0) {
-      if (input[*pos] == '(')
-        ++(*parens_depth);
-      else if (input[*pos] == ')') {
-        --(*parens_depth);
-        if (*parens_depth == 0)
-          break;
-      }
+    if (active_quote != 0)
+      continue;
+
+    if (input[*pos] == '(')
+      ++(*parens_depth);
+    else if (input[*pos] == ')') {
+      --(*parens_depth);
+
+      if (*parens_depth == 0)
+        break;
     }
-    ++(*pos);
   }
 }
 
