@@ -1,184 +1,202 @@
 #include <dirent.h>
 #include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
 
 #include "execution.h"
+#include "tokenization.h"
 
-// [Unchanged] Generates mask: 1 = quoted, 0 = unquoted
-static char *get_pattern_mask(char *str, int **mask_out)
-{
-    char    *clean;
-    int     *mask;
-    int     i;
-    int     j;
-    char    quote_type;
+typedef struct {
+  char **data;
+  size_t count;
+  size_t capacity;
+} t_string_array;
 
-    clean = ft_calloc(ft_strlen(str) + 1, sizeof(char));
-    mask = ft_calloc(ft_strlen(str) + 1, sizeof(int));
-    if (!clean || !mask)
-        return (free(clean), free(mask), NULL);
-    i = 0;
-    j = 0;
-    quote_type = 0;
-    while (str[i])
-    {
-        if (!quote_type && (str[i] == '\'' || str[i] == '\"'))
-            quote_type = str[i];
-        else if (quote_type && str[i] == quote_type)
-            quote_type = 0;
-        else
-        {
-            clean[j] = str[i];
-            if (quote_type != 0)
-                mask[j] = 1;
-            else
-                mask[j] = 0;
-            j++;
-        }
-        i++;
-    }
-    *mask_out = mask;
-    return (clean);
+static bool init_string_array(t_string_array *arr) {
+  arr->capacity = 16;
+  arr->count = 0;
+  arr->data = malloc(arr->capacity * sizeof(char *));
+  return arr->data != NULL;
 }
 
-// [Unchanged] Recursively checks pattern against string using the mask
-static bool match_pattern(char *pattern, int *mask, char *string)
-{
-    if (*pattern == '\0' && *string == '\0')
-        return (true);
+static void free_string_array(t_string_array *arr) {
+  for (size_t i = 0; i < arr->count; i++)
+    free(arr->data[i]);
 
-    if (*pattern == '*' && *mask == 0)
-    {
-        if (match_pattern(pattern + 1, mask + 1, string))
-            return (true);
-        if (*string && match_pattern(pattern, mask, string + 1))
-            return (true);
-        return (false);
-    }
-
-    if (*pattern == *string)
-        return (match_pattern(pattern + 1, mask + 1, string + 1));
-
-    return (false);
+  free(arr->data);
+  arr->data = NULL;
 }
 
-static void sort_ascii(t_list *lst)
-{
-    t_list  *head;
-    t_list  *node;
-    char    *tmp_content;
+static bool add_string(t_string_array *arr, char *str) {
+  if (!str && arr->count > 0)
+    return false;
 
-    if (!lst)
-        return ;
-    head = lst;
-    while (head)
-    {
-        node = head->next;
-        while (node)
-        {
-            if (ft_strcmp(head->content, node->content) > 0)
-            {
-                tmp_content = head->content;
-                head->content = node->content;
-                node->content = tmp_content;
-            }
-            node = node->next;
-        }
-        head = head->next;
-    }
+  if (arr->count >= arr->capacity) {
+    const size_t new_capacity = arr->capacity * 2;
+    char **temp = realloc(arr->data, new_capacity * sizeof(char *));
+    if (!temp)
+      return false;
+
+    arr->data = temp;
+    arr->capacity = new_capacity;
+  }
+
+  arr->data[arr->count++] = str;
+  return true;
 }
 
-static t_list *get_matches(char *raw_token)
-{
-    DIR             *dir;
-    struct dirent   *entry;
-    t_list          *matches;
-    char            *clean_pattern;
-    int             *mask;
+static int compare_strings(const void *a, const void *b) {
+  return strcmp(*(const char **)a, *(const char **)b);
+}
 
-    matches = NULL;
-    // Pass RAW token to preserve quote info in mask
-    clean_pattern = get_pattern_mask(raw_token, &mask);
-    if (!clean_pattern)
-        return (NULL);
-    dir = opendir(".");
-    if (!dir)
-        return (free(clean_pattern), free(mask), NULL);
-    while ((entry = readdir(dir)) != NULL)
-    {
-        // [FIXED] 1. Always skip "." and ".." regardless of pattern
-        if (ft_strcmp(entry->d_name, ".") == 0 || ft_strcmp(entry->d_name, "..") == 0)
-            continue ;
+static char *extract_pattern_and_mask(const char *raw_pattern, int **out_mask) {
+  const size_t len = strlen(raw_pattern);
+  char *unquoted_pattern = calloc(len + 1, sizeof(char));
+  if (!unquoted_pattern)
+    return NULL;
 
-        // 2. Handle hidden files (only match if pattern starts with literal .)
-        if (entry->d_name[0] == '.' && clean_pattern[0] != '.')
-            continue ;
+  int *quote_mask = calloc(len + 1, sizeof(int));
+  if (!quote_mask) {
+    free(unquoted_pattern);
+    return NULL;
+  }
 
-        // 3. Check pattern match
-        if (match_pattern(clean_pattern, mask, entry->d_name))
-            ft_lstadd_back(&matches, ft_lstnew(ft_strdup(entry->d_name)));
+  size_t read_idx = 0;
+  size_t write_idx = 0;
+  char active_quote = 0;
+
+  while (raw_pattern[read_idx]) {
+    const char old_quote = active_quote;
+    set_quote_char(raw_pattern[read_idx], &active_quote);
+
+    if (old_quote != active_quote) {
+      read_idx++;
+      continue;
     }
-    closedir(dir);
+    unquoted_pattern[write_idx] = raw_pattern[read_idx];
+    quote_mask[write_idx] = (active_quote != 0) ? 1 : 0;
+    write_idx++;
+    read_idx++;
+  }
+  *out_mask = quote_mask;
+  return unquoted_pattern;
+}
+
+static bool is_pattern_matching(const char *pattern, const int *quote_mask,
+                                const char *filename) {
+  if (*pattern == '\0' && *filename == '\0')
+    return true;
+
+  if (*pattern == '*' && *quote_mask == 0) {
+    if (is_pattern_matching(pattern + 1, quote_mask + 1, filename))
+      return true;
+
+    if (*filename && is_pattern_matching(pattern, quote_mask, filename + 1))
+      return true;
+
+    return false;
+  }
+
+  if (*pattern == *filename)
+    return is_pattern_matching(pattern + 1, quote_mask + 1, filename + 1);
+
+  return false;
+}
+
+static void collect_matching_files(const char *raw_pattern,
+                                   t_string_array *matches) {
+  int *quote_mask = NULL;
+  char *clean_pattern = extract_pattern_and_mask(raw_pattern, &quote_mask);
+  if (!clean_pattern)
+    return;
+
+  DIR *dir = opendir(".");
+  if (!dir) {
     free(clean_pattern);
-    free(mask);
-    sort_ascii(matches);
-    return (matches);
+    free(quote_mask);
+    return;
+  }
+
+  struct dirent *entry;
+  while ((entry = readdir(dir)) != NULL) {
+    if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0)
+      continue;
+
+    if (entry->d_name[0] == '.' && clean_pattern[0] != '.')
+      continue;
+
+    if (is_pattern_matching(clean_pattern, quote_mask, entry->d_name)) {
+      char *dup = strdup(entry->d_name);
+      if (!dup || !add_string(matches, dup)) {
+        free(dup);
+      }
+    }
+  }
+
+  closedir(dir);
+  free(clean_pattern);
+  free(quote_mask);
+
+  if (matches->count > 0)
+    qsort(matches->data, matches->count, sizeof(char *), compare_strings);
 }
 
-static char **list_to_argv(t_list *lst)
-{
-    char    **new_argv;
-    int     size;
-    int     i;
+char **expand_wildcards(char **args) {
+  t_string_array expanded_args;
+  if (!init_string_array(&expanded_args))
+    return NULL;
 
-    size = ft_lstsize(lst);
-    new_argv = malloc(sizeof(char *) * (size + 1));
-    if (!new_argv)
-        return (NULL);
-    i = 0;
-    while (lst)
-    {
-        new_argv[i++] = ft_strdup(lst->content);
-        lst = lst->next;
-    }
-    new_argv[i] = NULL;
-    return (new_argv);
-}
+  for (size_t i = 0; args[i] != NULL; ++i) {
+    bool success = true;
 
-char **expand_wildcards(char **old_argv)
-{
-    t_list  *final_list;
-    t_list  *matches;
-    char    *unquoted_str;
-    int     i;
+    if (strchr(args[i], '*')) {
+      t_string_array matches;
+      if (!init_string_array(&matches)) {
+        free_string_array(&expanded_args);
+        return NULL;
+      }
 
-    final_list = NULL;
-    i = 0;
-    while (old_argv[i])
-    {
-        if (ft_strchr(old_argv[i], '*'))
-        {
-            // Pass raw string (e.g. `"."*`) so quotes are analyzed
-            matches = get_matches(old_argv[i]);
-            if (matches)
-            {
-                ft_lstadd_back(&final_list, matches);
-            }
-            else
-            {
-                // No matches: Treat as literal, remove quotes
-                unquoted_str = remove_quotes(old_argv[i]);
-                ft_lstadd_back(&final_list, ft_lstnew(unquoted_str));
-            }
+      collect_matching_files(args[i], &matches);
+      if (matches.count > 0) {
+        for (size_t j = 0; j < matches.count; j++) {
+          if (!success || !add_string(&expanded_args, matches.data[j])) {
+            success = false;
+            free(matches.data[j]);
+          }
         }
-        else
-        {
-            // No wildcard: Just remove quotes
-            unquoted_str = remove_quotes(old_argv[i]);
-            ft_lstadd_back(&final_list, ft_lstnew(unquoted_str));
+        free(matches.data);
+      } else {
+        free(matches.data);
+        char *unquoted = remove_quotes(args[i]);
+        if (!unquoted || !add_string(&expanded_args, unquoted)) {
+          free(unquoted);
+          success = false;
         }
-        i++;
+      }
+    } else {
+      char *unquoted = remove_quotes(args[i]);
+      if (!unquoted || !add_string(&expanded_args, unquoted)) {
+        free(unquoted);
+        success = false;
+      }
     }
-    char **result = list_to_argv(final_list);
-    ft_lstclear(&final_list, free);
-    return (result);
+
+    if (!success) {
+      free_string_array(&expanded_args);
+      return NULL;
+    }
+  }
+
+  if (expanded_args.capacity <= expanded_args.count) {
+    char **temp = realloc(expanded_args.data,
+                          (expanded_args.capacity + 1) * sizeof(char *));
+    if (!temp) {
+      free_string_array(&expanded_args);
+      return NULL;
+    }
+    expanded_args.data = temp;
+  }
+  expanded_args.data[expanded_args.count] = NULL;
+
+  return expanded_args.data;
 }

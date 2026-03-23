@@ -60,8 +60,8 @@ set(SOURCES
         src/execution/execution_redir_node.c
         src/execution/execution_binary_node.c
         src/execution/execution_command_node.c
-        src/execution/expansion/dollar_sign_expansion.c
-        src/execution/expansion/dollar_sign_expansion_utils.c
+        src/execution/expansion/variable_expansion.c
+        src/execution/expansion/variable_expansion_utils.c
         includes/error_codes.h
         src/ast/ast_syntax_check.c
         src/ast/ast_deletion.c
