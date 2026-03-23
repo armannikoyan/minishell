@@ -5,9 +5,9 @@
 
 int ft_cd(int argc, char **argv, t_hash_table *ht);
 
-int ft_echo(int argc, char **argv, t_hash_table *ht);
+int ft_echo(int argc, char **argv, const t_hash_table *ht);
 
-int ft_env(int argc, char **argv, t_hash_table *ht);
+int ft_env(int argc, char **argv, const t_hash_table *ht);
 
 int ft_exit(int argc, char **argv, t_hash_table *ht, int errnum);
 
