@@ -3,8 +3,9 @@
 
 #include <stdbool.h>
 
-#define MAX_LOAD_FACTOR 0.7
-#define MIN_LOAD_FACTOR 0.3
+#define LOAD_FACTOR_PERCENTAGE(count) (count * 100)
+#define MAX_LOAD_FACTOR 75
+#define MIN_LOAD_FACTOR 10
 #define INITIAL_SIZE 7
 #define MIN_SIZE 7
 

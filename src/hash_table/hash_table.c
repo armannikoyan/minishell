@@ -17,11 +17,11 @@ t_hash_table *ht_create(void) {
   ht->buckets = calloc(ht->size, sizeof(t_entry *));
   if (!ht->buckets) {
     free(ht);
-    print_error("minishell: ht_create: ft_calloc", false);
+    print_error("minishell: ht_create: calloc", false);
     return NULL;
   }
 
-  return (ht);
+  return ht;
 }
 
 void ht_destroy(t_hash_table *ht) {
@@ -42,55 +42,14 @@ void ht_destroy(t_hash_table *ht) {
   free(ht);
 }
 
-t_entry *ht_get(t_hash_table *ht, const char *key) {
-  if (!ht || !key)
-    return NULL;
-
-  const unsigned long index = hash_func(key) % ht->size;
-  t_entry *entry = ht->buckets[index];
-
-  while (entry) {
-    if (strcmp(entry->key, key) == 0)
-      return entry;
-    entry = entry->next;
-  }
-
-  return NULL;
-}
-
-void ht_resize(t_hash_table *ht, const unsigned long new_size) {
-  if (!ht || new_size <= 0)
-    return;
-
-  t_entry **new_buckets = calloc(new_size, sizeof(t_entry *));
-  if (!new_buckets) {
-    print_error("minishell: ht_resize: calloc", false);
-    exit(EXIT_FAILURE);
-  }
-
-  for (unsigned long i = 0; i < ht->size; i++) {
-    t_entry *entry = ht->buckets[i];
-    while (entry) {
-      t_entry *next = entry->next;
-      const unsigned long index = hash_func(entry->key) % new_size;
-
-      entry->next = new_buckets[index];
-      new_buckets[index] = entry;
-      entry = next;
-    }
-  }
-  free(ht->buckets);
-  ht->buckets = new_buckets;
-  ht->size = new_size;
-}
-
 int ht_create_bucket(t_hash_table *ht, const char *key, const char *value,
-                     bool is_local) {
+                     const bool is_local) {
   if (!ht || !key)
     return -1;
 
-  if (ht->size / ht->count <= (int)(MAX_LOAD_FACTOR * 10))
+  if (LOAD_FACTOR_PERCENTAGE(ht->count) >= ht->size * MAX_LOAD_FACTOR) {
     ht_resize(ht, next_prime(ht->size));
+  }
 
   const unsigned long index = hash_func(key) % ht->size;
 
@@ -126,9 +85,6 @@ int ht_create_bucket(t_hash_table *ht, const char *key, const char *value,
   return 0;
 }
 
-// 0 - success
-// 1 - entry doesn't exist
-// 2 - strdup failed
 int ht_update_value(t_hash_table *ht, const char *key, const char *value) {
   if (!ht || !key)
     return 1;
@@ -152,11 +108,27 @@ int ht_update_value(t_hash_table *ht, const char *key, const char *value) {
   return 0;
 }
 
+t_entry *ht_get(t_hash_table *ht, const char *key) {
+  if (!ht || !key)
+    return NULL;
+
+  const unsigned long index = hash_func(key) % ht->size;
+  t_entry *entry = ht->buckets[index];
+
+  while (entry) {
+    if (strcmp(entry->key, key) == 0)
+      return entry;
+    entry = entry->next;
+  }
+
+  return NULL;
+}
+
 void ht_delete(t_hash_table *ht, const char *key) {
   if (!ht || !key)
     return;
 
-  const unsigned long index = hash_func(key) % ht->size;
+  unsigned long index = hash_func(key) % ht->size;
   t_entry *entry = ht->buckets[index];
   t_entry *prev = NULL;
 
@@ -173,12 +145,39 @@ void ht_delete(t_hash_table *ht, const char *key) {
       ht->count--;
 
       if (ht->size > MIN_SIZE &&
-          ht->size / ht->count >= (int)(MIN_LOAD_FACTOR * 10))
+          (LOAD_FACTOR_PERCENTAGE(ht->count) <= ht->size * MIN_LOAD_FACTOR)) {
         ht_resize(ht, prev_prime(ht->size));
+      }
       return;
     }
 
     prev = entry;
     entry = entry->next;
   }
+}
+
+void ht_resize(t_hash_table *ht, const unsigned long new_size) {
+  if (!ht || new_size <= 0)
+    return;
+
+  t_entry **new_buckets = calloc(new_size, sizeof(t_entry *));
+  if (!new_buckets) {
+    print_error("minishell: ht_resize: calloc", false);
+    exit(EXIT_FAILURE);
+  }
+
+  for (unsigned long i = 0; i < ht->size; i++) {
+    t_entry *entry = ht->buckets[i];
+    while (entry) {
+      t_entry *next = entry->next;
+      const unsigned long index = hash_func(entry->key) % new_size;
+
+      entry->next = new_buckets[index];
+      new_buckets[index] = entry;
+      entry = next;
+    }
+  }
+  free(ht->buckets);
+  ht->buckets = new_buckets;
+  ht->size = new_size;
 }

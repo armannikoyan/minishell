@@ -4,50 +4,43 @@
 #include "utils.h"
 
 bool isprime(const unsigned long number) {
-  if (number <= 1 || !(number & 1) || number % 3 == 0)
-    return (false);
-
+  if (number <= 1)
+    return false;
   if (number <= 3)
-    return (true);
+    return true;
+  if (number % 2 == 0 || number % 3 == 0)
+    return false;
 
-  const double number_sqrt = sqrt((double)number);
-  unsigned long i = 4;
-
-  while ((float)i < number_sqrt) {
-    if (number % i == 0 && number % (number + 2) == 0)
-      return (false);
-
-    i += 6;
+  for (unsigned long i = 5; i <= number / i; i += 6) {
+    if (number % i == 0 || number % (i + 2) == 0)
+      return false;
   }
 
-  return (true);
+  return true;
 }
 
 unsigned long next_prime(const unsigned long current) {
-
   unsigned long candidate = current * 2;
-  while (true) {
-    if (isprime(candidate))
-      return (candidate);
 
-    ++candidate;
+  while (!isprime(candidate)) {
+    candidate++;
   }
+  return candidate;
 }
 
 unsigned long prev_prime(const unsigned long current) {
   unsigned long desired = current / 2;
 
   if (desired < MIN_SIZE)
-    return (MIN_SIZE);
+    return MIN_SIZE;
 
   while (desired >= MIN_SIZE) {
     if (isprime(desired))
-      return (desired);
-
-    --desired;
+      return desired;
+    desired--;
   }
 
-  return (MIN_SIZE);
+  return MIN_SIZE;
 }
 
 unsigned long hash_func(const char *str) {
