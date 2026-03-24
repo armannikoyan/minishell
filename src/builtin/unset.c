@@ -14,7 +14,8 @@ static bool is_ev_correct(const char *str) {
   return true;
 }
 
-int ft_unset(const int argc, char **argv, t_hash_table *ht) {
+int ft_unset(const int argc, char **argv, t_hash_table *ht,
+             const int errnum __attribute__((unused))) {
   if (argc == 1)
     return 0;
 

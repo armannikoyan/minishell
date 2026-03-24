@@ -30,7 +30,7 @@ int syntax_check(t_ast_node *node, int *errnum) {
     if (node->u_data.redir.filename == NULL ||
         node->u_data.redir.filename[0] == '\0') {
       print_error("minishell: syntax error near token `", true);
-      print_error(get_type(node->type), true);
+      print_error(get_binary_node_by_type(node->type), true);
       if (node->type == HEREDOC_NODE)
         print_error("\': No EOL presented\n", true);
       else

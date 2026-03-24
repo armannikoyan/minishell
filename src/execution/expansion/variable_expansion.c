@@ -2,60 +2,49 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
 
+#include "collections.h"
 #include "expansion.h"
 #include "hash_table.h"
 #include "tokenization.h"
 
-static char *append_to_str(char *old, const char *src, size_t src_len) {
-  const size_t old_len = old ? strlen(old) : 0;
-
-  char *new_str = realloc(old, old_len + src_len + 1);
-  if (!new_str) {
-    free(old);
-    return NULL;
-  }
-
-  memcpy(new_str + old_len, src, src_len);
-  new_str[old_len + src_len] = '\0';
-  return new_str;
-}
-
-static char *handle_var_expansion(char *res, const char *str, size_t *pos,
-                                  t_hash_table *ht, const int errnum) {
+static bool handle_var_expansion(t_str_builder *sb, const char *str,
+                                 size_t *pos, t_hash_table *ht,
+                                 const int errnum) {
   ++(*pos);
 
   if (str[*pos] == '?') {
-    char buf[12];
+    char buf[16];
     const int len = snprintf(buf, sizeof(buf), "%d", errnum);
     ++(*pos);
-    return append_to_str(res, buf, len);
+    return sb_append(sb, buf, len);
   }
 
   const size_t var_name_len = env_var_len(str + *pos);
   if (var_name_len == 0)
-    return append_to_str(res, "$", 1);
+    return sb_append_char(sb, '$');
 
   char *var_name = strndup(str + *pos, var_name_len);
+  if (!var_name)
+    return false;
+
   const t_entry *entry = ht_get(ht, var_name);
   free(var_name);
 
-  if (entry && entry->val)
-    res = append_to_str(res, entry->val, strlen(entry->val));
+  if (entry && entry->val) {
+    if (!sb_append(sb, entry->val, strlen(entry->val)))
+      return false;
+  }
 
   *pos += var_name_len;
-  return res;
+  return true;
 }
 
-// Tilde expands if:
-// 1. Not in quotes
-// 2. It is at the start OR preceded by a space
-// 3. It is at the end OR followed by a '/'
 static int is_tilde_expandable(const char *str, const size_t i,
                                const char quote_char) {
   if (str[i] != '~' || quote_char != 0)
     return 0;
+
   if ((i == 0 || str[i - 1] == ' ') &&
       (str[i + 1] == '\0' || str[i + 1] == '/'))
     return 1;
@@ -67,7 +56,10 @@ char *expand_dollar_sign(char *str, t_hash_table *ht, const int errnum) {
   if (!str)
     return NULL;
 
-  char *res = strdup("");
+  t_str_builder sb;
+  if (!sb_init(&sb, 64))
+    return NULL;
+
   size_t pos = 0;
   char active_quote = 0;
 
@@ -77,25 +69,35 @@ char *expand_dollar_sign(char *str, t_hash_table *ht, const int errnum) {
     if (str[pos] == '$' && active_quote != '\'') {
       if (str[pos + 1] == '?' || isalpha((unsigned char)str[pos + 1]) ||
           str[pos + 1] == '_') {
-        res = handle_var_expansion(res, str, &pos, ht, errnum);
+        if (!handle_var_expansion(&sb, str, &pos, ht, errnum))
+          goto error;
       } else if (active_quote == 0 &&
                  (str[pos + 1] == '\'' || str[pos + 1] == '\"')) {
         ++pos;
-      } else
-        res = append_to_str(res, str + (pos++), 1);
+      } else {
+        if (!sb_append_char(&sb, str[pos++]))
+          goto error;
+      }
     } else if (is_tilde_expandable(str, pos, active_quote)) {
       const t_entry *home = ht_get(ht, "HOME");
-      if (home && home->val)
-        res = append_to_str(res, home->val, strlen(home->val));
-      else
-        res = append_to_str(res, "~", 1);
-      ++pos;
-    } else
-      res = append_to_str(res, str + (pos++), 1);
 
-    if (!res)
-      return NULL;
+      if (home && home->val) {
+        if (!sb_append(&sb, home->val, strlen(home->val)))
+          goto error;
+      } else {
+        if (!sb_append_char(&sb, '~'))
+          goto error;
+      }
+      ++pos;
+    } else {
+      if (!sb_append_char(&sb, str[pos++]))
+        goto error;
+    }
   }
 
-  return res;
+  return sb_extract(&sb);
+
+error:
+  sb_destroy(&sb);
+  return NULL;
 }

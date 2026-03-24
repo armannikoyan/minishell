@@ -10,7 +10,7 @@
 
 int handle_child_exit(pid_t pid);
 
-char **expand_wildcards(char **old_argv);
+char **expand_wildcards(char **args);
 
 char *remove_quotes(char *str);
 
@@ -23,10 +23,10 @@ int setup_redirection(t_ast_node *node, t_hash_table *ht, int *saved_fd,
 
 int cleanup_redirection(t_ast_node *node, int saved_fd, int target_fd);
 
-int scan_and_process_heredocs(t_ast_node *node, t_hash_table *ht, int *counter);
+int scan_and_process_heredoc(t_ast_node *node, t_hash_table *ht, int *counter);
 
 void cleanup_heredoc_files(int count);
 
-int execute(t_ast_node *node, t_hash_table *ht, int errnum);
+int execute(t_ast_node *root, t_hash_table *ht, int errnum);
 
 #endif

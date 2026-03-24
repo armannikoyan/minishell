@@ -4,6 +4,20 @@
 #include "error_codes.h"
 #include "utils.h"
 
+char *get_binary_node_by_type(const int type) {
+  switch (type) {
+  case AND_NODE:
+    return "&&";
+  case OR_NODE:
+    return "||";
+  case PIPE_NODE:
+    return "|";
+  default:;
+  }
+
+  return "NULL";
+}
+
 void print_syntax_error(t_ast_node *node, int *errnum) {
   if (!node)
     return;
@@ -12,7 +26,7 @@ void print_syntax_error(t_ast_node *node, int *errnum) {
   print_error("minishell: syntax error near unexpected token `", true);
 
   if (node->abstract_type == BIN_NODE || node->abstract_type == REDIR_NODE)
-    print_error(get_type(node->type), true);
+    print_error(get_binary_node_by_type(node->type), true);
   else if (node->type == COMMAND_NODE) {
     if (node->u_data.cmd.argv && node->u_data.cmd.argv[0])
       print_error(node->u_data.cmd.argv[0], true);

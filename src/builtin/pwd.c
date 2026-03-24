@@ -10,7 +10,8 @@
 // Prints current working directory and finishes with status 0.
 // If any arguments passed prints an error and finishes with status 2.
 int ft_pwd(const int argc __attribute((unused)), char **argv,
-           t_hash_table *ht __attribute((unused))) {
+           t_hash_table *ht __attribute((unused)),
+           const int errnum __attribute__((unused))) {
   char cwd[PATH_MAX];
 
   if (argc > 1 && argv[1][0] == '-')

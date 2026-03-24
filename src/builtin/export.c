@@ -81,7 +81,8 @@ static void print_exported(const t_hash_table *ht) {
   }
 }
 
-int ft_export(const int argc, char **argv, t_hash_table *ht) {
+int ft_export(const int argc, char **argv, t_hash_table *ht,
+              const int errnum __attribute__((unused))) {
 
   if (argc == 1)
     return (print_exported(ht), 0);

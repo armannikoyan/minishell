@@ -9,7 +9,8 @@
 // In case of no environment variables prints noting.
 // If any arguments passed prints an error and finishes with status 2.
 int ft_env(const int argc, char **argv __attribute__((unused)),
-           const t_hash_table *ht __attribute((unused))) {
+           t_hash_table *ht __attribute((unused)),
+           const int errnum __attribute((unused))) {
   if (argc > 1)
     return (print_error("env: too many arguments\n", true), BUILTIN_ERROR);
 

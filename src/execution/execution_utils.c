@@ -1,81 +1,77 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
 #include <sys/errno.h>
 #include <sys/wait.h>
+#include <unistd.h>
 
 #include "error_codes.h"
 #include "tokenization.h"
 #include "utils.h"
 
-static size_t   get_clean_len(char *str)
-{
-    size_t  len;
-    size_t  i;
-    char    quote_state;
-    char    prev_state;
+static size_t get_clean_len(const char *str) {
+  char quote_state;
 
-    len = 0;
-    i = 0;
-    quote_state = 0;
-    while (str[i])
-    {
-        prev_state = quote_state;
-        set_quote_char(str[i], &quote_state);
-        if (prev_state == quote_state)
-            len++;
-        i++;
-    }
-    return (len);
+  size_t len = 0;
+  quote_state = 0;
+  for (size_t i = 0; str[i]; ++i) {
+    const char prev_state = quote_state;
+    set_quote_char(str[i], &quote_state);
+
+    if (prev_state == quote_state)
+      ++len;
+  }
+
+  return len;
 }
 
-char    *remove_quotes(char *str)
-{
-    char    *new_str;
-    char    quote_state;
-    char    prev_state;
-    size_t  i;
-    size_t  j;
+char *remove_quotes(char *str) {
+  char quote_state;
 
-    if (!str)
-        return (NULL);
-    new_str = (char *)malloc(sizeof(char) * (get_clean_len(str) + 1));
-    if (!new_str)
-        return (NULL);
-    i = 0;
-    j = 0;
-    quote_state = 0;
-    while (str[i])
-    {
-        prev_state = quote_state;
-        set_quote_char(str[i], &quote_state);
-        if (prev_state == quote_state)
-            new_str[j++] = str[i];
-        i++;
+  if (!str)
+    return NULL;
+
+  const size_t new_len = get_clean_len(str);
+  char *new_str = malloc(sizeof(char) * (new_len + 1));
+  if (!new_str)
+    return NULL;
+
+  quote_state = 0;
+  for (size_t pos = 0, new_pos = 0; str[pos]; ++pos) {
+    const char prev_state = quote_state;
+    set_quote_char(str[pos], &quote_state);
+
+    if (prev_state == quote_state) {
+      new_str[new_pos] = str[pos];
+      ++new_pos;
     }
-    new_str[j] = '\0';
-    return (new_str);
+  }
+  new_str[new_len] = '\0';
+
+  return (new_str);
 }
 
-int handle_child_exit(pid_t pid) {
-    int status;
+int handle_child_exit(const pid_t pid) {
+  int status;
 
-    if (waitpid(pid, &status, 0) == -1) {
-        if (errno != ECHILD)
-            print_error("minishell: waitpid", false);
-        return (1);
-    }
-    if (WIFEXITED(status)) {
-         return (WEXITSTATUS(status));
-    }
-    if (WIFSIGNALED(status)) {
-        int sig = WTERMSIG(status);
+  if (waitpid(pid, &status, 0) == -1) {
+    if (errno != ECHILD)
+      print_error("minishell: waitpid", false);
 
-        if (sig == SIGINT || sig == SIGPIPE)
-            printf("^C\n");
-        else if (sig == SIGQUIT)
-            printf("^\\Quit: signum: %d\n", sig);
-        return (RESERVED_ERROR_CODES + sig);
-    }
-    return (1);
+    return 1;
+  }
+
+  if (WIFEXITED(status))
+    return (WEXITSTATUS(status));
+
+  if (WIFSIGNALED(status)) {
+    const int signum = WTERMSIG(status);
+
+    if (signum == SIGINT || signum == SIGPIPE)
+      printf("^C\n");
+    else if (signum == SIGQUIT)
+      printf("^\\Quit: signum: %d\n", signum);
+    return (RESERVED_ERROR_CODES + signum);
+  }
+
+  return 1;
 }

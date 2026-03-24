@@ -130,7 +130,7 @@ static bool is_all_space(const char *str) {
   return (true);
 }
 
-static int process_input(char *input, t_hash_table *ht, int errnum) {
+int process_input(char *input, t_hash_table *ht, int errnum) {
   int heredoc_counter = 0;
 
   if (is_all_space(input) || input[0] == '\0')
@@ -140,7 +140,7 @@ static int process_input(char *input, t_hash_table *ht, int errnum) {
   t_ast_node *root = tokenize(input, &errnum);
 
   if (root != NULL &&
-      scan_and_process_heredocs(root, ht, &heredoc_counter) == 0 &&
+      scan_and_process_heredoc(root, ht, &heredoc_counter) == 0 &&
       syntax_check(root, &errnum) != SYNTAX_ERROR)
     errnum = execute(root, ht, errnum);
 

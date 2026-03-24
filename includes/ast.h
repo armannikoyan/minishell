@@ -74,6 +74,6 @@ void print_ast_info(t_ast_node *root, const t_ast_node *curr_node);
 
 void print_syntax_error(t_ast_node *node, int *errnum);
 
-const char *get_type(t_node_type type);
+char *get_binary_node_by_type(int type);
 
 #endif

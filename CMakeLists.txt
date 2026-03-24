@@ -67,6 +67,8 @@ set(SOURCES
         src/ast/ast_deletion.c
         src/execution/expansion/wildcard.c
         src/utils/strtoi.c
+        includes/collections.h
+        src/collections/string.c
 )
 
 # ===============================
@@ -76,10 +78,6 @@ add_executable(minishell ${SOURCES})
 
 target_include_directories(minishell PRIVATE
         ${INCLUDE_DIR}
-)
-
-target_link_libraries(minishell PRIVATE
-        ft
 )
 
 # ===============================

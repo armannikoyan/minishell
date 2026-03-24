@@ -23,8 +23,8 @@ static bool is_n_flag(const char *s) {
 
 // Prints all passed arguments and finishes with status 0.
 // In case of option '-n' passed doesn't add '\n' at the end.
-int ft_echo(const int argc, char **argv,
-            const t_hash_table *ht __attribute((unused))) {
+int ft_echo(const int argc, char **argv, t_hash_table *ht __attribute((unused)),
+            const int errnum __attribute((unused))) {
   int i = 1;
   bool n_flag = false;
 
