@@ -103,4 +103,4 @@ if (UNIX AND NOT APPLE)
     target_link_libraries(minishell PRIVATE ncurses)
 endif ()
 
-target_link_libraries(minishell PRIVATE readline)
+target_link_libraries(minishell PRIVATE readline m)

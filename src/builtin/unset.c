@@ -1,4 +1,5 @@
 #include <ctype.h>
+#include <stddef.h>
 
 #include "error_codes.h"
 #include "hash_table.h"

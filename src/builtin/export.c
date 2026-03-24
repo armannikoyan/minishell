@@ -31,7 +31,8 @@ static void fantastic_25_lines(char *key, const size_t len, t_hash_table *ht,
       ht_update_value(ht, argv, "");
     }
   } else if (argv[len] == '=') {
-    strlcpy(key, argv, len + 1);
+    memcpy(key, argv, len);
+    key[len] = '\0';
     if (ht_get(ht, key) == NULL)
       ht_create_bucket(ht, key, argv + len + 1, false);
     else {
