@@ -29,4 +29,6 @@ void cleanup_heredoc_files(int count);
 
 int execute(t_ast_node *root, t_hash_table *ht, int errnum);
 
+void cleanup_exec_stack(void);
+
 #endif

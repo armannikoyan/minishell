@@ -1,6 +1,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <unistd.h>
+
 #include <signal.h>
 
 #include "ast.h"
@@ -28,28 +29,41 @@ typedef struct {
   size_t capacity;
 } t_exec_stack;
 
-static bool push_frame(t_exec_stack *stack, t_ast_node *node) {
+static t_exec_stack g_stack = {NULL, 0, 0};
+
+extern void free_resources(int code);
+
+void cleanup_exec_stack(void) {
+  if (g_stack.frames) {
+    free(g_stack.frames);
+    g_stack.frames = NULL;
+    g_stack.count = 0;
+    g_stack.capacity = 0;
+  }
+}
+
+static bool push_frame(t_ast_node *node) {
   if (!node)
     return true;
 
-  if (stack->count >= stack->capacity) {
-    const size_t new_cap = stack->capacity == 0 ? 64 : stack->capacity * 2;
+  if (g_stack.count >= g_stack.capacity) {
+    const size_t new_cap = g_stack.capacity == 0 ? 64 : g_stack.capacity * 2;
     t_exec_frame *new_frames =
-        realloc(stack->frames, sizeof(t_exec_frame) * new_cap);
+        realloc(g_stack.frames, sizeof(t_exec_frame) * new_cap);
     if (!new_frames)
       return false;
 
-    stack->frames = new_frames;
-    stack->capacity = new_cap;
+    g_stack.frames = new_frames;
+    g_stack.capacity = new_cap;
   }
 
-  t_exec_frame *new_frame = &stack->frames[stack->count];
+  t_exec_frame *new_frame = &g_stack.frames[g_stack.count];
   new_frame->node = node;
   new_frame->state = STATE_VISIT_NODE;
   new_frame->saved_fd = -1;
   new_frame->target_fd = -1;
 
-  stack->count++;
+  g_stack.count++;
   return true;
 }
 
@@ -61,7 +75,10 @@ int execute_subshell(const t_ast_node *node, t_hash_table *ht,
     return 1;
   }
 
-  if (pid) {
+  if (pid == 0) {
+    const int code = execute(node->u_data.subshell.root, ht, errnum);
+    free_resources(code);
+  } else {
     signal(SIGINT, SIG_IGN);
     signal(SIGQUIT, SIG_IGN);
     const int status = handle_child_exit(pid);
@@ -69,47 +86,47 @@ int execute_subshell(const t_ast_node *node, t_hash_table *ht,
     return status;
   }
 
-  exit(execute(node->u_data.subshell.root, ht, errnum));
+  return 1;
 }
 
 int execute(t_ast_node *root, t_hash_table *ht, const int errnum) {
   if (!root)
     return 0;
 
-  t_exec_stack stack = {NULL, 0, 0};
-  if (!push_frame(&stack, root))
+  g_stack.count = 0;
+  if (!push_frame(root))
     return 1;
 
   int exit_status = errnum;
 
-  while (stack.count > 0) {
-    t_exec_frame *top_frame = &stack.frames[stack.count - 1];
+  while (g_stack.count > 0) {
+    t_exec_frame *top_frame = &g_stack.frames[g_stack.count - 1];
 
     if (top_frame->state == STATE_VISIT_NODE) {
 
       if (top_frame->node->type == PIPE_NODE) {
         exit_status = execute_pipeline(top_frame->node, ht, exit_status);
-        stack.count--;
+        g_stack.count--;
       } else if (top_frame->node->abstract_type == BIN_NODE) {
         top_frame->state = STATE_EVALUATE_RIGHT;
 
         t_ast_node *left_node = top_frame->node->u_data.binary.left;
-        if (!push_frame(&stack, left_node))
+        if (!push_frame(left_node))
           goto unwind_error;
       } else if (top_frame->node->abstract_type == REDIR_NODE) {
         if (setup_redirection(top_frame->node, ht, &top_frame->saved_fd,
                               &top_frame->target_fd, exit_status) != 0) {
           exit_status = 1;
-          stack.count--;
+          g_stack.count--;
         } else {
           top_frame->state = STATE_CLEANUP_REDIR;
 
           t_ast_node *redir_node = top_frame->node;
-          int s_fd = top_frame->saved_fd;
-          int t_fd = top_frame->target_fd;
+          const int s_fd = top_frame->saved_fd;
+          const int t_fd = top_frame->target_fd;
           t_ast_node *child_node = top_frame->node->u_data.redir.child;
 
-          if (!push_frame(&stack, child_node)) {
+          if (!push_frame(child_node)) {
             cleanup_redirection(redir_node, s_fd, t_fd);
             goto unwind_error;
           }
@@ -120,7 +137,7 @@ int execute(t_ast_node *root, t_hash_table *ht, const int errnum) {
         } else if (top_frame->node->abstract_type == CMD_NODE) {
           exit_status = execute_command(top_frame->node, ht, exit_status);
         }
-        stack.count--;
+        g_stack.count--;
       }
 
     } else if (top_frame->state == STATE_EVALUATE_RIGHT) {
@@ -134,27 +151,27 @@ int execute(t_ast_node *root, t_hash_table *ht, const int errnum) {
         top_frame->node = top_frame->node->u_data.binary.right;
         top_frame->state = STATE_VISIT_NODE;
       } else {
-        stack.count--;
+        g_stack.count--;
       }
     } else if (top_frame->state == STATE_CLEANUP_REDIR) {
       cleanup_redirection(top_frame->node, top_frame->saved_fd,
                           top_frame->target_fd);
-      stack.count--;
+      g_stack.count--;
     }
   }
 
-  free(stack.frames);
+  cleanup_exec_stack();
   return exit_status;
 
 unwind_error:
   exit_status = 1;
-  while (stack.count > 0) {
-    stack.count--;
-    const t_exec_frame *frame = &stack.frames[stack.count];
+  while (g_stack.count > 0) {
+    g_stack.count--;
+    const t_exec_frame *frame = &g_stack.frames[g_stack.count];
     if (frame->state == STATE_CLEANUP_REDIR) {
       cleanup_redirection(frame->node, frame->saved_fd, frame->target_fd);
     }
   }
-  free(stack.frames);
+  cleanup_exec_stack();
   return exit_status;
 }

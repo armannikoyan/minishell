@@ -12,6 +12,8 @@
 #include "term_settings.h"
 #include "utils.h"
 
+extern void free_resources(int code);
+
 /*
 ** CLEANUP HANDLER
 ** If fork fails, we must close open FDs to trigger SIGPIPE
@@ -96,7 +98,8 @@ int execute_pipeline(t_ast_node *node, t_hash_table *ht, const int errnum) {
 
     if (pid == 0) {
       setup_pipe_fds(prev_fd, pipefd);
-      exit(execute(curr->u_data.binary.left, ht, errnum));
+      const int code = execute(curr->u_data.binary.left, ht, errnum);
+      free_resources(code);
     }
 
     if (prev_fd != -1)
@@ -115,7 +118,8 @@ int execute_pipeline(t_ast_node *node, t_hash_table *ht, const int errnum) {
 
   if (pid == 0) {
     setup_pipe_fds(prev_fd, NULL);
-    exit(execute(curr, ht, errnum));
+    const int code = execute(curr, ht, errnum);
+    free_resources(code);
   }
 
   if (prev_fd != -1)

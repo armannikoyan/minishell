@@ -16,6 +16,8 @@
 #include "term_settings.h"
 #include "utils.h"
 
+extern void free_resources(int code);
+
 static void update_underscore(t_hash_table *ht, const char *value) {
   if (ht_get(ht, "_") == NULL)
     ht_create_bucket(ht, "_", value, false);
@@ -179,8 +181,7 @@ static int validate_executable(const char *path) {
   return 0;
 }
 
-static void execute_child(const char *cmd_path, char **argv,
-                          const t_hash_table *ht) {
+static void execute_child(char *cmd_path, char **argv, const t_hash_table *ht) {
   signal(SIGINT, SIG_DFL);
   signal(SIGQUIT, SIG_DFL);
 
@@ -195,12 +196,18 @@ static void execute_child(const char *cmd_path, char **argv,
   print_error(": ", false);
 
   free_split(envp);
+  free(cmd_path);
 
-  if (errno == ENOENT)
-    exit(COMMAND_NOT_FOUND);
-  else if (errno == EACCES)
-    exit(PERMISSION_DENIED);
-  exit(1);
+  switch (errno) {
+  case ENOENT:
+    free_resources(COMMAND_NOT_FOUND);
+    break;
+  case EACCES:
+    free_resources(PERMISSION_DENIED);
+    break;
+  default:
+    free_resources(1);
+  }
 }
 
 int execute_command(t_ast_node *node, t_hash_table *ht, const int errnum) {
