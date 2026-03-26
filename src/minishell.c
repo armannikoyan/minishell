@@ -169,6 +169,7 @@ int process_input(char *input, t_hash_table *ht, int errnum) {
 
   cleanup_heredoc_files(heredoc_counter);
   ast_deletion(root);
+  g_ast = NULL;
 
   return errnum;
 }

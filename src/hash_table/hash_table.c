@@ -40,6 +40,7 @@ void ht_destroy(t_hash_table *ht) {
   }
   free(ht->buckets);
   free(ht);
+  ht = NULL;
 }
 
 int ht_create_bucket(t_hash_table *ht, const char *key, const char *value,

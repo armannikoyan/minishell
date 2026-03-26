@@ -45,4 +45,6 @@ void ast_deletion(t_ast_node *root) {
     break;
   default:;
   }
+
+  root = NULL;
 }

@@ -1,10 +1,11 @@
 #include <fcntl.h>
 #include <limits.h>
 #include <stdio.h>
-#include <readline/readline.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+
+#include <readline/readline.h>
 
 #include "ast.h"
 #include "execution.h"
@@ -19,7 +20,7 @@ static void generate_unique_filename(char *buffer, const size_t buf_size,
 }
 
 static int setup_heredoc(t_ast_node *node, t_hash_table *ht, int *saved_fd,
-                         int errnum) {
+                         const int errnum) {
   char filename[PATH_MAX];
   generate_unique_filename(filename, sizeof(filename), 9999);
 
@@ -179,7 +180,7 @@ int scan_and_process_heredoc(t_ast_node *node, t_hash_table *ht, int *counter) {
     char filename[PATH_MAX];
     generate_unique_filename(filename, sizeof(filename), (*counter)++);
 
-    int fd = open(filename, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+    const int fd = open(filename, O_WRONLY | O_CREAT | O_TRUNC, 0644);
     if (fd == -1) {
       print_error("minishell: open heredoc", false);
       return 1;
