@@ -18,7 +18,7 @@ extern void free_resources(int code);
 ** CLEANUP HANDLER
 ** If fork fails, we must close open FDs to trigger SIGPIPE
 */
-static int abort_pipeline(int prev_fd, int *pipefd) {
+static int abort_pipeline(const int prev_fd, const int *pipefd) {
   if (prev_fd != -1)
     close(prev_fd);
 

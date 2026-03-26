@@ -1,11 +1,11 @@
-#include <stdio.h>
-#include <readline/readline.h>
-#include <stdlib.h>
+#include <ctype.h>
 
 #include "builtin.h"
 #include "error_codes.h"
 #include "hash_table.h"
 #include "utils.h"
+
+extern void free_resources(int status);
 
 static int get_error_status(const char *s) {
   int start = 0;
@@ -45,7 +45,13 @@ static int get_error_status(const char *s) {
 // passed terminates a program with status of the last command executed (takes
 // status from errno)
 int ft_exit(const int argc, char **argv, t_hash_table *ht __attribute((unused)),
-            const int errnum) {
+            int errnum) {
+
+  if (argc != 1 && argc != 2) {
+    print_error("exit: too many arguments\n", true);
+    return BUILTIN_ERROR;
+  }
+
   if (argc == 2) {
     if (argv[1][0] == '\0') {
       print_error("exit: numeric argument required\n", true);
@@ -56,15 +62,9 @@ int ft_exit(const int argc, char **argv, t_hash_table *ht __attribute((unused)),
     if (error_number < 0)
       return BUILTIN_ERROR;
 
-    rl_clear_history();
-    exit(error_number);
+    errnum = error_number;
   }
 
-  if (argc == 1) {
-    rl_clear_history();
-    exit(errnum);
-  }
-
-  print_error("exit: too many arguments\n", true);
-  return BUILTIN_ERROR;
+  free_resources(errnum);
+  return BUILTIN_SUCCESS;
 }

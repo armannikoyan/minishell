@@ -3,6 +3,7 @@
 
 #define SYNTAX_OK 0
 #define SYNTAX_ERROR 2
+#define BUILTIN_SUCCESS 0
 #define BUILTIN_ERROR 2
 #define SYNTAX_MISSING_TARGET 3
 

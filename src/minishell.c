@@ -26,6 +26,7 @@ void free_resources(const int status) {
   if (g_ast)
     ast_deletion(g_ast);
   cleanup_exec_stack();
+  rl_clear_history();
   exit(status);
 }
 
