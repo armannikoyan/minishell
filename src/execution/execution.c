@@ -67,6 +67,16 @@ static bool push_frame(t_ast_node *node) {
   return true;
 }
 
+void close_saved_fds(void) {
+  for (size_t i = 0; i < g_stack.count; i++) {
+    if (g_stack.frames[i].state == STATE_CLEANUP_REDIR &&
+        g_stack.frames[i].saved_fd != -1) {
+      close(g_stack.frames[i].saved_fd);
+      g_stack.frames[i].saved_fd = -1;
+    }
+  }
+}
+
 int execute_subshell(const t_ast_node *node, t_hash_table *ht,
                      const int errnum) {
   const pid_t pid = fork();
@@ -76,6 +86,7 @@ int execute_subshell(const t_ast_node *node, t_hash_table *ht,
   }
 
   if (pid == 0) {
+    close_saved_fds();
     const int code = execute(node->u_data.subshell.root, ht, errnum);
     free_resources(code);
   } else {

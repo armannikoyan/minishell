@@ -13,6 +13,7 @@
 #include "utils.h"
 
 extern void free_resources(int code);
+extern void close_saved_fds(void);
 
 /*
 ** CLEANUP HANDLER
@@ -97,6 +98,7 @@ int execute_pipeline(t_ast_node *node, t_hash_table *ht, const int errnum) {
     }
 
     if (pid == 0) {
+      close_saved_fds();
       setup_pipe_fds(prev_fd, pipefd);
       const int code = execute(curr->u_data.binary.left, ht, errnum);
       free_resources(code);
@@ -117,6 +119,7 @@ int execute_pipeline(t_ast_node *node, t_hash_table *ht, const int errnum) {
   }
 
   if (pid == 0) {
+    close_saved_fds();
     setup_pipe_fds(prev_fd, NULL);
     const int code = execute(curr, ht, errnum);
     free_resources(code);

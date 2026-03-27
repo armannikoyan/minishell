@@ -17,6 +17,7 @@
 #include "utils.h"
 
 extern void free_resources(int code);
+extern void close_saved_fds(void);
 
 static void update_underscore(t_hash_table *ht, const char *value) {
   if (ht_get(ht, "_") == NULL)
@@ -238,6 +239,7 @@ int execute_command(t_ast_node *node, t_hash_table *ht, const int errnum) {
   }
 
   if (pid == 0) {
+    close_saved_fds();
     execute_child(cmd_path, node->u_data.cmd.argv, ht);
   } else {
     free(cmd_path);

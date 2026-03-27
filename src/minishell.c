@@ -21,11 +21,11 @@ t_hash_table *g_ht = NULL;
 t_ast_node *g_ast = NULL;
 
 void free_resources(const int status) {
-  if (g_ht)
-    ht_destroy(g_ht);
+  cleanup_exec_stack();
   if (g_ast)
     ast_deletion(g_ast);
-  cleanup_exec_stack();
+  if (g_ht)
+    ht_destroy(g_ht);
   rl_clear_history();
   exit(status);
 }
