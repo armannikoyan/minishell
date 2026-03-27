@@ -1,133 +1,209 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   minishell.c                                        :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: lvarnach <lvarnach@student.42.fr>          +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/01/26 17:26:37 by lvarnach          #+#    #+#             */
-/*   Updated: 2026/02/02 21:06:51 by lvarnach         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
+#include <ctype.h>
+#include <limits.h>
 #include <stdio.h>
-#include <readline/readline.h>
-#include <readline/history.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
 
-#include "minishell.h"
+#include <readline/history.h>
+#include <readline/readline.h>
+
 #include "builtin.h"
 #include "error_codes.h"
-#include "hash_table.h"
-#include "utils.h"
-#include "../libs/libft/libft.h"
-#include "tokenization.h"
 #include "execution.h"
-#include "get_next_line/get_next_line.h"
+#include "get_next_line.h"
+#include "hash_table.h"
+#include "minishell.h"
+#include "tokenization.h"
+#include "utils.h"
 
-static bool	is_all_space(const char *str)
-{
-	size_t	i;
+t_hash_table *g_ht = NULL;
+t_ast_node *g_ast = NULL;
 
-	i = 0;
-	while (str[i])
-	{
-		if (str[i] != ' ' && str[i] != '\t' && str[i] != '\n')
-			return (false);
-		++i;
-	}
-	return (true);
+void free_resources(const int status) {
+  cleanup_exec_stack();
+  if (g_ast)
+    ast_deletion(g_ast);
+  if (g_ht)
+    ht_destroy(g_ht);
+  rl_clear_history();
+  exit(status);
 }
 
-static char	*get_input(int *eof_count, t_hash_table *ht)
-{
-	char	*input;
-	char	*line;
-	t_entry	*entry;
+static void update_shlvl(t_hash_table *ht) {
+  int shlvl_val = 1;
+  char buffer[32];
 
-	if (isatty(STDIN_FILENO))
-		input = readline("minishell$ ");
-	else
-	{
-		line = get_next_line(STDIN_FILENO);
-		input = ft_strtrim(line, "\n");
-		free(line);
-	}
-	if (!input)
-	{
-		(*eof_count)--;
-		if (*eof_count < 0)
-			return (ft_strdup("exit"));
-		printf("Use \"exit\" to leave the shell.\n");
-	}
-	entry = ht_get(ht, "IGNOREEOF");
-	if (entry == NULL)
-		*eof_count = 0;
-	else if (entry->val)
-		*eof_count = ft_atoi(entry->val);
-	return (input);
+  if (ht_get(ht, "SHLVL") == NULL) {
+    if (ht_create_bucket(ht, "SHLVL", NULL, false) == -1)
+      exit(EXIT_FAILURE);
+  }
+
+  const t_entry *entry = ht_get(ht, "SHLVL");
+  const char *shlvl_str = entry ? entry->val : NULL;
+
+  if (shlvl_str) {
+    if (strtoi(shlvl_str, &shlvl_val))
+      shlvl_val += 1;
+    else
+      shlvl_val = 1;
+  }
+
+  snprintf(buffer, sizeof(buffer), "%d", shlvl_val);
+  ht_update_value(ht, "SHLVL", buffer);
 }
 
-t_hash_table	*ht_create(void)
-{
-	t_hash_table	*ht;
+static void replace_incorrect_env(t_hash_table *ht) {
+  char str[PATH_MAX];
 
-	ht = (t_hash_table *)malloc(sizeof(t_hash_table));
-	if (!ht)
-	{
-		print_error("minishell: ht_create: malloc", false);
-		return (NULL);
-	}
-	ht->size = INITIAL_SIZE;
-	ht->count = 0;
-	ht->buckets = ft_calloc(ht->size, sizeof(t_entry *));
-	if (!ht->buckets)
-	{
-		print_error("minishell: ht_create: ft_calloc", false);
-		return (NULL);
-	}
-	return (ht);
+  update_shlvl(ht);
+  if (getcwd(str, sizeof(str)) == NULL)
+    print_error("minishell: replace_incorrect_env: getcwd", false);
+
+  if (ht_get(ht, "PWD") == NULL)
+    ht_create_bucket(ht, "PWD", str, false);
+  else
+    ht_update_value(ht, "PWD", str);
+
+  if (ht_get(ht, "OLDPWD") == NULL)
+    ht_create_bucket(ht, "OLDPWD", NULL, false);
 }
 
-t_hash_table	*setup_ht(char **envp, int *eof_count)
-{
-	t_hash_table	*ht;
-	t_entry			*entry;
+static void insert_env(t_hash_table *ht, char **envp) {
+  char key_buf[1024];
 
-	ht = ht_create();
-	if (!ht)
-		exit(EXIT_FAILURE);
-	insert_env(ht, envp);
-	entry = ht_get(ht, "IGNOREEOF");
-	if (entry == NULL)
-		*eof_count = 0;
-	else if (entry->val)
-		*eof_count = ft_atoi(entry->val);
-	return (ht);
+  for (size_t i = 0; envp[i]; i++) {
+    char *eq_ptr = strchr(envp[i], '=');
+
+    if (!eq_ptr) {
+      ht_create_bucket(ht, envp[i], NULL, false);
+      continue;
+    }
+
+    size_t key_len = eq_ptr - envp[i];
+    if (key_len >= sizeof(key_buf))
+      key_len = sizeof(key_buf) - 1;
+
+    memcpy(key_buf, envp[i], key_len);
+    key_buf[key_len] = '\0';
+
+    ht_create_bucket(ht, key_buf, eq_ptr + 1, false);
+  }
+  replace_incorrect_env(ht);
 }
 
-void	interactive_loop(t_hash_table *ht, int errnum, int eof_count)
-{
-	int							hc;
-	t_ast_node					*root;
-	char						*input;
+static char *trim(const char *str) {
+  if (!str)
+    return NULL;
 
-	while (true)
-	{
-		input = get_input(&eof_count, ht);
-		if (!input)
-			continue ;
-		if (!is_all_space(input))
-			add_history(input);
-		root = tokenize(input, &errnum);
-		free(input);
-		if (root != NULL && syntax_check(root, &errnum) != SYNTAX_ERROR)
-		{
-			hc = 0;
-			if (!scan_and_process_heredocs(root, ht, root, &hc))
-				errnum = execute(root, ht, errnum, &(t_garbage)
-					{.stack = NULL, .root = root, .ht = ht, .next = NULL});
-			cleanup_heredoc_files(hc);
-		}
-		ast_deletion(root);
-	}
+  while (isspace((unsigned char)*str))
+    str++;
+
+  if (*str == '\0')
+    return strdup("");
+
+  const char *end = str + strlen(str) - 1;
+  while (end > str && isspace((unsigned char)*end))
+    end--;
+
+  size_t len = end - str + 1;
+  char *trimmed = malloc(len + 1);
+  if (!trimmed)
+    return NULL;
+
+  memcpy(trimmed, str, len);
+  trimmed[len] = '\0';
+  return trimmed;
+}
+
+static char *read_input(void) {
+  char *raw_input;
+
+  if (isatty(STDIN_FILENO))
+    raw_input = readline("minishell$ ");
+  else
+    raw_input = get_next_line(STDIN_FILENO);
+
+  char *input = trim(raw_input);
+  free(raw_input);
+  return input;
+}
+
+static void handle_eof(t_hash_table *ht, int *eof_count, const int errnum) {
+  (*eof_count)--;
+  if (*eof_count < 0) {
+    char *exit_args[] = {"exit", NULL};
+    ft_exit(1, exit_args, ht, errnum);
+  } else {
+    printf("Use \"exit\" to leave the shell.\n");
+  }
+}
+
+static bool is_all_space(const char *str) {
+  for (size_t i = 0; str[i]; ++i) {
+    if (str[i] != ' ' && str[i] != '\t' && str[i] != '\n')
+      return false;
+  }
+  return true;
+}
+
+int process_input(char *input, t_hash_table *ht, int errnum) {
+  int heredoc_counter = 0;
+
+  if (is_all_space(input) || input[0] == '\0')
+    return errnum;
+
+  add_history(input);
+  t_ast_node *root = tokenize(input, &errnum);
+  if (!root)
+    return errnum;
+
+  g_ast = root;
+
+  free(input);
+
+  if (scan_and_process_heredoc(root, ht, &heredoc_counter) == 0 &&
+      syntax_check(root, &errnum) != SYNTAX_ERROR) {
+    errnum = execute(root, ht, errnum);
+  }
+
+  cleanup_heredoc_files(heredoc_counter);
+  ast_deletion(root);
+  g_ast = NULL;
+
+  return errnum;
+}
+
+static void update_eof_count(t_hash_table *ht, int *eof_count) {
+  const t_entry *ignore_eof = ht_get(ht, "IGNOREEOF");
+
+  if (ignore_eof == NULL || !strtoi(ignore_eof->val, eof_count))
+    *eof_count = 0;
+}
+
+void interactive_loop(char **envp) {
+  int errnum = 0;
+  int eof_count = 0;
+
+  t_hash_table *ht = ht_create();
+  if (!ht)
+    exit(EXIT_FAILURE);
+
+  g_ht = ht;
+
+  insert_env(ht, envp);
+  update_eof_count(ht, &eof_count);
+
+  // ReSharper disable once CppDFAEndlessLoop
+  while (true) {
+    char *input = read_input();
+
+    if (!input) {
+      handle_eof(ht, &eof_count, errnum);
+      continue;
+    }
+
+    errnum = process_input(input, ht, errnum);
+    update_eof_count(ht, &eof_count);
+  }
 }

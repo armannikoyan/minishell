@@ -1,83 +1,152 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   wildcard.c                                         :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: lvarnach <lvarnach@student.42yerevan.am>   +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/01/27 22:05:00 by lvarnach          #+#    #+#             */
-/*   Updated: 2026/02/03 01:08:36 by lvarnach         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #include <dirent.h>
 #include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
 
+#include "collections.h"
 #include "execution.h"
-#include "expansion.h"
 #include "tokenization.h"
-#include "../../../libs/libft/libft.h"
 
-static void	process_segment(t_list **final_list, char *segment)
-{
-	t_list	*matches;
-	char	*unquoted_str;
-
-	if (ft_strchr(segment, '*'))
-	{
-		matches = get_matches(segment, NULL);
-		if (matches)
-			ft_lstadd_back(final_list, matches);
-		else
-		{
-			unquoted_str = remove_quotes(segment);
-			ft_lstadd_back(final_list, ft_lstnew(unquoted_str));
-		}
-	}
-	else
-	{
-		unquoted_str = remove_quotes(segment);
-		ft_lstadd_back(final_list, ft_lstnew(unquoted_str));
-	}
-	free(segment);
+static int compare_strings(const void *a, const void *b) {
+  return strcmp(*(const char **)a, *(const char **)b);
 }
 
-static void	tokenize_and_expand(t_list **final_list, char *str)
-{
-	int		i;
-	int		start;
-	char	quote;
+static char *extract_pattern_and_mask(const char *raw_pattern, int **out_mask) {
+  const size_t len = strlen(raw_pattern);
+  char *unquoted_pattern = calloc(len + 1, sizeof(char));
+  if (!unquoted_pattern)
+    return NULL;
 
-	i = -1;
-	start = 0;
-	quote = 0;
-	while (str[++i])
-	{
-		if ((str[i] == '\'' || str[i] == '"')
-			&& (quote == 0 || quote == str[i]))
-			set_quote_char(str[i], &quote);
-		if (!quote && str[i] == ' ')
-		{
-			if (i > start)
-				process_segment(final_list, ft_substr(str, start, i - start));
-			start = i + 1;
-		}
-	}
-	if (i > start)
-		process_segment(final_list, ft_substr(str, start, i - start));
+  int *quote_mask = calloc(len + 1, sizeof(int));
+  if (!quote_mask) {
+    free(unquoted_pattern);
+    return NULL;
+  }
+
+  size_t read_idx = 0;
+  size_t write_idx = 0;
+  char active_quote = 0;
+
+  while (raw_pattern[read_idx]) {
+    const char old_quote = active_quote;
+    set_quote_char(raw_pattern[read_idx], &active_quote);
+
+    if (old_quote != active_quote) {
+      read_idx++;
+      continue;
+    }
+    unquoted_pattern[write_idx] = raw_pattern[read_idx];
+    quote_mask[write_idx] = (active_quote != 0) ? 1 : 0;
+    write_idx++;
+    read_idx++;
+  }
+  *out_mask = quote_mask;
+  return unquoted_pattern;
 }
 
-char	**expand_wildcards(char **old_argv)
-{
-	t_list	*final_list;
-	char	**result;
-	int		i;
+static bool is_pattern_matching(const char *pattern, const int *quote_mask,
+                                const char *filename) {
+  if (*pattern == '\0' && *filename == '\0')
+    return true;
 
-	final_list = NULL;
-	i = -1;
-	while (old_argv[++i])
-		tokenize_and_expand(&final_list, old_argv[i]);
-	result = list_to_argv(final_list);
-	ft_lstclear(&final_list, free);
-	return (result);
+  if (*pattern == '*' && *quote_mask == 0) {
+    if (is_pattern_matching(pattern + 1, quote_mask + 1, filename))
+      return true;
+    if (*filename && is_pattern_matching(pattern, quote_mask, filename + 1))
+      return true;
+    return false;
+  }
+
+  if (*pattern == *filename)
+    return is_pattern_matching(pattern + 1, quote_mask + 1, filename + 1);
+
+  return false;
+}
+
+static void collect_matching_files(const char *raw_pattern,
+                                   t_str_array *matches) {
+  int *quote_mask = NULL;
+  char *clean_pattern = extract_pattern_and_mask(raw_pattern, &quote_mask);
+  if (!clean_pattern)
+    return;
+
+  DIR *dir = opendir(".");
+  if (!dir) {
+    free(clean_pattern);
+    free(quote_mask);
+    return;
+  }
+
+  struct dirent *entry;
+  while ((entry = readdir(dir)) != NULL) {
+    if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0)
+      continue;
+
+    if (entry->d_name[0] == '.' && clean_pattern[0] != '.')
+      continue;
+
+    if (is_pattern_matching(clean_pattern, quote_mask, entry->d_name)) {
+      char *dup = strdup(entry->d_name);
+      if (dup && !str_arr_add(matches, dup)) {
+        free(dup);
+      }
+    }
+  }
+
+  closedir(dir);
+  free(clean_pattern);
+  free(quote_mask);
+
+  if (matches->count > 0)
+    qsort(matches->data, matches->count, sizeof(char *), compare_strings);
+}
+
+char **expand_wildcards(char **args) {
+  t_str_array expanded_args;
+  if (!str_arr_init(&expanded_args, 16))
+    return NULL;
+
+  for (size_t i = 0; args[i] != NULL; ++i) {
+    bool success = true;
+
+    if (strchr(args[i], '*')) {
+      t_str_array matches;
+      if (!str_arr_init(&matches, 16)) {
+        str_arr_destroy(&expanded_args);
+        return NULL;
+      }
+
+      collect_matching_files(args[i], &matches);
+
+      if (matches.count > 0) {
+        for (size_t j = 0; j < matches.count; j++) {
+          if (!success || !str_arr_add(&expanded_args, matches.data[j])) {
+            success = false;
+            free(matches.data[j]);
+          }
+        }
+        free(matches.data);
+      } else {
+        str_arr_destroy(&matches);
+        char *unquoted = remove_quotes(args[i]);
+        if (!unquoted || !str_arr_add(&expanded_args, unquoted)) {
+          free(unquoted);
+          success = false;
+        }
+      }
+    } else {
+      char *unquoted = remove_quotes(args[i]);
+      if (!unquoted || !str_arr_add(&expanded_args, unquoted)) {
+        free(unquoted);
+        success = false;
+      }
+    }
+
+    if (!success) {
+      str_arr_destroy(&expanded_args);
+      return NULL;
+    }
+  }
+
+  return str_arr_extract(&expanded_args);
 }

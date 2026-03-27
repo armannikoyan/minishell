@@ -1,132 +1,233 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   execution_redir_node.c                             :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: lvarnach <lvarnach@student.42yerevan.am>   +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/01/28 02:03:11 by lvarnach          #+#    #+#             */
-/*   Updated: 2026/02/02 21:38:59 by lvarnach         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
-#include <stdlib.h>
-#include <unistd.h>
-#include <sys/fcntl.h>
+#include <fcntl.h>
+#include <limits.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+
 #include <readline/readline.h>
-#include <signal.h>
-#include <sys/wait.h>
 
 #include "ast.h"
 #include "execution.h"
 #include "expansion.h"
-#include "term_settings.h"
+#include "hash_table.h"
 #include "tokenization.h"
 #include "utils.h"
-#include "../../libs/libft/libft.h"
 
-static void	generate_unique_filename(char *buffer, int index)
-{
-	char	*num_str;
-
-	ft_strlcpy(buffer, "/tmp/.heredoc_", 50);
-	num_str = ft_itoa(index);
-	if (num_str)
-	{
-		ft_strlcat(buffer, num_str, 50);
-		free(num_str);
-	}
+static void generate_unique_filename(char *buffer, const size_t buf_size,
+                                     const int index) {
+  snprintf(buffer, buf_size, "/tmp/.heredoc_%d_%d", getpid(), index);
 }
 
-static int	write_heredoc_to_file(int fd, char *limiter)
-{
-	char	*line;
+static int setup_heredoc(t_ast_node *node, t_hash_table *ht, int *saved_fd,
+                         const int errnum) {
+  char filename[PATH_MAX];
+  generate_unique_filename(filename, sizeof(filename), 9999);
 
-	while (true)
-	{
-		line = readline("> ");
-		if (!line)
-			break ;
-		if (ft_strcmp(line, limiter) == 0)
-		{
-			free(line);
-			break ;
-		}
-		write(fd, line, ft_strlen(line));
-		write(fd, "\n", 1);
-		free(line);
-	}
-	return (0);
+  *saved_fd = dup(STDIN_FILENO);
+  if (*saved_fd == -1) {
+    print_error("minishell: dup", false);
+    return 1;
+  }
+
+  int fd = open(filename, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+  if (fd == -1) {
+    close(*saved_fd);
+    print_error("minishell: open", false);
+    return 1;
+  }
+
+  char quote_char = 0;
+  for (size_t i = 0; node->u_data.redir.filename[i]; i++) {
+    set_quote_char(node->u_data.redir.filename[i], &quote_char);
+    if (quote_char)
+      break;
+  }
+
+  char *tmp_name = node->u_data.redir.filename;
+  node->u_data.redir.filename = remove_quotes(tmp_name);
+  free(tmp_name);
+
+  if (!node->u_data.redir.filename) {
+    close(fd);
+    close(*saved_fd);
+    print_error("minishell: malloc", false);
+    return 1;
+  }
+
+  while (true) {
+    char *line = readline("> ");
+    if (!line || strcmp(line, node->u_data.redir.filename) == 0) {
+      if (!line) {
+        print_error("minishell: warning: here-document delimited by "
+                    "end-of-file (wanted `",
+                    true);
+        print_error(node->u_data.redir.filename, true);
+        print_error("')\n", true);
+      }
+      free(line);
+      break;
+    }
+
+    if (!quote_char) {
+      tmp_name = line;
+      line = expand_dollar_sign(tmp_name, ht, errnum);
+      free(tmp_name);
+    }
+
+    if (line) {
+      write(fd, line, strlen(line));
+      write(fd, "\n", 1);
+      free(line);
+    }
+  }
+  close(fd);
+
+  fd = open(filename, O_RDONLY);
+  if (fd == -1) {
+    close(*saved_fd);
+    print_error("minishell: open", false);
+    return 1;
+  }
+  if (dup2(fd, STDIN_FILENO) == -1) {
+    close(fd);
+    close(*saved_fd);
+    print_error("minishell: dup2", false);
+    return 1;
+  }
+
+  close(fd);
+  unlink(filename);
+  return 0;
 }
 
-// Child process: Writes input and CLEANS UP MEMORY
-static void	run_heredoc_child(int fd, char *limiter, t_garbage *g)
-{
-	signal(SIGINT, SIG_DFL);
-	write_heredoc_to_file(fd, limiter);
-	close(fd);
-	free(limiter);
-	clean_all_stacks(g);
-	ast_deletion(g->root);
-	ht_destroy(g->ht);
-	exit(0);
+static int setup_file_redir(t_ast_node *node, const int open_flags,
+                            const int std_fd, int *saved_fd) {
+  *saved_fd = dup(std_fd);
+  if (*saved_fd == -1) {
+    print_error("minishell: dup", false);
+    return 1;
+  }
+
+  char *tmp = node->u_data.redir.filename;
+  node->u_data.redir.filename = remove_quotes(tmp);
+  free(tmp);
+
+  if (!node->u_data.redir.filename) {
+    close(*saved_fd);
+    print_error("minishell: malloc", false);
+    return 1;
+  }
+
+  node->u_data.redir.fd = open(node->u_data.redir.filename, open_flags, 0644);
+  if (node->u_data.redir.fd == -1) {
+    print_error("minishell: open", false);
+    close(*saved_fd);
+    return 1;
+  }
+
+  if (dup2(node->u_data.redir.fd, std_fd) == -1) {
+    print_error("minishell: dup2", false);
+    close(node->u_data.redir.fd);
+    close(*saved_fd);
+    return 1;
+  }
+
+  close(node->u_data.redir.fd);
+  return 0;
 }
 
-static int	process_single_heredoc(t_ast_node *node, int *counter, t_garbage *g)
-{
-	char	filename[PATH_MAX];
-	int		fd;
-	char	*limiter;
-	pid_t	pid;
-	int		status;
-
-	generate_unique_filename(filename, (*counter)++);
-	fd = open(filename, O_WRONLY | O_CREAT | O_TRUNC, 0644);
-	if (fd == -1)
-		return (print_error("minishell: open heredoc", false), 1);
-	limiter = remove_quotes(node->u_data.redir.filename);
-	pid = fork();
-	if (pid == -1)
-		return (close(fd), free(limiter),
-			print_error("minishell: fork", false), 1);
-	if (pid == 0)
-		run_heredoc_child(fd, limiter, g);
-	signal(SIGINT, SIG_IGN);
-	(waitpid(pid, &status, 0), psig_set(), close(fd), free(limiter));
-	if (WIFSIGNALED(status))
-		return (1);
-	free(node->u_data.redir.filename);
-	node->u_data.redir.filename = ft_strdup(filename);
-	node->type = REDIRECT_IN_NODE;
-	return (0);
+int setup_redirection(t_ast_node *node, t_hash_table *ht, int *saved_fd,
+                      int *target_fd, const int errnum) {
+  if (node->type == REDIRECT_IN_NODE) {
+    *target_fd = STDIN_FILENO;
+    return setup_file_redir(node, O_RDONLY, STDIN_FILENO, saved_fd);
+  }
+  if (node->type == REDIRECT_OUT_NODE) {
+    *target_fd = STDOUT_FILENO;
+    return setup_file_redir(node, O_WRONLY | O_CREAT | O_TRUNC, STDOUT_FILENO,
+                            saved_fd);
+  }
+  if (node->type == REDIRECT_APPEND_NODE) {
+    *target_fd = STDOUT_FILENO;
+    return setup_file_redir(node, O_WRONLY | O_CREAT | O_APPEND, STDOUT_FILENO,
+                            saved_fd);
+  }
+  if (node->type == HEREDOC_NODE) {
+    *target_fd = STDIN_FILENO;
+    return setup_heredoc(node, ht, saved_fd, errnum);
+  }
+  return 1;
 }
 
-int	scan_and_process_heredocs(t_ast_node *n, t_hash_table *ht,
-		t_ast_node *root, int *hc)
-{
-	int	status;
+int cleanup_redirection(t_ast_node *node __attribute((unused)),
+                        const int saved_fd, const int target_fd) {
+  if (dup2(saved_fd, target_fd) == -1) {
+    print_error("minishell: dup2", false);
+    close(saved_fd);
+    return 1;
+  }
 
-	if (!n)
-		return (0);
-	if (n->type == HEREDOC_NODE)
-	{
-		status = process_single_heredoc(n, hc, &(t_garbage)
-			{.stack = NULL, .root = root, .ht = ht, .next = NULL});
-		if (status)
-			return (1);
-	}
-	if ((n->type == PIPE_NODE || n->type == AND_NODE || n->type == OR_NODE)
-		&& (scan_and_process_heredocs(n->u_data.binary.left, ht, root, hc)
-			|| scan_and_process_heredocs(n->u_data.binary.right, ht, root, hc)))
-		return (1);
-	else if (n->abstract_type == REDIR_NODE)
-	{
-		if (scan_and_process_heredocs(n->u_data.redir.child, ht, root, hc))
-			return (1);
-	}
-	else if (n->type == SUBSHELL_NODE
-		&& scan_and_process_heredocs(n->u_data.subshell.root, ht, root, hc))
-		return (1);
-	return (0);
+  close(saved_fd);
+  return 0;
+}
+
+int scan_and_process_heredoc(t_ast_node *node, t_hash_table *ht, int *counter) {
+  if (!node)
+    return 0;
+
+  if (node->type == HEREDOC_NODE) {
+    char filename[PATH_MAX];
+    generate_unique_filename(filename, sizeof(filename), (*counter)++);
+
+    const int fd = open(filename, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+    if (fd == -1) {
+      print_error("minishell: open heredoc", false);
+      return 1;
+    }
+
+    char *limiter = remove_quotes(node->u_data.redir.filename);
+
+    while (true) {
+      char *line = readline("> ");
+      if (!line)
+        break;
+
+      if (strcmp(line, limiter) == 0) {
+        free(line);
+        break;
+      }
+
+      write(fd, line, strlen(line));
+      write(fd, "\n", 1);
+      free(line);
+    }
+
+    close(fd);
+    free(limiter);
+
+    free(node->u_data.redir.filename);
+    node->u_data.redir.filename = strdup(filename);
+    node->type = REDIRECT_IN_NODE;
+  }
+
+  if (node->type == PIPE_NODE || node->abstract_type == BIN_NODE) {
+    if (scan_and_process_heredoc(node->u_data.binary.left, ht, counter))
+      return 1;
+    if (scan_and_process_heredoc(node->u_data.binary.right, ht, counter))
+      return 1;
+  } else if (node->abstract_type == REDIR_NODE) {
+    if (scan_and_process_heredoc(node->u_data.redir.child, ht, counter))
+      return 1;
+  }
+
+  return 0;
+}
+
+void cleanup_heredoc_files(const int count) {
+  char filename[PATH_MAX];
+  for (int i = 0; i < count; i++) {
+    generate_unique_filename(filename, sizeof(filename), i);
+    unlink(filename);
+  }
 }

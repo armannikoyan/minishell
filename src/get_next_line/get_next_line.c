@@ -1,112 +1,71 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   get_next_line.c                                    :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: lvarnach <lvarnach@student.42yerevan.am>   +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/01/26 17:24:32 by lvarnach          #+#    #+#             */
-/*   Updated: 2026/01/26 17:24:33 by lvarnach         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
+#include <stddef.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
 
 #include "get_next_line.h"
-#include "../libs/libft/libft.h"
 
-char	*ft_read_fd(int fd, char *buffer)
-{
-	char	*tmp;
-	char	*ptr_buffer;
-	int		bytes_read;
+static char *append_buffer(char *buffer, const char *chunk, ssize_t chunk_len) {
+  const size_t old_len = buffer ? strlen(buffer) : 0;
 
-	tmp = malloc(sizeof(char) * (BUFFER_SIZE + 1));
-	if (!tmp)
-		return (NULL);
-	bytes_read = 1;
-	while ((!buffer || !ft_strchr(buffer, '\n')) && bytes_read)
-	{
-		ptr_buffer = buffer;
-		bytes_read = read(fd, tmp, BUFFER_SIZE);
-		if (bytes_read == -1)
-		{
-			free(tmp);
-			free(buffer);
-			return (NULL);
-		}
-		tmp[bytes_read] = '\0';
-		buffer = ft_strjoin(buffer, tmp);
-		free(ptr_buffer);
-	}
-	free(tmp);
-	return (buffer);
+  // ReSharper disable once CppDFAMemoryLeak
+  char *new_buffer = realloc(buffer, old_len + chunk_len + 1);
+  if (!new_buffer) {
+    free(buffer);
+    return NULL;
+  }
+
+  memcpy(new_buffer + old_len, chunk, chunk_len);
+  new_buffer[old_len + chunk_len] = '\0';
+
+  return new_buffer;
 }
 
-char	*ft_get_line(char *buffer)
-{
-	char	*line;
-	int		i;
+char *get_next_line(const int fd) {
+  static char *buffer = NULL;
+  char read_buf[BUFFER_SIZE + 1];
+  char *line;
+  char *newline_pos;
 
-	i = 0;
-	if (!buffer[i])
-		return (NULL);
-	while (buffer[i] && buffer[i] != '\n')
-		i++;
-	line = malloc(sizeof(char) * (i + 2));
-	if (!line)
-		return (NULL);
-	i = 0;
-	while (buffer[i] && buffer[i] != '\n')
-	{
-		line[i] = buffer[i];
-		i++;
-	}
-	if (buffer[i] == '\n')
-	{
-		line[i] = buffer[i];
-		i++;
-	}
-	line[i] = '\0';
-	return (line);
-}
+  if (fd < 0 || BUFFER_SIZE <= 0)
+    return NULL;
 
-char	*ft_remove_line(char *buffer)
-{
-	char	*new_buffer;
-	int		i;
-	int		j;
+  while (!buffer || !(newline_pos = strchr(buffer, '\n'))) {
+    const ssize_t bytes_read = read(fd, read_buf, BUFFER_SIZE);
+    if (bytes_read == -1) {
+      free(buffer);
+      buffer = NULL;
+      return NULL;
+    }
+    if (bytes_read == 0)
+      break;
 
-	i = 0;
-	while (buffer[i] && buffer[i] != '\n')
-		i++;
-	if (buffer[i] == '\n')
-		i++;
-	if (!buffer[i])
-	{
-		free(buffer);
-		return (NULL);
-	}
-	new_buffer = malloc(sizeof(char) * (ft_strlen(buffer) - i + 1));
-	if (!new_buffer)
-		return (NULL);
-	j = 0;
-	while (buffer[i])
-		new_buffer[j++] = buffer[i++];
-	new_buffer[j] = '\0';
-	free(buffer);
-	return (new_buffer);
-}
+    // ReSharper disable once CppDFAMemoryLeak
+    buffer = append_buffer(buffer, read_buf, bytes_read);
+    if (!buffer)
+      return NULL;
+  }
 
-char	*get_next_line(int fd)
-{
-	static char	*buffer;
-	char		*line;
+  if (!buffer)
+    return NULL;
 
-	if (fd < 0 || BUFFER_SIZE <= 0)
-		return (NULL);
-	buffer = ft_read_fd(fd, buffer);
-	if (!buffer)
-		return (NULL);
-	line = ft_get_line(buffer);
-	buffer = ft_remove_line(buffer);
-	return (line);
+  newline_pos = strchr(buffer, '\n');
+  if (newline_pos) {
+    const size_t line_len = newline_pos - buffer + 1;
+    line = strndup(buffer, line_len);
+
+    const size_t remain_len = strlen(newline_pos + 1);
+    if (remain_len > 0)
+      memmove(buffer, newline_pos + 1, remain_len + 1);
+    else {
+      free(buffer);
+      buffer = NULL;
+    }
+  } else {
+    line = strdup(buffer);
+    free(buffer);
+    buffer = NULL;
+  }
+
+  return line;
 }

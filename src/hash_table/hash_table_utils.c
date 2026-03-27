@@ -1,92 +1,53 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   hash_table_utils.c                                 :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: lvarnach <lvarnach@student.42yerevan.am>   +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/01/26 19:35:42 by lvarnach          #+#    #+#             */
-/*   Updated: 2026/01/26 19:44:49 by lvarnach         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
+#include <math.h>
 
 #include "hash_table.h"
 #include "utils.h"
-#include "../../libs/libft/libft.h"
 
-int	next_prime(int current)
-{
-	int	candidate;
+bool isprime(const unsigned long number) {
+  if (number <= 1)
+    return false;
+  if (number <= 3)
+    return true;
+  if (number % 2 == 0 || number % 3 == 0)
+    return false;
 
-	candidate = current * 2;
-	while (true)
-	{
-		if (ft_isprime(candidate))
-			return (candidate);
-		++candidate;
-	}
+  for (unsigned long i = 5; i <= number / i; i += 6) {
+    if (number % i == 0 || number % (i + 2) == 0)
+      return false;
+  }
+
+  return true;
 }
 
-int	prev_prime(int current)
-{
-	int	desired;
+unsigned long next_prime(const unsigned long current) {
+  unsigned long candidate = current * 2;
 
-	desired = current / 2;
-	if (desired < MIN_SIZE)
-		return (MIN_SIZE);
-	while (desired >= MIN_SIZE)
-	{
-		if (ft_isprime(desired))
-			return (desired);
-		--desired;
-	}
-	return (MIN_SIZE);
+  while (!isprime(candidate)) {
+    candidate++;
+  }
+  return candidate;
 }
 
-unsigned long	hash_func(const char *str)
-{
-	unsigned long	hash;
+unsigned long prev_prime(const unsigned long current) {
+  unsigned long desired = current / 2;
 
-	hash = 5381;
-	while (*str)
-		hash = ((hash << 5) + hash) + *str++;
-	return (hash);
+  if (desired < MIN_SIZE)
+    return MIN_SIZE;
+
+  while (desired >= MIN_SIZE) {
+    if (isprime(desired))
+      return desired;
+    desired--;
+  }
+
+  return MIN_SIZE;
 }
 
-static void	copy_buckets(t_hash_table *ht, t_entry **new_buckets, int new_size)
-{
-	t_entry	*entry;
-	t_entry	*next;
-	int		index;
-	int		i;
+unsigned long hash_func(const char *str) {
+  unsigned long hash = 5381;
 
-	i = -1;
-	while (++i < ht->size)
-	{
-		entry = ht->buckets[i];
-		while (entry)
-		{
-			next = entry->next;
-			index = hash_func(entry->key) % new_size;
-			entry->next = new_buckets[index];
-			new_buckets[index] = entry;
-			entry = next;
-		}
-	}
-}
+  while (*str)
+    hash = ((hash << 5) + hash) + *str++;
 
-void	ht_resize(t_hash_table *ht, int new_size)
-{
-	t_entry	**new_buckets;
-
-	new_buckets = (t_entry **) ft_calloc(new_size, sizeof(t_entry *));
-	if (!new_buckets)
-	{
-		print_error("minishell: calloc", false);
-		exit(EXIT_FAILURE);
-	}
-	copy_buckets(ht, new_buckets, new_size);
-	free(ht->buckets);
-	ht->buckets = new_buckets;
-	ht->size = new_size;
+  return (hash);
 }
