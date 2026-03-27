@@ -1,89 +1,209 @@
+#include <ctype.h>
+#include <limits.h>
 #include <stdio.h>
-#include <readline/readline.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+
 #include <readline/history.h>
+#include <readline/readline.h>
 
-#include "../includes/minishell.h"
-#include "../includes/hash_table.h"
-#include "../includes/utils.h"
-#include "../libs/libft/libft.h"
-#include "../includes/tokenization.h"
+#include "builtin.h"
+#include "error_codes.h"
+#include "execution.h"
+#include "get_next_line.h"
+#include "hash_table.h"
+#include "minishell.h"
+#include "tokenization.h"
+#include "utils.h"
 
-extern void	rl_clear_history(void);
+t_hash_table *g_ht = NULL;
+t_ast_node *g_ast = NULL;
 
-static void	ht_replace_incorrect_env(t_hash_table *ht)
-{
-	char	*shlvl;
-	char	*str;
-
-	shlvl = ht_get(ht, "SHLVL");
-	if (shlvl)
-		str = ft_itoa(ft_atoi(ht_get(ht, "SHLVL")) + 1);
-	else
-		str = ft_itoa(1);
-	if (!str)
-	{
-		print_error("minishell: Failed to duplicate environment.\n");
-		exit(EXIT_FAILURE);
-	}
-	ht_insert(ht, "SHLVL", str);
-	free(str);
-	str = (char *)malloc(sizeof(char) * PATH_MAX);
-	if (!str)
-	{
-		perror("malloc");
-		exit(EXIT_FAILURE);
-	}
-	ht_insert(ht, "PWD", getcwd(str, PATH_MAX));
-	free(str);
+void free_resources(const int status) {
+  cleanup_exec_stack();
+  if (g_ast)
+    ast_deletion(g_ast);
+  if (g_ht)
+    ht_destroy(g_ht);
+  rl_clear_history();
+  exit(status);
 }
 
-static void	ht_insert_env(t_hash_table *ht, char **envp)
-{
-	char	*str;
-	int		i;
-	int		j;
+static void update_shlvl(t_hash_table *ht) {
+  int shlvl_val = 1;
+  char buffer[32];
 
-	i = 0;
-	j = 0;
-	while (envp[i])
-	{
-		j = ft_strchr(envp[i], '=') - envp[i];
-		str = (char *)malloc(sizeof(char) * (j + 1));
-		if (!str)
-		{
-			perror("malloc");
-			exit(EXIT_FAILURE);
-		}
-		ft_strlcpy(str, envp[i], j + 1);
-		ht_insert(ht, str, &envp[i][j + 1]);
-		free(str);
-		i++;
-	}
-	ht_replace_incorrect_env(ht);
+  if (ht_get(ht, "SHLVL") == NULL) {
+    if (ht_create_bucket(ht, "SHLVL", NULL, false) == -1)
+      exit(EXIT_FAILURE);
+  }
+
+  const t_entry *entry = ht_get(ht, "SHLVL");
+  const char *shlvl_str = entry ? entry->val : NULL;
+
+  if (shlvl_str) {
+    if (strtoi(shlvl_str, &shlvl_val))
+      shlvl_val += 1;
+    else
+      shlvl_val = 1;
+  }
+
+  snprintf(buffer, sizeof(buffer), "%d", shlvl_val);
+  ht_update_value(ht, "SHLVL", buffer);
 }
 
-void	interactive_loop(char	**envp)
-{
-	t_hash_table	*ht;
-	char			*input;
+static void replace_incorrect_env(t_hash_table *ht) {
+  char str[PATH_MAX];
 
-	ht = ht_create();
-	if (!ht)
-	{
-		print_error("minishell: Failed to duplicate environment.\n");
-		exit(EXIT_FAILURE);
-	}
-	ht_insert_env(ht, envp);
-	while (true)
-	{
-		input = readline("minishell$ ");
-		if (!input)
-			exit(0);
-			// input = ft_strdup("exit");
-		add_history(input);
-		tokenize(input);
-		free(input);
-	}
-	ht_destroy(ht);
-	rl_clear_history();
+  update_shlvl(ht);
+  if (getcwd(str, sizeof(str)) == NULL)
+    print_error("minishell: replace_incorrect_env: getcwd", false);
+
+  if (ht_get(ht, "PWD") == NULL)
+    ht_create_bucket(ht, "PWD", str, false);
+  else
+    ht_update_value(ht, "PWD", str);
+
+  if (ht_get(ht, "OLDPWD") == NULL)
+    ht_create_bucket(ht, "OLDPWD", NULL, false);
+}
+
+static void insert_env(t_hash_table *ht, char **envp) {
+  char key_buf[1024];
+
+  for (size_t i = 0; envp[i]; i++) {
+    char *eq_ptr = strchr(envp[i], '=');
+
+    if (!eq_ptr) {
+      ht_create_bucket(ht, envp[i], NULL, false);
+      continue;
+    }
+
+    size_t key_len = eq_ptr - envp[i];
+    if (key_len >= sizeof(key_buf))
+      key_len = sizeof(key_buf) - 1;
+
+    memcpy(key_buf, envp[i], key_len);
+    key_buf[key_len] = '\0';
+
+    ht_create_bucket(ht, key_buf, eq_ptr + 1, false);
+  }
+  replace_incorrect_env(ht);
+}
+
+static char *trim(const char *str) {
+  if (!str)
+    return NULL;
+
+  while (isspace((unsigned char)*str))
+    str++;
+
+  if (*str == '\0')
+    return strdup("");
+
+  const char *end = str + strlen(str) - 1;
+  while (end > str && isspace((unsigned char)*end))
+    end--;
+
+  size_t len = end - str + 1;
+  char *trimmed = malloc(len + 1);
+  if (!trimmed)
+    return NULL;
+
+  memcpy(trimmed, str, len);
+  trimmed[len] = '\0';
+  return trimmed;
+}
+
+static char *read_input(void) {
+  char *raw_input;
+
+  if (isatty(STDIN_FILENO))
+    raw_input = readline("minishell$ ");
+  else
+    raw_input = get_next_line(STDIN_FILENO);
+
+  char *input = trim(raw_input);
+  free(raw_input);
+  return input;
+}
+
+static void handle_eof(t_hash_table *ht, int *eof_count, const int errnum) {
+  (*eof_count)--;
+  if (*eof_count < 0) {
+    char *exit_args[] = {"exit", NULL};
+    ft_exit(1, exit_args, ht, errnum);
+  } else {
+    printf("Use \"exit\" to leave the shell.\n");
+  }
+}
+
+static bool is_all_space(const char *str) {
+  for (size_t i = 0; str[i]; ++i) {
+    if (str[i] != ' ' && str[i] != '\t' && str[i] != '\n')
+      return false;
+  }
+  return true;
+}
+
+int process_input(char *input, t_hash_table *ht, int errnum) {
+  int heredoc_counter = 0;
+
+  if (is_all_space(input) || input[0] == '\0')
+    return errnum;
+
+  add_history(input);
+  t_ast_node *root = tokenize(input, &errnum);
+  if (!root)
+    return errnum;
+
+  g_ast = root;
+
+  free(input);
+
+  if (scan_and_process_heredoc(root, ht, &heredoc_counter) == 0 &&
+      syntax_check(root, &errnum) != SYNTAX_ERROR) {
+    errnum = execute(root, ht, errnum);
+  }
+
+  cleanup_heredoc_files(heredoc_counter);
+  ast_deletion(root);
+  g_ast = NULL;
+
+  return errnum;
+}
+
+static void update_eof_count(t_hash_table *ht, int *eof_count) {
+  const t_entry *ignore_eof = ht_get(ht, "IGNOREEOF");
+
+  if (ignore_eof == NULL || !strtoi(ignore_eof->val, eof_count))
+    *eof_count = 0;
+}
+
+void interactive_loop(char **envp) {
+  int errnum = 0;
+  int eof_count = 0;
+
+  t_hash_table *ht = ht_create();
+  if (!ht)
+    exit(EXIT_FAILURE);
+
+  g_ht = ht;
+
+  insert_env(ht, envp);
+  update_eof_count(ht, &eof_count);
+
+  // ReSharper disable once CppDFAEndlessLoop
+  while (true) {
+    char *input = read_input();
+
+    if (!input) {
+      handle_eof(ht, &eof_count, errnum);
+      continue;
+    }
+
+    errnum = process_input(input, ht, errnum);
+    update_eof_count(ht, &eof_count);
+  }
 }

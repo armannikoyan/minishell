@@ -1,77 +1,53 @@
-#include "../../includes/hash_table.h"
-#include "../../includes/utils.h"
-#include "../../libs/libft/libft.h"
+#include <math.h>
 
-int	next_prime(int current)
-{
-	int	candidate;
+#include "hash_table.h"
+#include "utils.h"
 
-	candidate = current * 2;
-	while (true)
-	{
-		if (ft_isprime(candidate))
-			return (candidate);
-		++candidate;
-	}
+bool isprime(const unsigned long number) {
+  if (number <= 1)
+    return false;
+  if (number <= 3)
+    return true;
+  if (number % 2 == 0 || number % 3 == 0)
+    return false;
+
+  for (unsigned long i = 5; i <= number / i; i += 6) {
+    if (number % i == 0 || number % (i + 2) == 0)
+      return false;
+  }
+
+  return true;
 }
 
-int	prev_prime(int current)
-{
-	int	desired;
+unsigned long next_prime(const unsigned long current) {
+  unsigned long candidate = current * 2;
 
-	desired = current / 2;
-	if (desired < MIN_SIZE)
-		return (MIN_SIZE);
-	while (desired >= MIN_SIZE)
-	{
-		if (ft_isprime(desired))
-			return (desired);
-		--desired;
-	}
-	return (MIN_SIZE);
+  while (!isprime(candidate)) {
+    candidate++;
+  }
+  return candidate;
 }
 
-unsigned long	hash_func(const char *str)
-{
-	unsigned long	hash;
+unsigned long prev_prime(const unsigned long current) {
+  unsigned long desired = current / 2;
 
-	hash = 5381;
-	while (*str)
-		hash = ((hash << 5) + hash) + *str++;
-	return (hash);
+  if (desired < MIN_SIZE)
+    return MIN_SIZE;
+
+  while (desired >= MIN_SIZE) {
+    if (isprime(desired))
+      return desired;
+    desired--;
+  }
+
+  return MIN_SIZE;
 }
 
-void	ht_resize(t_hash_table *ht, int new_size)
-{
-	t_entry			**new_buckets;
-	t_entry			*entry;
-	t_entry			*next;
-	unsigned long	hash;
-	int				index;
-	int				i;
+unsigned long hash_func(const char *str) {
+  unsigned long hash = 5381;
 
-	new_buckets = (t_entry **)ft_calloc(new_size, sizeof(t_entry *));
-	if (!new_buckets)
-	{
-		print_error("minishell: Failed to allocate memory");
-		exit(EXIT_FAILURE);
-	}
-	i = 0;
-	while (i < ht->size)
-	{
-		entry = ht->buckets[i];
-		while (entry)
-		{
-			next = entry->next;
-			hash = hash_func(entry->key);
-			index = hash % new_size;
-			entry->next = new_buckets[index];
-			new_buckets[index] = entry;
-			entry = next;
-		}
-		++i;
-	}
-	free(ht->buckets);
-	ht->buckets = new_buckets;
-	ht->size = new_size;
+  while (*str)
+    hash = ((hash << 5) + hash) + *str++;
+
+  return (hash);
 }

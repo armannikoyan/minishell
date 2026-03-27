@@ -1,45 +1,39 @@
-#include <stdlib.h>
-#include <stdio.h>
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   ast_utils.c                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: lvarnach <lvarnach@student.42yerevan.am>   +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/01/27 21:10:06 by lvarnach          #+#    #+#             */
+/*   Updated: 2026/01/27 21:10:26 by lvarnach         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
-#include "../../includes/ast.h"
+#include "ast.h"
+#include "error_codes.h"
+#include "utils.h"
 
-static t_ast_node	*create_node(t_node_type type)
+void	print_syntax_error(t_ast_node *node, int *errnum)
 {
-	t_ast_node	*node;
-
-	node = (t_ast_node *)malloc(sizeof(t_ast_node));
 	if (!node)
-	{
-		perror("malloc");
-		exit(EXIT_FAILURE);
-	}
-	node->type = type;
-	return (node);
+		return ;
+	*errnum = SYNTAX_ERROR;
+	print_error("minishell: syntax error near unexpected token `", true);
+	if (node->abstract_type == BIN_NODE || node->abstract_type == REDIR_NODE)
+		print_error(get_type(node->type), true);
+	else if (node->type == COMMAND_NODE && node->u_data.cmd.argv)
+		print_error(node->u_data.cmd.argv[0], true);
+	else if (node->type == SUBSHELL_NODE)
+		print_syntax_error(node->u_data.subshell.root, errnum);
+	print_error("'\n", true);
 }
 
-t_ast_node	*create_cmd_node(t_node_type type, char **argv)
+int	get_precedence(t_node_type type)
 {
-	t_ast_node	*node;
-
-	node = create_node(type);
-	node->u_data.cmd.argv = argv;
-	return (node);
-}
-
-t_ast_node	*create_binary_node(t_node_type type)
-{
-	t_ast_node	*node;
-
-	node = create_node(type);
-	return (node);
-}
-
-t_ast_node	*create_redir_node(t_node_type type, char *filename, int fd)
-{
-	t_ast_node	*node;
-
-	node = create_node(type);
-	node->u_data.redir.filename = filename;
-	node->u_data.redir.fd = fd;
-	return (node);
+	if (type == PIPE_NODE)
+		return (2);
+	if (type == AND_NODE || type == OR_NODE)
+		return (1);
+	return (0);
 }

@@ -1,133 +1,95 @@
+#include <ctype.h>
 #include <stddef.h>
 #include <stdlib.h>
 
-#include "../../includes/tokenization.h"
-#include "../../libs/libft/libft.h"
+#include "error_codes.h"
+#include "tokenization.h"
+#include "utils.h"
 
-static char	*substr_next(char *input, size_t *i)
-{
-	char		*tmp;
-	size_t		len;
-	size_t		start;
-	size_t		j;
+static t_ast_node *construct_subshell_node(const char *input, size_t *pos,
+                                           bool *skip_iteration, int *errnum) {
+  char *content = extract_subshell_content(input, pos, errnum);
+  if (!content)
+    return NULL;
 
-	while (input[*i] == ' ')
-		++(*i);
-	start = *i;
-	while (input[*i] && input[*i] != ' ' 
-           && !is_operator(&(input[*i])) && !is_redir(&(input[*i])))
-		++(*i);
-	len = *i - start;
-	tmp = (char *)malloc(sizeof(char) * (len + 1));
-	if (!tmp)
-		return (NULL);
-	j = 0;
-	while (j < len)
-	{
-		tmp[j] = input[start + j];
-		++j;
-	}
-	tmp[j] = '\0';
-	return (tmp);
+  if (content[0] == '\0') {
+    print_error("minishell: parsing error near unexpected token `)\'\n", true);
+    *errnum = SYNTAX_ERROR;
+    free(content);
+    return NULL;
+  }
+
+  t_ast_node *child_ast = tokenize(content, errnum);
+  free(content);
+
+  if (!child_ast) {
+    *skip_iteration = true;
+    return NULL;
+  }
+
+  return create_subshell_node(SUBSHELL_NODE, child_ast);
 }
 
-static char	**get_argv(char *input, size_t *i)
-{
-	char	**argv;
-	size_t	len;
-	size_t	j;
+static t_ast_node *construct_node(char *input, size_t *pos,
+                                  const t_node_type type, bool *skip_iteration,
+                                  int *errnum) {
+  switch (type) {
+  case COMMAND_NODE:
+    return create_cmd_node(type, get_argv(input, pos));
 
-	j = *i;
-	len = 0;
-	while (input[j] && !is_operator(&(input[j])) && !is_redir(&(input[j])))
-	{
-		while (input[j] == ' ')
-			++j;
-		if (input[j] && !is_operator(&(input[j])) && !is_redir(&(input[j])))
-		{
-			++len;
-			while (input[j] && input[j] != ' ' 
-                   && !is_operator(&(input[j])) && !is_redir(&(input[j])))
-				++j;
-		}
-	}
-	if (len == 0)
-		return (NULL);
-	argv = (char **)malloc(sizeof(char *) * (len + 1));
-	if (!argv)
-		return (NULL);
-	j = 0;
-	while (j < len)
-		argv[j++] = substr_next(input, i);
-	argv[len] = NULL;
-	return (argv);
+  case PIPE_NODE:
+  case AND_NODE:
+  case OR_NODE:
+    *pos += get_operator_len(type);
+    return create_binary_node(type);
+
+  case REDIRECT_IN_NODE:
+  case REDIRECT_OUT_NODE:
+  case REDIRECT_APPEND_NODE:
+  case HEREDOC_NODE:
+    *pos += get_operator_len(type);
+    return create_redir_node(type, substr_next(input, pos));
+
+  case SUBSHELL_NODE:
+    return construct_subshell_node(input, pos, skip_iteration, errnum);
+
+  case ERROR_NODE:
+  default:
+    print_error("minishell: parsing error near unexpected token `)\'\n", true);
+    *errnum = SYNTAX_ERROR;
+    return NULL;
+  }
 }
 
-t_node_type	get_node_type(char *input)
-{
-	if (!ft_strncmp(input, "<<", 2))
-			return (NODE_HEREDOC);
-	else if (*input == '<')
-			return (NODE_REDIRECT_IN);
-	else if (!ft_strncmp(input, ">>", 2))
-		return (NODE_REDIRECT_APPEND);
-	else if (*input == '>')
-		return (NODE_REDIRECT_OUT);
-	else if (!ft_strncmp(input, "||", 2))
-		return (NODE_OR);
-	else if (*input == '|')
-		return (NODE_PIPE);
-	else if (!ft_strncmp(input, "&&", 2))
-		return (NODE_AND);
-	return (NODE_COMMAND);
-}
+t_ast_node *tokenize(char *input, int *errnum) {
+  size_t pos = 0;
+  bool skip_iteration;
+  t_ast_node *node = NULL;
+  t_ast_node *head_node = NULL;
 
-size_t	get_operator_len(t_node_type type)
-{
-	if (type == NODE_HEREDOC || type == NODE_REDIRECT_APPEND
-			|| type == NODE_OR || type == NODE_AND)
-		return (2);
-	else if (type == NODE_REDIRECT_IN || type == NODE_REDIRECT_OUT
-			|| type == NODE_PIPE)
-		return (1);
-	return (0);
-}
+  while (input[pos]) {
+    while (isspace((unsigned char)input[pos]))
+      pos++;
 
-t_ast_node	*tokenize(char *input)
-{
-	t_ast_node	*node;
-	t_node_type	type;
-	size_t	i;
-	size_t	op_len;
+    if (!input[pos])
+      break;
 
-	i = 0;
-	node = NULL;
+    skip_iteration = false;
+    node = construct_node(input, &pos, get_node_type(input + pos),
+                          &skip_iteration, errnum);
 
-	while (input[i])
-	{
-		while (input[i] == ' ')
-			++i;
-		if (!input[i])
-			break ;
-		type = get_node_type(&(input[i]));
-		if (type == NODE_COMMAND)
-			node = create_cmd_node(NODE_COMMAND, get_argv(input, &i));
-		else if (is_operator(&(input[i])) || is_redir(&(input[i])))
-		{
-			op_len = get_operator_len(type);
-			if (type >= NODE_REDIRECT_IN && type <= NODE_HEREDOC)
-			{
-				i += op_len; 
-				node = create_redir_node(type, substr_next(input, &i), -1);
-			}
-			else
-			{
-				i += op_len;
-				node = create_binary_node(type);
-			}
-		}
-		if (node)
-			node = ast_build(node);
-	}
-	return (node);
+    if (skip_iteration)
+      continue;
+
+    if (node)
+      head_node = ast_build(node, head_node, errnum);
+    else {
+      if (head_node)
+        ast_deletion(head_node);
+
+      return NULL;
+    }
+  }
+
+  return head_node;
 }
