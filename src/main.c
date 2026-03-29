@@ -1,20 +1,30 @@
-#include <termios.h>
+#include <string.h>
 #include <unistd.h>
 
 #include "minishell.h"
-#include "term_settings.h"
+#include "mux.h"
 
-int main(int argc __attribute__((unused)), char **argv __attribute__((unused)),
-         char **envp) {
-  struct termios original_termios;
+int main(const int argc, char **argv, char **envp) {
+  const char *session_name = "default";
 
-  const int is_tty = isatty(STDIN_FILENO);
-  if (is_tty) {
-    set_term_config(&original_termios);
-    psig_set();
+  if (argc > 1) {
+    if (strcmp(argv[1], "--daemon") == 0) {
+      if (argc > 2)
+        session_name = argv[2];
+      return run_daemon(envp, session_name);
+    }
+    if (strcmp(argv[1], "--client") == 0) {
+      if (argc > 2)
+        session_name = argv[2];
+      return run_client(session_name);
+    }
   }
-  interactive_loop(envp);
-  if (is_tty)
-    restore_terminal_settings(&original_termios);
+
+  if (isatty(STDIN_FILENO) && argc == 1) {
+    return auto_attach_or_spawn(envp, session_name);
+  }
+
+  run_interactive_shell(envp);
+
   return 0;
 }

@@ -14,6 +14,8 @@
 #include "get_next_line.h"
 #include "hash_table.h"
 #include "minishell.h"
+
+#include "term_settings.h"
 #include "tokenization.h"
 #include "utils.h"
 
@@ -206,4 +208,19 @@ void interactive_loop(char **envp) {
     errnum = process_input(input, ht, errnum);
     update_eof_count(ht, &eof_count);
   }
+}
+
+void run_interactive_shell(char **envp) {
+  struct termios original_termios;
+  const int is_tty = isatty(STDIN_FILENO);
+
+  if (is_tty) {
+    set_term_config(&original_termios);
+    psig_set();
+  }
+
+  interactive_loop(envp);
+
+  if (is_tty)
+    restore_terminal_settings(&original_termios);
 }

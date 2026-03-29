@@ -23,21 +23,32 @@ set(INCLUDE_DIR ${CMAKE_SOURCE_DIR}/includes)
 # Sources
 # ===============================
 set(SOURCES
+        src/main.c
+
+        src/minishell.c
+
         src/get_next_line/get_next_line.c
 
         src/term_settings/signals.c
         src/term_settings/term_config.c
 
-        src/main.c
-        src/minishell.c
+        src/collections/string.c
+
+        src/termux/autostart.c
+        src/termux/daemon.c
+        src/termux/daemon_event_loop.c
+        src/termux/client.c
 
         src/utils/error.c
+        src/utils/strtoi.c
 
         src/hash_table/hash_table.c
         src/hash_table/hash_table_utils.c
 
         src/ast/ast.c
         src/ast/ast_node_creation.c
+        src/ast/ast_deletion.c
+        src/ast/ast_syntax_check.c
 
         src/tokenization/tokenization.c
         src/tokenization/tokenization_utils.c
@@ -60,15 +71,10 @@ set(SOURCES
         src/execution/execution_redir_node.c
         src/execution/execution_binary_node.c
         src/execution/execution_command_node.c
+
         src/execution/expansion/variable_expansion.c
-        src/execution/expansion/variable_expansion_utils.c
-        includes/error_codes.h
-        src/ast/ast_syntax_check.c
-        src/ast/ast_deletion.c
         src/execution/expansion/wildcard.c
-        src/utils/strtoi.c
-        includes/collections.h
-        src/collections/string.c
+        src/execution/expansion/variable_expansion_utils.c
 )
 
 # ===============================
