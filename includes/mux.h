@@ -14,5 +14,7 @@
 int run_daemon(char **envp, const char *session_name);
 int run_client(const char *session_name);
 int auto_attach_or_spawn(char **envp, const char *session_name);
+int list_sessions(void);
+int clear_sessions(void);
 
 #endif

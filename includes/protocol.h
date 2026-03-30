@@ -10,7 +10,8 @@ typedef enum {
   MSG_DETACH = 2,
   MSG_CREATE_WIN = 3,
   MSG_SWITCH_WIN = 4,
-  MSG_REDRAW_UI = 5
+  MSG_REDRAW_UI = 5,
+  MSG_SHUTDOWN = 6
 } e_msg_type;
 
 typedef struct __attribute__((packed)) {

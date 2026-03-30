@@ -1,6 +1,7 @@
 #include <arpa/inet.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <netinet/in.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -12,16 +13,23 @@
 #include "daemon.h"
 #include "protocol.h"
 
-static void add_window(t_mux_state *state) {
+static bool add_window(t_mux_state *state, const int server_fd) {
   if (state->window_count >= MAX_WINDOWS)
-    return;
+    return false;
 
-  const int fd = spawn_pty_session(state->envp);
+  const int fd = spawn_pty_session(state, server_fd);
   if (fd > 0) {
     state->windows[state->window_count].fd = fd;
     state->windows[state->window_count].write_pos = 0;
+
+    state->windows[state->window_count].hist_head = 0;
+    state->windows[state->window_count].hist_len = 0;
+    memset(state->windows[state->window_count].history, 0, HISTORY_SIZE);
+
     state->window_count++;
+    return true;
   }
+  return false;
 }
 
 static void update_pty_size(const t_mux_state *state, const int win_index) {
@@ -190,9 +198,11 @@ void daemon_event_loop(const int server_fd, char **envp) {
     return;
   state->envp = envp;
 
-  add_window(state);
+  add_window(state, server_fd);
 
-  while (state->window_count > 0) {
+  bool daemon_running = true;
+
+  while (daemon_running && state->window_count > 0) {
     int nfds = 0;
 
     state->poll_fds[nfds].fd = server_fd;
@@ -239,6 +249,10 @@ void daemon_event_loop(const int server_fd, char **envp) {
             state->clients[state->client_count++] = new_client;
 
             queue_send(new_client, MSG_DATA, "\033[2J\033[H", 7);
+
+            send_window_history(new_client, &state->windows[0]);
+            draw_status_bar(state, new_client);
+            update_pty_size(state, 0);
           } else {
             close(client_fd);
           }
@@ -331,12 +345,13 @@ void daemon_event_loop(const int server_fd, char **envp) {
                                 payload_len);
 
             } else if (hdr->type == MSG_CREATE_WIN) {
-              add_window(state);
-              c->active_window = state->window_count - 1;
-              update_pty_size(state, c->active_window);
-              queue_send(c, MSG_DATA, "\033[2J\033[H", 7);
-              redraw_all_status_bars(state);
-
+              // Создаем окно и проверяем результат
+              if (add_window(state, server_fd)) {
+                c->active_window = state->window_count - 1;
+                update_pty_size(state, c->active_window);
+                queue_send(c, MSG_DATA, "\033[2J\033[H", 7);
+                redraw_all_status_bars(state);
+              }
             } else if (hdr->type == MSG_SWITCH_WIN &&
                        payload_len == sizeof(uint32_t)) {
               const uint32_t target_idx = ntohl(*(uint32_t *)payload);
@@ -346,16 +361,16 @@ void daemon_event_loop(const int server_fd, char **envp) {
                 queue_send(c, MSG_DATA, "\033[2J\033[H", 7);
                 send_window_history(c, &state->windows[c->active_window]);
                 draw_status_bar(state, c);
-                // char ctrl_l = 0x0C;
-                // queue_pty_write(&state->windows[c->active_window], &ctrl_l, 1);
               }
 
             } else if (hdr->type == MSG_REDRAW_UI) {
               queue_send(c, MSG_DATA, "\033[2J\033[H", 7);
               send_window_history(c, &state->windows[c->active_window]);
               draw_status_bar(state, c);
-              // char ctrl_l = 0x0C;
-              // queue_pty_write(&state->windows[c->active_window], &ctrl_l, 1);
+
+            } else if (hdr->type == MSG_SHUTDOWN) {
+              daemon_running = false;
+              break;
 
             } else if (hdr->type == MSG_WINCH &&
                        payload_len == sizeof(struct winsize)) {
@@ -383,10 +398,14 @@ void daemon_event_loop(const int server_fd, char **envp) {
         i++;
     }
   }
+  for (int i = 0; i < state->window_count; i++) {
+    close(state->windows[i].fd);
+  }
 
   for (int i = 0; i < state->client_count; i++) {
     close(state->clients[i]->fd);
     free(state->clients[i]);
   }
+
   free(state);
 }

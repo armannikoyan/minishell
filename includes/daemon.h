@@ -53,6 +53,6 @@ typedef struct {
 } t_mux_state;
 
 void daemon_event_loop(int server_fd, char **envp);
-int spawn_pty_session(char **envp);
+int spawn_pty_session(t_mux_state *state, int server_fd);
 
 #endif

@@ -17,7 +17,7 @@
 #include "minishell.h"
 #include "mux.h"
 
-int spawn_pty_session(char **envp) {
+int spawn_pty_session(t_mux_state *state, const int server_fd) {
   const int master_fd = posix_openpt(O_RDWR | O_NOCTTY);
   if (master_fd < 0)
     return -1;
@@ -45,6 +45,21 @@ int spawn_pty_session(char **envp) {
 
   if (pid == 0) {
     close(master_fd);
+    close(server_fd);
+
+    for (int i = 0; i < state->window_count; i++) {
+      close(state->windows[i].fd);
+    }
+
+    for (int i = 0; i < state->client_count; i++) {
+      close(state->clients[i]->fd);
+      free(state->clients[i]);
+    }
+
+    char **envp_copy = state->envp;
+
+    free(state);
+
     setsid();
 
     const int slave_fd = open(slave_name, O_RDWR);
@@ -58,7 +73,7 @@ int spawn_pty_session(char **envp) {
     if (slave_fd > STDERR_FILENO)
       close(slave_fd);
 
-    run_interactive_shell(envp);
+    run_interactive_shell(envp_copy);
     exit(EXIT_SUCCESS);
   }
 
@@ -112,6 +127,9 @@ int run_daemon(char **envp, const char *session_name) {
   fcntl(server_fd, F_SETFL, O_NONBLOCK);
 
   daemon_event_loop(server_fd, envp);
+
+  close(server_fd);
+  unlink(socket_path);
 
   return EXIT_SUCCESS;
 }
