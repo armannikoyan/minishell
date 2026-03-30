@@ -24,6 +24,12 @@ static void sigwinch_handler(int sig __attribute__((unused))) {
 }
 
 static void restore_terminal(void) {
+  struct winsize ws;
+  if (ioctl(STDIN_FILENO, TIOCGWINSZ, &ws) != -1) {
+    char buf[64];
+    snprintf(buf, sizeof(buf), "\033[r\033[%d;1H\033[K", ws.ws_row);
+    write(STDOUT_FILENO, buf, strlen(buf));
+  }
   tcsetattr(STDIN_FILENO, TCSANOW, &g_orig_termios);
 }
 
@@ -76,12 +82,11 @@ int run_client(const char *session_name) {
 
   struct pollfd fds[2];
   fds[0].fd = STDIN_FILENO;
-  fds[0].events = POLLIN;
   fds[1].fd = sock;
-  fds[1].events = POLLIN;
 
   uint8_t read_buf[8192];
   size_t read_pos = 0;
+  bool await_cmd = false;
 
   while (true) {
     if (g_winch_flag) {
@@ -92,6 +97,9 @@ int run_client(const char *session_name) {
       }
     }
 
+    fds[0].events = POLLIN;
+    fds[1].events = POLLIN;
+
     if (poll(fds, 2, -1) < 0) {
       if (errno == EINTR)
         continue;
@@ -100,11 +108,44 @@ int run_client(const char *session_name) {
 
     if (fds[0].revents & POLLIN) {
       uint8_t buf[1024];
+      uint8_t out_buf[1024];
+      size_t out_len = 0;
+
       ssize_t n = read(STDIN_FILENO, buf, sizeof(buf));
-      if (n > 0)
-        send_frame(sock, MSG_DATA, buf, n);
-      else if (n <= 0)
+      if (n <= 0)
         break;
+
+      for (ssize_t i = 0; i < n; i++) {
+        if (await_cmd) {
+          if (out_len > 0) {
+            send_frame(sock, MSG_DATA, out_buf, out_len);
+            out_len = 0;
+          }
+
+          if (buf[i] == 'c') {
+            send_frame(sock, MSG_CREATE_WIN, NULL, 0);
+          } else if (buf[i] == 'r') {
+            send_frame(sock, MSG_REDRAW_UI, NULL, 0);
+          } else if (buf[i] >= '0' && buf[i] <= '9') {
+            uint32_t win_idx = htonl(buf[i] - '0');
+            send_frame(sock, MSG_SWITCH_WIN, &win_idx, sizeof(win_idx));
+          } else {
+            out_buf[out_len++] = 0x02;
+            out_buf[out_len++] = buf[i];
+          }
+          await_cmd = false;
+        } else if (buf[i] == 0x02) {
+          if (out_len > 0) {
+            send_frame(sock, MSG_DATA, out_buf, out_len);
+            out_len = 0;
+          }
+          await_cmd = true;
+        } else {
+          out_buf[out_len++] = buf[i];
+        }
+      }
+      if (out_len > 0)
+        send_frame(sock, MSG_DATA, out_buf, out_len);
     }
 
     if (fds[1].revents & POLLIN) {

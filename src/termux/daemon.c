@@ -17,15 +17,14 @@
 #include "minishell.h"
 #include "mux.h"
 
-int spawn_pty_session(void) {
+int spawn_pty_session(char **envp) {
   const int master_fd = posix_openpt(O_RDWR | O_NOCTTY);
   if (master_fd < 0)
     return -1;
 
   const int flags = fcntl(master_fd, F_GETFD);
-  if (flags != -1) {
+  if (flags != -1)
     fcntl(master_fd, F_SETFD, flags | FD_CLOEXEC);
-  }
 
   if (grantpt(master_fd) < 0 || unlockpt(master_fd) < 0) {
     close(master_fd);
@@ -46,7 +45,6 @@ int spawn_pty_session(void) {
 
   if (pid == 0) {
     close(master_fd);
-
     setsid();
 
     const int slave_fd = open(slave_name, O_RDWR);
@@ -57,13 +55,14 @@ int spawn_pty_session(void) {
     dup2(slave_fd, STDOUT_FILENO);
     dup2(slave_fd, STDERR_FILENO);
 
-    if (slave_fd > STDERR_FILENO) {
+    if (slave_fd > STDERR_FILENO)
       close(slave_fd);
-    }
 
-    return 0;
+    run_interactive_shell(envp);
+    exit(EXIT_SUCCESS);
   }
 
+  fcntl(master_fd, F_SETFL, O_NONBLOCK);
   return master_fd;
 }
 
@@ -73,14 +72,10 @@ int run_daemon(char **envp, const char *session_name) {
   char socket_path[1024];
 
   FORMAT_SOCKET_PATH(socket_path, sizeof(socket_path), session_name);
-
   signal(SIGPIPE, SIG_IGN);
 
-  if ((server_fd = socket(AF_UNIX, SOCK_STREAM, 0)) == -1) {
-    perror("daemon: socket");
+  if ((server_fd = socket(AF_UNIX, SOCK_STREAM, 0)) == -1)
     return EXIT_FAILURE;
-  }
-
   fcntl(server_fd, F_SETFD, FD_CLOEXEC);
 
   memset(&addr, 0, sizeof(addr));
@@ -93,52 +88,30 @@ int run_daemon(char **envp, const char *session_name) {
       if (connect(test_fd, (struct sockaddr *)&addr, sizeof(addr)) == 0) {
         close(test_fd);
         close(server_fd);
-        printf("daemon: another instance won the race. Exiting.\n");
         return EXIT_SUCCESS;
       }
       close(test_fd);
-
       unlink(socket_path);
       if (bind(server_fd, (struct sockaddr *)&addr, sizeof(addr)) == -1) {
-        perror("daemon: bind retry");
         close(server_fd);
         return EXIT_FAILURE;
       }
     } else {
-      perror("daemon: bind");
       close(server_fd);
       return EXIT_FAILURE;
     }
   }
 
   if (listen(server_fd, 5) == -1) {
-    perror("daemon: listen");
     close(server_fd);
     unlink(socket_path);
     return EXIT_FAILURE;
   }
 
   chmod(socket_path, 0600);
-
-  const int master_fd = spawn_pty_session();
-  if (master_fd == -1) {
-    perror("daemon: pty spawn failed");
-    close(server_fd);
-    unlink(socket_path);
-    return EXIT_FAILURE;
-  }
-  if (master_fd == 0) {
-    close(server_fd);
-    run_interactive_shell(envp);
-    exit(EXIT_SUCCESS);
-  }
-
   fcntl(server_fd, F_SETFL, O_NONBLOCK);
-  fcntl(master_fd, F_SETFL, O_NONBLOCK);
 
-  printf("daemon: started successfully for session %s\n", session_name);
-
-  daemon_event_loop(server_fd, master_fd);
+  daemon_event_loop(server_fd, envp);
 
   return EXIT_SUCCESS;
 }
