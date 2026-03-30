@@ -155,7 +155,8 @@ int process_input(char *input, t_hash_table *ht, int errnum) {
   if (is_all_space(input) || input[0] == '\0')
     return errnum;
 
-  add_history(input);
+  if (isatty(STDIN_FILENO))
+    add_history(input);
   t_ast_node *root = tokenize(input, &errnum);
   if (!root)
     return errnum;
