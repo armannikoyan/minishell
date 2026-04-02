@@ -19,6 +19,8 @@
 #include "tokenization.h"
 #include "utils.h"
 
+#include <sys/ioctl.h>
+
 t_hash_table *g_ht = NULL;
 t_ast_node *g_ast = NULL;
 
@@ -184,6 +186,24 @@ static void update_eof_count(t_hash_table *ht, int *eof_count) {
     *eof_count = 0;
 }
 
+static void ensure_newline_before_prompt(void) {
+  struct winsize ws;
+
+  if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws) == -1 || ws.ws_col == 0)
+    return;
+
+  char buf[1024];
+  unsigned long len = snprintf(buf, sizeof(buf), "\033[7m%%\033[0m");
+
+  for (int i = 0; i < ws.ws_col - 1 && len < sizeof(buf) - 10; i++) {
+    buf[len++] = ' ';
+  }
+
+  len += snprintf(buf + len, sizeof(buf) - len, "\033[G\033[K");
+
+  write(STDOUT_FILENO, buf, len);
+}
+
 void interactive_loop(char **envp) {
   int errnum = 0;
   int eof_count = 0;
@@ -199,6 +219,8 @@ void interactive_loop(char **envp) {
 
   // ReSharper disable once CppDFAEndlessLoop
   while (true) {
+    ensure_newline_before_prompt();
+
     char *input = read_input();
 
     if (!input) {

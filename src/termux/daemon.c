@@ -70,8 +70,10 @@ int spawn_pty_session(t_mux_state *state, const int server_fd) {
     dup2(slave_fd, STDOUT_FILENO);
     dup2(slave_fd, STDERR_FILENO);
 
-    if (slave_fd > STDERR_FILENO)
-      close(slave_fd);
+    const long max_fd = sysconf(_SC_OPEN_MAX);
+    for (int i = 3; i < max_fd; i++) {
+      close(i);
+    }
 
     run_interactive_shell(envp_copy);
     exit(EXIT_SUCCESS);

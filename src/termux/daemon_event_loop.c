@@ -1,7 +1,6 @@
 #include <arpa/inet.h>
 #include <errno.h>
 #include <fcntl.h>
-#include <netinet/in.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -38,27 +37,20 @@ static void update_pty_size(const t_mux_state *state, const int win_index) {
     return;
 
   struct winsize min_ws = {0, 0, 0, 0};
-  bool first = true;
+  bool found = false;
 
   for (int i = 0; i < state->client_count; i++) {
     if (state->clients[i]->active_window == win_index) {
-      if (first) {
+      if (!found || (state->clients[i]->ws.ws_row < min_ws.ws_row &&
+                     state->clients[i]->ws.ws_row > 0)) {
         min_ws = state->clients[i]->ws;
-        first = false;
-      } else {
-        if (state->clients[i]->ws.ws_col > 0 &&
-            state->clients[i]->ws.ws_col < min_ws.ws_col)
-          min_ws.ws_col = state->clients[i]->ws.ws_col;
-        if (state->clients[i]->ws.ws_row > 0 &&
-            state->clients[i]->ws.ws_row < min_ws.ws_row)
-          min_ws.ws_row = state->clients[i]->ws.ws_row;
+        found = true;
       }
     }
   }
 
-  if (!first) {
-    if (min_ws.ws_row > 1)
-      min_ws.ws_row -= 1;
+  if (found && min_ws.ws_row > 1) {
+    min_ws.ws_row -= 1;
     ioctl(state->windows[win_index].fd, TIOCSWINSZ, &min_ws);
   }
 }
@@ -103,7 +95,7 @@ static void append_history(t_window *win, const uint8_t *data, size_t len) {
   }
 }
 
-static void send_window_history(t_client *client, t_window *win) {
+static void send_window_history(t_client *client, const t_window *win) {
   if (win->hist_len == 0)
     return;
 
@@ -116,18 +108,21 @@ static void send_window_history(t_client *client, t_window *win) {
   queue_send(client, MSG_DATA, buf, win->hist_len);
 }
 
-static void draw_status_bar(t_mux_state *state, t_client *client) {
-  if (client->ws.ws_row == 0)
+static void send_clear_and_anchor(t_client *client) {
+  queue_send(client, MSG_DATA, "\033[0m\033[2J\033[H", 11);
+}
+
+static void draw_status_bar(const t_mux_state *state, t_client *client) {
+  if (client->ws.ws_row <= 1)
     return;
 
   char buf[2048];
-  int len = 0;
+  size_t len = 0;
 
-  // Сохраняем курсор (\0337), ставим рамку скролла, идем в самый низ
   len += snprintf(buf + len, sizeof(buf) - len, "\0337\033[1;%dr\033[%d;1H",
                   client->ws.ws_row - 1, client->ws.ws_row);
 
-  for (int i = 0; i < state->window_count; i++) {
+  for (int i = 0; i < state->window_count && len < sizeof(buf) - 64; i++) {
     if (i == client->active_window) {
       len += snprintf(buf + len, sizeof(buf) - len,
                       "\033[42;30m [ %d ] \033[0m", i);
@@ -137,13 +132,12 @@ static void draw_status_bar(t_mux_state *state, t_client *client) {
     }
   }
 
-  // Очищаем конец строки и восстанавливаем курсор (\0338)
-  len += snprintf(buf + len, sizeof(buf) - len, "\033[K\0338");
+  len += snprintf(buf + len, sizeof(buf) - len, "\033[K\033[0m\0338");
 
   queue_send(client, MSG_DATA, buf, len);
 }
 
-static void redraw_all_status_bars(t_mux_state *state) {
+static void redraw_all_status_bars(const t_mux_state *state) {
   for (int i = 0; i < state->client_count; i++) {
     draw_status_bar(state, state->clients[i]);
   }
@@ -177,7 +171,7 @@ static void remove_window(t_mux_state *state, const int index) {
       update_pty_size(state, new_win);
 
       // Очищаем экран клиента от старой сессии
-      queue_send(state->clients[c], MSG_DATA, "\033[2J\033[H", 7);
+      send_clear_and_anchor(state->clients[c]);
       send_window_history(state->clients[c], &state->windows[new_win]);
       draw_status_bar(state, state->clients[c]);
 
@@ -247,12 +241,10 @@ void daemon_event_loop(const int server_fd, char **envp) {
             new_client->fd = client_fd;
             new_client->active_window = 0;
             state->clients[state->client_count++] = new_client;
-
-            queue_send(new_client, MSG_DATA, "\033[2J\033[H", 7);
-
+            queue_send(new_client, MSG_DATA, "\033[0m\033[2J\033[H", 11);
+            update_pty_size(state, 0);
             send_window_history(new_client, &state->windows[0]);
             draw_status_bar(state, new_client);
-            update_pty_size(state, 0);
           } else {
             close(client_fd);
           }
@@ -345,26 +337,26 @@ void daemon_event_loop(const int server_fd, char **envp) {
                                 payload_len);
 
             } else if (hdr->type == MSG_CREATE_WIN) {
-              // Создаем окно и проверяем результат
               if (add_window(state, server_fd)) {
                 c->active_window = state->window_count - 1;
                 update_pty_size(state, c->active_window);
-                queue_send(c, MSG_DATA, "\033[2J\033[H", 7);
+                send_clear_and_anchor(c);
+                send_clear_and_anchor(c);
                 redraw_all_status_bars(state);
               }
             } else if (hdr->type == MSG_SWITCH_WIN &&
-                       payload_len == sizeof(uint32_t)) {
-              const uint32_t target_idx = ntohl(*(uint32_t *)payload);
-              if (target_idx < (uint32_t)state->window_count) {
+                       payload_len == sizeof(int)) {
+              int target_idx = ntohl(*(int *)payload);
+              if (target_idx < state->window_count &&
+                  target_idx != c->active_window) {
                 c->active_window = target_idx;
                 update_pty_size(state, target_idx);
-                queue_send(c, MSG_DATA, "\033[2J\033[H", 7);
+                send_clear_and_anchor(c);
                 send_window_history(c, &state->windows[c->active_window]);
                 draw_status_bar(state, c);
               }
-
             } else if (hdr->type == MSG_REDRAW_UI) {
-              queue_send(c, MSG_DATA, "\033[2J\033[H", 7);
+              send_clear_and_anchor(c);
               send_window_history(c, &state->windows[c->active_window]);
               draw_status_bar(state, c);
 

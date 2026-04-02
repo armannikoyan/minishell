@@ -1,6 +1,5 @@
 #include <arpa/inet.h>
 #include <errno.h>
-#include <fcntl.h>
 #include <poll.h>
 #include <signal.h>
 #include <stdbool.h>
@@ -84,7 +83,7 @@ int run_client(const char *session_name) {
   fds[0].fd = STDIN_FILENO;
   fds[1].fd = sock;
 
-  uint8_t read_buf[8192];
+  uint8_t read_buf[8192] = {0};
   size_t read_pos = 0;
   bool await_cmd = false;
 
@@ -107,8 +106,8 @@ int run_client(const char *session_name) {
     }
 
     if (fds[0].revents & POLLIN) {
-      uint8_t buf[1024];
-      uint8_t out_buf[1024];
+      uint8_t buf[1024] = {0};
+      uint8_t out_buf[2048] = {0};
       size_t out_len = 0;
 
       ssize_t n = read(STDIN_FILENO, buf, sizeof(buf));
